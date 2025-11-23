@@ -91,6 +91,20 @@
         </div>
     </div>
 
+    {{-- Search Box --}}
+    <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+        </div>
+        <input type="text" 
+               id="searchInput"
+               placeholder="Cari serial number, barcode, atau lokasi..." 
+               class="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+               onkeyup="filterItems()">
+    </div>
+
     {{-- Flash message --}}
     @if(session('success'))
         <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 flex items-center gap-3">
@@ -102,6 +116,15 @@
             <p class="text-sm text-emerald-800 font-medium">{{ session('success') }}</p>
         </div>
     @endif
+
+    {{-- No Results Message --}}
+    <div id="noResults" style="display: none;" class="text-center py-12">
+        <svg class="w-16 h-16 mx-auto text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <p class="text-lg font-semibold text-slate-900 mb-2">Tidak ada hasil</p>
+        <p class="text-sm text-slate-600">Coba kata kunci lain</p>
+    </div>
 
     {{-- Grid Box Hydrant --}}
     @if(($boxHydrants ?? null) && $boxHydrants->count())
@@ -134,7 +157,11 @@
                 : null;
           @endphp
 
-          <div class="group relative rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-xl hover:border-slate-300 transition-all duration-300 overflow-hidden">
+          <div data-item 
+               data-serial="{{ $boxHydrant->serial_no }}" 
+               data-barcode="{{ $boxHydrant->barcode }}" 
+               data-location="{{ $boxHydrant->location_code }}"
+               class="group relative rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-xl hover:border-slate-300 transition-all duration-300 overflow-hidden">
             {{-- Gradient accent bar --}}
             <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r {{ $statusConfig['gradient'] }}"></div>
             
@@ -276,4 +303,34 @@
     @endif
 
   </div>
+
+  <script>
+  function filterItems() {
+    const searchValue = document.getElementById('searchInput').value.toLowerCase();
+    const items = document.querySelectorAll('[data-item]');
+    let visibleCount = 0;
+
+    items.forEach(item => {
+      const serialNo = item.getAttribute('data-serial')?.toLowerCase() || '';
+      const barcode = item.getAttribute('data-barcode')?.toLowerCase() || '';
+      const location = item.getAttribute('data-location')?.toLowerCase() || '';
+      
+      const isMatch = serialNo.includes(searchValue) || 
+                     barcode.includes(searchValue) || 
+                     location.includes(searchValue);
+      
+      if (isMatch) {
+        item.style.display = '';
+        visibleCount++;
+      } else {
+        item.style.display = 'none';
+      }
+    });
+
+    const noResults = document.getElementById('noResults');
+    if (noResults) {
+      noResults.style.display = visibleCount === 0 && searchValue.length > 0 ? 'block' : 'none';
+    }
+  }
+  </script>
 </x-layouts.app>

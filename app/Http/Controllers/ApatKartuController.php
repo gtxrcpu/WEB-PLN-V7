@@ -17,9 +17,13 @@ class ApatKartuController extends Controller
         $apatId = $request->query('apat_id');
 
         $apat = Apat::findOrFail($apatId);
+        
+        // Get template for APAT module
+        $template = \App\Models\KartuTemplate::getTemplate('apat');
 
         return view('apat.kartu.create', [
             'apat' => $apat,
+            'template' => $template,
         ]);
     }
 
@@ -28,29 +32,68 @@ class ApatKartuController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $template = \App\Models\KartuTemplate::getTemplate('apat');
+        
+        // Build validation rules
+        $rules = [
             'apat_id'       => ['required', 'exists:apats,id'],
-
-            'kondisi_fisik' => ['required', 'in:baik,tidak baik'],
-            'drum'          => ['required', 'in:baik,tidak baik'],
-            'aduk_pasir'    => ['required', 'in:baik,tidak baik'],
-            'sekop'         => ['required', 'in:baik,tidak baik'],
-            'fire_blanket'  => ['required', 'in:baik,tidak baik'],
-            'ember'         => ['required', 'in:baik,tidak baik'],
-
-            'kesimpulan'    => ['required', 'in:baik,tidak baik'],
+            'kesimpulan'    => ['required', 'string', 'max:50'],
             'tgl_periksa'   => ['required', 'date'],
-            'tgl_surat'     => ['nullable', 'date'],
-            'petugas'       => ['nullable', 'string', 'max:255'],
-            'pengawas'      => ['nullable', 'string', 'max:255'],
-        ]);
+            'petugas'       => ['required', 'string', 'max:100'],
+        ];
+        
+        // Add dynamic inspection fields validation
+        if ($template && $template->inspection_fields) {
+            foreach ($template->inspection_fields as $index => $field) {
+                $fieldName = 'inspection_' . $index;
+                $rules[$fieldName] = ['required', 'string', 'max:255'];
+            }
+        } else {
+            // Fallback ke field lama
+            $rules = array_merge($rules, [
+                'kondisi_fisik' => ['required', 'string', 'max:50'],
+                'drum'          => ['required', 'string', 'max:50'],
+                'aduk_pasir'    => ['required', 'string', 'max:50'],
+                'sekop'         => ['required', 'string', 'max:50'],
+                'fire_blanket'  => ['required', 'string', 'max:50'],
+                'ember'         => ['required', 'string', 'max:50'],
+            ]);
+        }
+        
+        $data = $request->validate($rules);
+        
+        // Jika menggunakan template, map inspection fields ke kolom database lama
+        if ($template && $template->inspection_fields) {
+            // Mapping label template ke kolom database
+            $fieldMapping = [
+                'Kondisi Fisik' => 'kondisi_fisik',
+                'Drum' => 'drum',
+                'Aduk Pasir' => 'aduk_pasir',
+                'Sekop' => 'sekop',
+                'Fire Blanket' => 'fire_blanket',
+                'Ember' => 'ember',
+            ];
+            
+            foreach ($template->inspection_fields as $index => $field) {
+                $fieldName = 'inspection_' . $index;
+                if (isset($data[$fieldName])) {
+                    // Map ke kolom database jika ada mapping
+                    if (isset($fieldMapping[$field['label']])) {
+                        $dbColumn = $fieldMapping[$field['label']];
+                        $data[$dbColumn] = $data[$fieldName];
+                    }
+                    unset($data[$fieldName]);
+                }
+            }
+        }
 
-        $apat = Apat::findOrFail($validated['apat_id']);
+        // Tambahkan user_id
+        $data['user_id'] = auth()->id();
 
-        KartuApat::create($validated);
+        KartuApat::create($data);
 
         return redirect()
-            ->route('apat.kartu.create', ['apat_id' => $apat->id])
+            ->route('apat.index')
             ->with('success', 'Kartu Kendali APAT berhasil disimpan.');
     }
 }

@@ -8,19 +8,28 @@ use Illuminate\Http\Request;
 
 class AparController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $apars = Apar::with(['kartuApars'])->latest()->paginate(20);
+        $query = Apar::with(['kartuApars']);
         
-        // Statistics
-        $stats = [
-            'total' => Apar::count(),
-            'baik' => Apar::where('status', 'baik')->count(),
-            'isi_ulang' => Apar::where('status', 'isi ulang')->count(),
-            'rusak' => Apar::where('status', 'rusak')->count(),
-        ];
+        // Filter by search
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('barcode', 'like', "%{$search}%")
+                  ->orWhere('location_code', 'like', "%{$search}%")
+                  ->orWhere('serial_no', 'like', "%{$search}%");
+            });
+        }
         
-        return view('admin.apar.index', compact('apars', 'stats'));
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        
+        $apars = $query->latest()->get();
+        
+        return view('admin.apar.index', compact('apars'));
     }
 
     public function create()

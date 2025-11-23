@@ -16,6 +16,87 @@
             }
         }
     </style>
+    <script>
+        // Auto-refresh untuk mendapatkan template terbaru
+        @if($template)
+        let initialTemplateVersion = {{ $template->updated_at->timestamp }};
+        @else
+        let initialTemplateVersion = 0;
+        @endif
+        let checkInterval = 5000; // Check setiap 5 detik
+        let isReloading = false;
+        
+        function checkTemplateUpdate() {
+            if (isReloading) return;
+            
+            fetch('/api/template-version/apar', {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.version && data.version > initialTemplateVersion) {
+                    // Template telah diupdate, reload halaman
+                    isReloading = true;
+                    showUpdateNotification();
+                }
+            })
+            .catch(err => console.log('Template check:', err));
+        }
+        
+        function showUpdateNotification() {
+            const notification = document.createElement('div');
+            notification.id = 'template-update-notification';
+            notification.className = 'no-print fixed top-4 right-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-4 rounded-xl shadow-2xl z-50 border-2 border-white';
+            notification.style.animation = 'slideInRight 0.5s ease-out';
+            notification.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <div class="animate-spin">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="font-bold text-lg">Template Diperbarui!</p>
+                        <p class="text-sm opacity-90">Memuat template terbaru...</p>
+                    </div>
+                </div>
+            `;
+            
+            // Add animation keyframes
+            if (!document.getElementById('notification-styles')) {
+                const style = document.createElement('style');
+                style.id = 'notification-styles';
+                style.textContent = `
+                    @keyframes slideInRight {
+                        from {
+                            transform: translateX(400px);
+                            opacity: 0;
+                        }
+                        to {
+                            transform: translateX(0);
+                            opacity: 1;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        }
+        
+        // Start checking setelah halaman load
+        window.addEventListener('load', function() {
+            console.log('🔄 Auto-refresh template aktif (check setiap 5 detik)');
+            setInterval(checkTemplateUpdate, checkInterval);
+        });
+    </script>
 </head>
 <body class="bg-slate-50">
 
@@ -43,7 +124,42 @@
         
         {{-- HEADER KARTU - FROM TEMPLATE --}}
         @if($template)
+        {{-- Company Header with Logos --}}
         <div class="border-2 border-gray-800 mb-6">
+            <div class="flex items-center justify-between p-4 border-b-2 border-gray-800">
+                {{-- Logo PLN Kiri --}}
+                <div class="flex items-center gap-3">
+                    <img src="{{ asset('images/logoo.png') }}" alt="PLN Logo" class="h-16 w-auto object-contain">
+                    <div class="text-left">
+                        @if($template->company_name)
+                            <div class="font-bold text-sm">{{ $template->company_name }}</div>
+                        @endif
+                        @if($template->company_address)
+                            <div class="text-xs">{{ $template->company_address }}</div>
+                        @endif
+                        @if($template->company_phone)
+                            <div class="text-xs">{{ $template->company_phone }}</div>
+                        @endif
+                        @if($template->company_fax)
+                            <div class="text-xs">{{ $template->company_fax }}</div>
+                        @endif
+                        @if($template->company_email)
+                            <div class="text-xs">{{ $template->company_email }}</div>
+                        @endif
+                    </div>
+                </div>
+                
+                {{-- 5 Logo Sertifikasi Kanan --}}
+                <div class="flex items-center gap-2">
+                    <img src="{{ asset('images/logo1.png') }}" alt="Cert 1" class="h-12 w-auto object-contain">
+                    <img src="{{ asset('images/logo2.png') }}" alt="Cert 2" class="h-12 w-auto object-contain">
+                    <img src="{{ asset('images/logo3.jpg') }}" alt="Cert 3" class="h-12 w-auto object-contain">
+                    <img src="{{ asset('images/logo4.png') }}" alt="Cert 4" class="h-12 w-auto object-contain">
+                    <img src="{{ asset('images/logo5.png') }}" alt="Cert 5" class="h-12 w-auto object-contain">
+                </div>
+            </div>
+            
+            {{-- Title & Document Info --}}
             <table class="w-full text-sm">
                 <tr>
                     <td rowspan="{{ count($template->header_fields) }}" class="border-r-2 border-gray-800 p-4 text-center align-middle w-2/3">
@@ -128,7 +244,7 @@
             @csrf
             <input type="hidden" name="apar_id" value="{{ $apar->id }}">
 
-            {{-- TABEL PEMERIKSAAN --}}
+            {{-- TABEL PEMERIKSAAN - FROM TEMPLATE --}}
             <div class="mb-6">
                 <h3 class="text-lg font-bold text-gray-900 mb-3">Hasil Pemeriksaan</h3>
                 <div class="border border-gray-300 rounded-lg overflow-hidden">
@@ -140,37 +256,76 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200">
-                            @foreach([
-                                'pressure_gauge' => 'Pressure Gauge',
-                                'pin_segel' => 'Pin & Segel',
-                                'selang' => 'Selang',
-                                'tabung' => 'Tabung',
-                                'label' => 'Label',
-                                'kondisi_fisik' => 'Kondisi Fisik'
-                            ] as $field => $label)
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-3 font-medium text-gray-900">{{ $label }}</td>
-                                    <td class="px-4 py-3">
-                                        <div class="flex gap-4">
-                                            <label class="inline-flex items-center cursor-pointer">
-                                                <input type="radio" name="{{ $field }}" value="baik" 
-                                                    {{ old($field) === 'baik' ? 'checked' : '' }}
-                                                    class="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500">
-                                                <span class="ml-2 text-gray-700">Baik</span>
-                                            </label>
-                                            <label class="inline-flex items-center cursor-pointer">
-                                                <input type="radio" name="{{ $field }}" value="tidak_baik"
-                                                    {{ old($field) === 'tidak_baik' ? 'checked' : '' }}
-                                                    class="w-4 h-4 text-red-600 border-gray-300 focus:ring-red-500">
-                                                <span class="ml-2 text-gray-700">Tidak Baik</span>
-                                            </label>
-                                        </div>
-                                        @error($field)
-                                            <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
-                                        @enderror
-                                    </td>
-                                </tr>
-                            @endforeach
+                            @if($template && $template->inspection_fields)
+                                @foreach($template->inspection_fields as $index => $field)
+                                    @php
+                                        $fieldName = 'inspection_' . $index;
+                                    @endphp
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-3 font-medium text-gray-900">{{ $field['label'] }}</td>
+                                        <td class="px-4 py-3">
+                                            @if($field['type'] === 'checkbox')
+                                                <div class="flex gap-4">
+                                                    <label class="inline-flex items-center cursor-pointer">
+                                                        <input type="radio" name="{{ $fieldName }}" value="baik" 
+                                                            {{ old($fieldName) === 'baik' ? 'checked' : '' }}
+                                                            class="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500">
+                                                        <span class="ml-2 text-gray-700">Baik</span>
+                                                    </label>
+                                                    <label class="inline-flex items-center cursor-pointer">
+                                                        <input type="radio" name="{{ $fieldName }}" value="tidak_baik"
+                                                            {{ old($fieldName) === 'tidak_baik' ? 'checked' : '' }}
+                                                            class="w-4 h-4 text-red-600 border-gray-300 focus:ring-red-500">
+                                                        <span class="ml-2 text-gray-700">Tidak Baik</span>
+                                                    </label>
+                                                </div>
+                                            @elseif($field['type'] === 'text')
+                                                <input type="text" name="{{ $fieldName }}" value="{{ old($fieldName) }}"
+                                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                            @elseif($field['type'] === 'textarea')
+                                                <textarea name="{{ $fieldName }}" rows="2"
+                                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">{{ old($fieldName) }}</textarea>
+                                            @endif
+                                            @error($fieldName)
+                                                <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                                            @enderror
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            @else
+                                {{-- FALLBACK jika template tidak ada --}}
+                                @foreach([
+                                    'pressure_gauge' => 'Pressure Gauge',
+                                    'pin_segel' => 'Pin & Segel',
+                                    'selang' => 'Selang',
+                                    'tabung' => 'Tabung',
+                                    'label' => 'Label',
+                                    'kondisi_fisik' => 'Kondisi Fisik'
+                                ] as $field => $label)
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-3 font-medium text-gray-900">{{ $label }}</td>
+                                        <td class="px-4 py-3">
+                                            <div class="flex gap-4">
+                                                <label class="inline-flex items-center cursor-pointer">
+                                                    <input type="radio" name="{{ $field }}" value="baik" 
+                                                        {{ old($field) === 'baik' ? 'checked' : '' }}
+                                                        class="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500">
+                                                    <span class="ml-2 text-gray-700">Baik</span>
+                                                </label>
+                                                <label class="inline-flex items-center cursor-pointer">
+                                                    <input type="radio" name="{{ $field }}" value="tidak_baik"
+                                                        {{ old($field) === 'tidak_baik' ? 'checked' : '' }}
+                                                        class="w-4 h-4 text-red-600 border-gray-300 focus:ring-red-500">
+                                                    <span class="ml-2 text-gray-700">Tidak Baik</span>
+                                                </label>
+                                            </div>
+                                            @error($field)
+                                                <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                                            @enderror
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            @endif
                         </tbody>
                     </table>
                 </div>

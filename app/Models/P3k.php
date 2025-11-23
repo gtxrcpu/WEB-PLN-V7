@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HasUnit;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
@@ -9,7 +10,7 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class P3k extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUnit;
 
     protected $guarded = [];
 

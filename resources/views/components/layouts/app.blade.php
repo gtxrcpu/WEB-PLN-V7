@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ $title ?? 'Inventaris K3 PLN' }}</title>
   @vite(['resources/css/app.css','resources/js/app.js'])
+  <style>
+    [x-cloak] { display: none !important; }
+  </style>
 </head>
 <body class="antialiased bg-slate-50 text-slate-900">
   {{-- Topbar --}}
@@ -12,13 +15,41 @@
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <img src="{{ asset('images/logoo.png') }}" alt="PLN" class="h-8 w-auto object-contain">
-        <span class="font-semibold">Inventaris K3 PLN — 
-          @if(auth()->check() && auth()->user()->hasRole('admin'))
-            <span class="text-purple-700">Admin</span>
-          @else
-            <span class="text-emerald-700">User</span>
+        <div class="flex items-center gap-2">
+          <span class="font-semibold">Inventaris K3 PLN — 
+            @if(auth()->check() && auth()->user()->hasRole('admin'))
+              <span class="text-purple-700">Admin</span>
+            @else
+              <span class="text-emerald-700">User</span>
+            @endif
+          </span>
+          
+          {{-- Unit Badge --}}
+          @if(auth()->check())
+            @php
+              $currentUser = auth()->user();
+              $displayUnit = null;
+              
+              // Jika user punya unit, tampilkan unit mereka
+              if ($currentUser->unit_id) {
+                $displayUnit = $currentUser->unit;
+              }
+              // Jika admin sedang viewing unit tertentu
+              elseif (!$currentUser->unit_id && session('viewing_unit_id')) {
+                $displayUnit = \App\Models\Unit::find(session('viewing_unit_id'));
+              }
+            @endphp
+            
+            @if($displayUnit)
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-md">
+                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"/>
+                </svg>
+                {{ $displayUnit->code }}
+              </span>
+            @endif
           @endif
-        </span>
+        </div>
       </div>
 
       <div class="hidden md:flex items-center gap-4">
@@ -28,7 +59,7 @@
           $initial = strtoupper(mb_substr($u?->name ?? 'U', 0, 1));
         @endphp
         <div x-data="{open:false}" class="relative">
-          <button @click="open=!open" class="flex items-center gap-2 rounded-xl px-3 py-2 hover:bg-slate-100 transition">
+          <button @click.prevent="open=!open" type="button" class="flex items-center gap-2 rounded-xl px-3 py-2 hover:bg-slate-100 transition">
             @if($avatar)
               <img src="{{ $avatar }}" alt="Avatar" class="h-8 w-8 rounded-full object-cover ring-1 ring-slate-200">
             @else
@@ -40,7 +71,13 @@
             </svg>
           </button>
 
-          <div x-cloak x-show="open" @click.outside="open=false" x-transition
+          <div x-cloak x-show="open" @click.outside="open=false" 
+               x-transition:enter="transition ease-out duration-100"
+               x-transition:enter-start="opacity-0 scale-95"
+               x-transition:enter-end="opacity-100 scale-100"
+               x-transition:leave="transition ease-in duration-75"
+               x-transition:leave-start="opacity-100 scale-100"
+               x-transition:leave-end="opacity-0 scale-95"
                class="absolute right-0 mt-2 w-60 rounded-xl bg-white shadow-md ring-1 ring-slate-200 p-2">
             @if(auth()->check() && auth()->user()->hasRole('admin'))
               <a href="{{ route('admin.dashboard') }}" class="block rounded-lg px-3 py-2 hover:bg-purple-50 text-purple-700 font-medium">
@@ -56,6 +93,31 @@
                 User Dashboard
               </a>
               <div class="border-t border-slate-200 my-2"></div>
+              
+              {{-- Unit Switcher untuk Admin --}}
+              @if(!auth()->user()->unit_id)
+                <div class="px-2 py-1">
+                  <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Lihat Data Unit</p>
+                  <form method="POST" action="{{ route('unit.switch') }}" class="space-y-1">
+                    @csrf
+                    <select name="unit_id" onchange="this.form.submit()" class="w-full text-sm px-2 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                      <option value="">Semua Unit</option>
+                      @foreach(\App\Models\Unit::where('is_active', true)->get() as $unit)
+                        <option value="{{ $unit->id }}" {{ session('viewing_unit_id') == $unit->id ? 'selected' : '' }}>
+                          {{ $unit->code }}
+                        </option>
+                      @endforeach
+                    </select>
+                  </form>
+                  @if(session('viewing_unit_id'))
+                    @php $viewingUnit = \App\Models\Unit::find(session('viewing_unit_id')); @endphp
+                    <div class="mt-2 text-xs text-emerald-700 bg-emerald-50 px-2 py-1 rounded">
+                      📍 Viewing: {{ $viewingUnit->code }}
+                    </div>
+                  @endif
+                </div>
+                <div class="border-t border-slate-200 my-2"></div>
+              @endif
             @endif
             <a href="{{ route('profile.edit') }}" class="block rounded-lg px-3 py-2 hover:bg-slate-50 text-slate-700">
               <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -96,7 +158,7 @@
           <span class="text-xs font-medium">Home</span>
         </a>
 
-        <button onclick="toggleModulSheet('admin')" 
+        <button type="button" onclick="toggleModulSheet('admin')" 
            class="relative flex flex-col items-center justify-center gap-1 text-slate-700 hover:text-purple-600 hover:bg-purple-50 transition-all {{ request()->routeIs('admin.apar.*') || request()->routeIs('apar.*') || request()->routeIs('apat.*') || request()->routeIs('apab.*') || request()->routeIs('fire-alarm.*') || request()->routeIs('box-hydrant.*') || request()->routeIs('rumah-pompa.*') || request()->routeIs('p3k.*') || request()->routeIs('referensi.*') ? 'text-purple-600 bg-purple-50' : '' }}">
           @if(request()->routeIs('admin.apar.*') || request()->routeIs('apar.*') || request()->routeIs('apat.*') || request()->routeIs('apab.*') || request()->routeIs('fire-alarm.*') || request()->routeIs('box-hydrant.*') || request()->routeIs('rumah-pompa.*') || request()->routeIs('p3k.*') || request()->routeIs('referensi.*'))
             <span class="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-purple-600 rounded-b-full"></span>
@@ -131,7 +193,7 @@
           <span class="text-xs font-medium">Home</span>
         </a>
 
-        <button onclick="toggleModulSheet('user')" 
+        <button type="button" onclick="toggleModulSheet('user')" 
            class="relative flex flex-col items-center justify-center gap-1 text-slate-700 hover:text-blue-600 hover:bg-blue-50 transition-all {{ request()->routeIs('apar.*') || request()->routeIs('apat.*') || request()->routeIs('apab.*') || request()->routeIs('fire-alarm.*') || request()->routeIs('box-hydrant.*') || request()->routeIs('rumah-pompa.*') || request()->routeIs('p3k.*') || request()->routeIs('referensi.*') ? 'text-blue-600 bg-blue-50' : '' }}">
           @if(request()->routeIs('apar.*') || request()->routeIs('apat.*') || request()->routeIs('apab.*') || request()->routeIs('fire-alarm.*') || request()->routeIs('box-hydrant.*') || request()->routeIs('rumah-pompa.*') || request()->routeIs('p3k.*') || request()->routeIs('referensi.*'))
             <span class="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-blue-600 rounded-b-full"></span>
@@ -402,12 +464,31 @@
   </div>
 
   <script>
+    // Optimized module sheet toggle with debounce
+    let isToggling = false;
+    let toggleTimeout = null;
+    
     function toggleModulSheet(role) {
+      // Prevent rapid clicks
+      if (isToggling) return;
+      
+      // Clear any pending toggle
+      if (toggleTimeout) {
+        clearTimeout(toggleTimeout);
+      }
+      
+      isToggling = true;
+      
       const sheet = document.getElementById('modulSheet');
       const backdrop = document.getElementById('modulBackdrop');
       const content = document.getElementById('modulSheetContent');
       const adminModules = document.getElementById('adminModules');
       const userModules = document.getElementById('userModules');
+      
+      if (!sheet || !backdrop || !content) {
+        isToggling = false;
+        return;
+      }
       
       const isOpen = !sheet.classList.contains('pointer-events-none');
       
@@ -417,43 +498,80 @@
         backdrop.classList.add('opacity-0');
         content.classList.remove('translate-y-0');
         content.classList.add('translate-y-full');
-        setTimeout(() => {
+        
+        toggleTimeout = setTimeout(() => {
           sheet.classList.add('pointer-events-none');
+          isToggling = false;
+          toggleTimeout = null;
         }, 300);
       } else {
         // Open
         sheet.classList.remove('pointer-events-none');
-        setTimeout(() => {
+        
+        // Show correct module list immediately
+        if (role === 'admin') {
+          adminModules?.classList.remove('hidden');
+          userModules?.classList.add('hidden');
+        } else {
+          userModules?.classList.remove('hidden');
+          adminModules?.classList.add('hidden');
+        }
+        
+        // Use requestAnimationFrame for smoother animation
+        requestAnimationFrame(() => {
           backdrop.classList.remove('opacity-0');
           backdrop.classList.add('opacity-100');
           content.classList.remove('translate-y-full');
           content.classList.add('translate-y-0');
-        }, 10);
-        
-        // Show correct module list
-        if (role === 'admin') {
-          adminModules.classList.remove('hidden');
-          userModules.classList.add('hidden');
-        } else {
-          userModules.classList.remove('hidden');
-          adminModules.classList.add('hidden');
-        }
+          
+          toggleTimeout = setTimeout(() => {
+            isToggling = false;
+            toggleTimeout = null;
+          }, 350);
+        });
       }
     }
 
-    // Close sheet when clicking backdrop (not content)
+    // Close sheet when clicking backdrop - optimized
     document.addEventListener('DOMContentLoaded', function() {
-      const sheet = document.getElementById('modulSheet');
       const backdrop = document.getElementById('modulBackdrop');
       
-      if (sheet && backdrop) {
+      if (backdrop) {
         backdrop.addEventListener('click', function(e) {
-          if (e.target === backdrop) {
+          if (e.target === backdrop && !isToggling) {
             toggleModulSheet();
           }
-        });
+        }, { passive: true });
       }
-    });
+      
+      // Preload critical images
+      const criticalImages = [
+        '{{ asset("images/logoo.png") }}'
+      ];
+      
+      criticalImages.forEach(src => {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
+        link.href = src;
+        document.head.appendChild(link);
+      });
+    }, { once: true });
+    
+    // Prevent form double submission
+    document.addEventListener('submit', function(e) {
+      const form = e.target;
+      if (form.dataset.submitting === 'true') {
+        e.preventDefault();
+        return false;
+      }
+      form.dataset.submitting = 'true';
+      
+      // Reset after 3 seconds as fallback
+      setTimeout(() => {
+        form.dataset.submitting = 'false';
+      }, 3000);
+    }, { passive: false });
   </script>
 
 </body>

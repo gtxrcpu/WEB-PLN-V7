@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HasUnit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -9,8 +10,11 @@ use Illuminate\Support\Facades\Storage;
 
 class FireAlarm extends Model
 {
+    use HasUnit;
+    
     protected $fillable = [
         'user_id',
+        'unit_id',
         'name',
         'barcode',
         'serial_no',

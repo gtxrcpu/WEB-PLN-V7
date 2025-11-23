@@ -10,9 +10,11 @@ class KartuP3kController extends Controller
 {
     public function create(Request $request)
     {
-        $p3kId = $request->query('p3k_id');
-        $p3k = P3k::findOrFail($p3kId);
-        return view('p3k.kartu.create', compact('p3k'));
+        $jenis = $request->query('jenis', 'stock');
+        $lokasi = $request->query('lokasi', 'Area Limbah B3');
+        $template = \App\Models\KartuTemplate::getTemplate('p3k');
+        
+        return view('p3k.kartu.create', compact('jenis', 'lokasi', 'template'));
     }
 
     public function store(Request $request)

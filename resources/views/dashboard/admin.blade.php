@@ -1,4 +1,33 @@
 <x-layouts.app :title="'Dashboard — Admin'">
+  {{-- Unit Viewing Info Banner (jika admin sedang viewing unit tertentu) --}}
+  @if(session('viewing_unit_id'))
+    @php $viewingUnit = \App\Models\Unit::find(session('viewing_unit_id')); @endphp
+    @if($viewingUnit)
+      <div class="mb-4 sm:mb-6 p-4 sm:p-6 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-xl shadow-lg">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center">
+              <svg class="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <p class="text-white/80 text-xs sm:text-sm font-medium">Sedang Melihat Data Unit</p>
+              <h3 class="text-white text-lg sm:text-2xl font-bold">{{ $viewingUnit->code }}</h3>
+              <p class="text-white/90 text-xs sm:text-sm mt-0.5">{{ $viewingUnit->name }}</p>
+            </div>
+          </div>
+          <form method="POST" action="{{ route('unit.clear') }}">
+            @csrf
+            <button type="submit" class="px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur text-white rounded-lg text-sm font-semibold transition-colors">
+              Lihat Semua Unit
+            </button>
+          </form>
+        </div>
+      </div>
+    @endif
+  @endif
+
   {{-- Header Section --}}
   <section class="mb-4 sm:mb-8 p-4 sm:p-8 shadow-lg rounded-lg bg-white">
     <div class="mb-4 sm:mb-6">
@@ -370,7 +399,7 @@
           ['Fire Alarm', 'fire-alarm.index', 'from-red-500 to-pink-500', 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9'],
           ['Box Hydrant', 'box-hydrant.index', 'from-blue-700 to-cyan-500', 'M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z'],
           ['Rumah Pompa', 'rumah-pompa.index', 'from-purple-600 to-indigo-600', 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6'],
-          ['P3K', 'p3k.index', 'from-emerald-500 to-teal-500', 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'],
+          ['P3K', 'p3k.pilih-jenis', 'from-emerald-500 to-teal-500', 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'],
           ['Referensi', 'referensi.index', 'from-purple-500 to-indigo-500', 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253'],
         ];
       @endphp

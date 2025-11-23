@@ -2,16 +2,19 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HasUnit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class Apar extends Model
 {
+    use HasUnit;
     protected $table = 'apars';
 
     protected $fillable = [
         'user_id',
+        'unit_id',
         'name',          // contoh: "APAR A1.001"
         'barcode',       // contoh: "APAR A1.001"
         'serial_no',     // contoh: "A1.001"

@@ -1,98 +1,24 @@
-{{-- resources/views/apat/kartu/create.blade.php --}}
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="utf-8">
-    <title>Kartu Kendali APAT</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<x-kartu-layout 
+    title="Kartu Kendali APAT" 
+    :subtitle="$apat->barcode ?? $apat->serial_no"
+    back-route="apat.index"
+    module="apat"
+    :template="$template">
 
-    {{-- Tailwind via CDN, tanpa layouts.app supaya header/nav tidak ikut ke PDF --}}
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <style>
-        @media print {
-            .no-print { display: none !important; }
-            body { background: #fff !important; }
-            .sheet-a4 {
-                box-shadow: none !important;
-                border: none !important;
-                margin: 0 !important;
-                width: 190mm !important;
-                min-height: 277mm !important;
-            }
-        }
-
-        .sheet-a4 {
-            max-width: 190mm;
-            min-height: 260mm;
-        }
-    </style>
-</head>
-<body class="bg-slate-100 text-slate-800">
-
-{{-- BAR ATAS (HANYA DI LAYAR) --}}
-<div class="no-print bg-gradient-to-r from-cyan-600 to-sky-600 shadow-lg mb-6">
-    <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
-        <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                </svg>
+    {{-- INFO APAT --}}
+    <div class="mb-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
+        <h3 class="font-bold text-gray-900 mb-3">Informasi APAT</h3>
+        <div class="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+            <div>
+                <span class="text-gray-600">Kode/Barcode:</span>
+                <span class="font-semibold ml-2">{{ $apat->barcode ?? $apat->serial_no }}</span>
             </div>
             <div>
-                <div class="text-xs text-cyan-100 font-medium">Kartu Kendali APAT</div>
-                <div class="text-xl font-bold text-white">
-                    {{ $apat->barcode ?? $apat->serial_no ?? 'APAT' }}
-                </div>
+                <span class="text-gray-600">Lokasi:</span>
+                <span class="font-semibold ml-2">{{ $apat->location_code ?? '-' }}</span>
             </div>
-        </div>
-        <div class="flex items-center gap-3">
-            <a href="{{ route('apat.index') }}"
-               class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/20 backdrop-blur-sm text-white text-sm font-medium hover:bg-white/30 transition-all duration-200 border border-white/20">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                </svg>
-                Kembali
-            </a>
-            <button onclick="window.print()"
-                    class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-cyan-600 text-sm font-semibold hover:bg-cyan-50 transition-all duration-200 shadow-lg">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
-                </svg>
-                Cetak / PDF
-            </button>
         </div>
     </div>
-</div>
-
-{{-- LEMBAR A4 --}}
-<div class="max-w-5xl mx-auto px-2 sm:px-4 pb-10">
-    <div class="sheet-a4 bg-white mx-auto rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6">
-
-        {{-- HEADER KARTU --}}
-        <div class="border border-slate-400">
-            <div class="px-4 py-2 border-b border-slate-400 text-center">
-                <div class="text-base font-bold tracking-wide">KARTU KENDALI</div>
-                <div class="text-sm font-semibold">ALAT PEMADAM API TRADISIONAL (APAT)</div>
-                <div class="text-xs">TAHUN {{ now()->year }}</div>
-            </div>
-
-            {{-- Info lokasi & nomor --}}
-            <div class="grid grid-cols-12 text-xs border-b border-slate-400">
-                <div class="col-span-2 px-3 py-2 border-r border-slate-400 font-semibold">
-                    LOKASI
-                </div>
-                <div class="col-span-4 px-3 py-2 border-r border-slate-400">
-                    {{ $apat->location_code ?? '-' }}
-                </div>
-                <div class="col-span-2 px-3 py-2 border-r border-slate-400 font-semibold">
-                    NOMOR
-                </div>
-                <div class="col-span-4 px-3 py-2">
-                    {{ $apat->serial_no ?? '-' }}
-                </div>
-            </div>
-        </div>
 
         {{-- FORM --}}
         @if ($errors->any())
@@ -234,17 +160,28 @@
                 </div>
             </div>
 
-            {{-- TANDA TANGAN TEAM LEADER K3L & KAM --}}
-            <div class="mt-6 pt-4 border-t border-slate-200">
-                <div class="flex justify-between text-xs">
-                    <div class="max-w-xs">
-                        Catatan: Bila ada penyimpangan segera dilaporkan ke TL K3L &amp; KAM
-                    </div>
-                    <div class="text-right w-64">
-                        <div>Surabaya, {{ old('tgl_surat', now()->format('d-m-Y')) }}</div>
-                        <div class="mt-2">Team Leader K3L &amp; KAM</div>
-                        <div class="mt-12 font-semibold underline decoration-slate-400 decoration-dotted">
-                            ........................
+            {{-- TTD SECTION - USING TEMPLATE --}}
+            <div class="mt-8 pt-6 border-t-2 border-gray-200">
+                <div class="flex justify-end">
+                    <div class="text-center">
+                        @php
+                            $lokasi = 'Surabaya'; // default
+                            $labelPimpinan = 'Team Leader K3L & KAM'; // default
+                            if ($template && $template->footer_fields) {
+                                $lokasiField = collect($template->footer_fields)->firstWhere('label', 'Lokasi');
+                                if ($lokasiField && isset($lokasiField['value'])) {
+                                    $lokasi = $lokasiField['value'];
+                                }
+                                $pimpinanField = collect($template->footer_fields)->firstWhere('label', 'Label Pimpinan');
+                                if ($pimpinanField && isset($pimpinanField['value'])) {
+                                    $labelPimpinan = $pimpinanField['value'];
+                                }
+                            }
+                        @endphp
+                        <p class="text-sm text-gray-600 mb-1">{{ $lokasi }}, {{ now()->format('d-m-Y') }}</p>
+                        <p class="text-sm font-semibold text-gray-900 mb-16">{{ $labelPimpinan }}</p>
+                        <div class="border-t-2 border-gray-400 pt-2 w-56">
+                            <p class="text-sm text-gray-600">(Tanda Tangan & Nama)</p>
                         </div>
                     </div>
                 </div>
@@ -267,8 +204,4 @@
                 </div>
             </div>
         </form>
-    </div>
-</div>
-
-</body>
-</html>
+</x-kartu-layout>

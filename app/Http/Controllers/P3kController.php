@@ -80,4 +80,15 @@ class P3kController extends Controller
         $riwayatInspeksi = $p3k->kartuP3ks()->orderBy('tgl_periksa', 'desc')->get();
         return view('p3k.riwayat', compact('p3k', 'riwayatInspeksi'));
     }
+
+    public function pilihJenis()
+    {
+        return view('p3k.pilih-jenis');
+    }
+
+    public function pilihLokasi(Request $request)
+    {
+        $jenis = $request->query('jenis', 'pemeriksaan');
+        return view('p3k.pilih-lokasi', compact('jenis'));
+    }
 }

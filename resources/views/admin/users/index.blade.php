@@ -53,6 +53,7 @@
           <tr>
             <th class="px-4 sm:px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">User Info</th>
             <th class="px-4 sm:px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Contact</th>
+            <th class="px-4 sm:px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Unit & Posisi</th>
             <th class="px-4 sm:px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Role</th>
             <th class="px-4 sm:px-6 py-4 text-right text-xs font-bold text-slate-700 uppercase tracking-wider">Actions</th>
           </tr>
@@ -80,6 +81,25 @@
                   <p class="text-sm text-gray-900 font-medium">{{ $user->email }}</p>
                   <p class="text-xs text-gray-500">{{ $user->created_at->format('d M Y') }}</p>
                 </div>
+              </td>
+              <td class="px-4 sm:px-6 py-4">
+                @if($user->unit)
+                  <div class="flex flex-col gap-1">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-700 ring-1 ring-emerald-200 w-fit">
+                      <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"/>
+                      </svg>
+                      {{ $user->unit->code }}
+                    </span>
+                    @if($user->position)
+                      <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded bg-blue-50 text-blue-700 w-fit">
+                        {{ ucfirst($user->position) }}
+                      </span>
+                    @endif
+                  </div>
+                @else
+                  <span class="text-xs text-gray-400 italic">Tidak ada unit</span>
+                @endif
               </td>
               <td class="px-4 sm:px-6 py-4">
                 <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg shadow-sm

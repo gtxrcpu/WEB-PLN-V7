@@ -2,18 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Traits\FiltersByUnit;
 use App\Models\Apar;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class AparController extends Controller
 {
+    use FiltersByUnit;
     /**
      * Tampilkan daftar APAR.
      */
     public function index()
     {
-        $apars = Apar::orderBy('id')->get();
+        $apars = $this->getQueryForAuthUser(Apar::class)
+            ->orderBy('id')
+            ->get();
 
         return view('apar.index', compact('apars'));
     }
@@ -59,6 +63,7 @@ class AparController extends Controller
 
         $apar = Apar::create([
             'user_id'       => Auth::id(),
+            'unit_id'       => $this->getAuthUserUnitId(), // Auto-assign unit dari user
             'name'          => 'APAR ' . $serial,
             'barcode'       => $barcode,
             'serial_no'     => $serial,

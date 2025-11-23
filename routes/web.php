@@ -16,8 +16,14 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
     Route::resource('signatures', \App\Http\Controllers\Admin\SignatureController::class);
     
-    // Equipment Management
+    // Equipment Modules
     Route::resource('apar', \App\Http\Controllers\Admin\AparController::class);
+    Route::resource('apat', \App\Http\Controllers\Admin\ApatController::class);
+    Route::resource('apab', \App\Http\Controllers\Admin\ApabController::class);
+    Route::resource('fire-alarm', \App\Http\Controllers\Admin\FireAlarmController::class);
+    Route::resource('box-hydrant', \App\Http\Controllers\Admin\BoxHydrantController::class);
+    Route::resource('rumah-pompa', \App\Http\Controllers\Admin\RumahPompaController::class);
+    Route::resource('p3k', \App\Http\Controllers\Admin\P3kController::class);
     
     // Approvals
     Route::get('/approvals', [\App\Http\Controllers\Admin\ApprovalController::class, 'index'])->name('approvals.index');
@@ -163,6 +169,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/p3k/{p3k}/edit', [\App\Http\Controllers\P3kController::class, 'edit'])->name('p3k.edit');
     Route::get('/p3k/{p3k}/riwayat', [\App\Http\Controllers\P3kController::class, 'riwayat'])->name('p3k.riwayat');
     Route::put('/p3k/{p3k}', [\App\Http\Controllers\P3kController::class, 'update'])->name('p3k.update');
+    
+    // Alur baru: Pilih Jenis → Pilih Lokasi → Isi Kartu
+    Route::get('/p3k/pilih-jenis', [\App\Http\Controllers\P3kController::class, 'pilihJenis'])->name('p3k.pilih-jenis');
+    Route::get('/p3k/pilih-lokasi', [\App\Http\Controllers\P3kController::class, 'pilihLokasi'])->name('p3k.pilih-lokasi');
     Route::get('/p3k/kartu/create', [\App\Http\Controllers\KartuP3kController::class, 'create'])->name('p3k.kartu.create');
     Route::post('/p3k/kartu', [\App\Http\Controllers\KartuP3kController::class, 'store'])->name('p3k.kartu.store');
 });
@@ -180,11 +190,25 @@ Route::middleware(['auth'])->group(function () {
 // API Search
 Route::get('/api/search', [\App\Http\Controllers\Api\SearchController::class, 'search'])->middleware('auth');
 
+// API Template Version Check (untuk auto-refresh)
+Route::get('/api/template-version/{module}', function($module) {
+    $template = \App\Models\KartuTemplate::where('module', $module)->first();
+    return response()->json([
+        'module' => $module,
+        'updated_at' => $template ? $template->updated_at->toIso8601String() : null,
+        'version' => $template ? $template->updated_at->timestamp : 0
+    ]);
+})->middleware('auth');
+
 // Profile
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [\App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('profile.password.update');
+    
+    // Unit Switch (untuk admin)
+    Route::post('/unit/switch', [\App\Http\Controllers\UnitSwitchController::class, 'switch'])->name('unit.switch');
+    Route::post('/unit/clear', [\App\Http\Controllers\UnitSwitchController::class, 'clear'])->name('unit.clear');
 });
 
 require __DIR__ . '/auth.php';

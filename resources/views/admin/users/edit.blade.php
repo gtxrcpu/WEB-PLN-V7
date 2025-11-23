@@ -73,6 +73,37 @@
         @enderror
       </div>
 
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Unit/Cabang</label>
+          <select name="unit_id"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent @error('unit_id') border-red-500 @enderror">
+            <option value="">Pilih Unit (Opsional)</option>
+            @foreach($units as $unit)
+              <option value="{{ $unit->id }}" {{ old('unit_id', $user->unit_id) == $unit->id ? 'selected' : '' }}>
+                {{ $unit->code }} - {{ $unit->name }}
+              </option>
+            @endforeach
+          </select>
+          @error('unit_id')
+            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+          @enderror
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Posisi</label>
+          <select name="position"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent @error('position') border-red-500 @enderror">
+            <option value="">Pilih Posisi (Opsional)</option>
+            <option value="leader" {{ old('position', $user->position) == 'leader' ? 'selected' : '' }}>Leader</option>
+            <option value="petugas" {{ old('position', $user->position) == 'petugas' ? 'selected' : '' }}>Petugas</option>
+          </select>
+          @error('position')
+            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+          @enderror
+        </div>
+      </div>
+
       <div class="flex items-center gap-3 pt-4">
         <button type="submit" class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors shadow-md font-semibold">
           Update User

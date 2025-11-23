@@ -1,4 +1,27 @@
 <x-layouts.app :title="'Dashboard — User'">
+  {{-- Unit Info Banner --}}
+  @if(auth()->user()->unit)
+    <div class="mb-4 sm:mb-6 p-4 sm:p-6 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl shadow-lg">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center">
+          <svg class="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+        <div class="flex-1">
+          <p class="text-white/80 text-xs sm:text-sm font-medium">Unit Anda</p>
+          <h3 class="text-white text-lg sm:text-2xl font-bold">{{ auth()->user()->unit->code }}</h3>
+          <p class="text-white/90 text-xs sm:text-sm mt-0.5">{{ auth()->user()->unit->name }}</p>
+          @if(auth()->user()->position)
+            <span class="inline-block mt-2 px-2.5 py-1 bg-white/20 backdrop-blur rounded-lg text-white text-xs font-semibold">
+              {{ ucfirst(auth()->user()->position) }}
+            </span>
+          @endif
+        </div>
+      </div>
+    </div>
+  @endif
+
   {{-- Header Section --}}
   <section class="mb-4 sm:mb-8 p-4 sm:p-8 shadow-lg rounded-lg bg-white">
     <div class="mb-4 sm:mb-6">
@@ -195,7 +218,7 @@
         ['Fire Alarm', 'Panel & titik alarm',          'images/fire-alarm.png',  true,  'fire-alarm.index', 'from-red-500 to-pink-500',       'from-red-50 to-pink-50'],
         ['Box Hydrant','Box, hose, nozzle',            'images/box-hydrant.png', true,  'box-hydrant.index', 'from-blue-700 to-cyan-500',      'from-blue-50 to-cyan-50'],
         ['Rumah Pompa','Hydrant Rumah Pompa',          'images/box-hydrant.png', true,  'rumah-pompa.index', 'from-purple-600 to-indigo-600',  'from-purple-50 to-indigo-50'],
-        ['P3K',        'Kotak & isi P3K',              'images/p3k.png',         true, 'p3k.index',             'from-emerald-500 to-teal-500',   'from-emerald-50 to-teal-50'],
+        ['P3K',        'Kotak & isi P3K',              'images/p3k.png',         true, 'p3k.pilih-jenis',       'from-emerald-500 to-teal-500',   'from-emerald-50 to-teal-50'],
         ['Referensi',  'Kategori/Lokasi/Petugas',      'images/referensi.png',   false,  'referensi.index', 'from-purple-500 to-indigo-500',  'from-purple-50 to-indigo-50'],
       ];
     @endphp

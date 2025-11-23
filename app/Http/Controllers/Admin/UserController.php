@@ -12,7 +12,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::with('roles')->latest()->paginate(20);
+        $users = User::with(['roles', 'unit'])->latest()->paginate(20);
         $roles = Role::all();
         
         return view('admin.users.index', compact('users', 'roles'));
@@ -21,7 +21,8 @@ class UserController extends Controller
     public function create()
     {
         $roles = Role::all();
-        return view('admin.users.create', compact('roles'));
+        $units = \App\Models\Unit::where('is_active', true)->get();
+        return view('admin.users.create', compact('roles', 'units'));
     }
 
     public function store(Request $request)
@@ -32,6 +33,8 @@ class UserController extends Controller
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6|confirmed',
             'role' => 'required|exists:roles,name',
+            'unit_id' => 'nullable|exists:units,id',
+            'position' => 'nullable|in:leader,petugas',
         ]);
 
         $user = User::create([
@@ -39,6 +42,8 @@ class UserController extends Controller
             'username' => $data['username'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
+            'unit_id' => $data['unit_id'] ?? null,
+            'position' => $data['position'] ?? null,
         ]);
 
         $user->assignRole($data['role']);
@@ -51,7 +56,8 @@ class UserController extends Controller
     public function edit(User $user)
     {
         $roles = Role::all();
-        return view('admin.users.edit', compact('user', 'roles'));
+        $units = \App\Models\Unit::where('is_active', true)->get();
+        return view('admin.users.edit', compact('user', 'roles', 'units'));
     }
 
     public function update(Request $request, User $user)
@@ -62,11 +68,15 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|min:6|confirmed',
             'role' => 'required|exists:roles,name',
+            'unit_id' => 'nullable|exists:units,id',
+            'position' => 'nullable|in:leader,petugas',
         ]);
 
         $user->name = $data['name'];
         $user->username = $data['username'];
         $user->email = $data['email'];
+        $user->unit_id = $data['unit_id'] ?? null;
+        $user->position = $data['position'] ?? null;
         
         if (!empty($data['password'])) {
             $user->password = Hash::make($data['password']);

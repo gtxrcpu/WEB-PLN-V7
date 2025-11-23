@@ -12,25 +12,40 @@ use App\Models\RumahPompa;
 use App\Models\Apab;
 use App\Models\P3k;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // Total users
-        $totalUsers = User::count();
-        $totalAdmins = User::role('admin')->count();
-        $totalRegularUsers = User::role('user')->count();
+        // Cache dashboard stats for 5 minutes
+        $cacheKey = 'admin_dashboard_stats_' . auth()->id();
+        $cacheDuration = now()->addMinutes(5);
+        
+        $stats = cache()->remember($cacheKey, $cacheDuration, function() {
+            // Total users
+            $totalUsers = User::count();
+            $totalAdmins = User::role('admin')->count();
+            $totalRegularUsers = User::role('user')->count();
 
-        // Total equipment with status breakdown
-        $totalApar = Apar::count();
-        $totalApat = Apat::count();
-        $totalFireAlarm = FireAlarm::count();
-        $totalBoxHydrant = BoxHydrant::count();
-        $totalRumahPompa = RumahPompa::count();
-        $totalApab = Apab::count();
-        $totalP3k = P3k::count();
-        $totalEquipment = $totalApar + $totalApat + $totalFireAlarm + $totalBoxHydrant + $totalRumahPompa + $totalApab + $totalP3k;
+            // Total equipment - optimized single queries
+            $totalApar = Apar::count();
+            $totalApat = Apat::count();
+            $totalFireAlarm = FireAlarm::count();
+            $totalBoxHydrant = BoxHydrant::count();
+            $totalRumahPompa = RumahPompa::count();
+            $totalApab = Apab::count();
+            $totalP3k = P3k::count();
+            $totalEquipment = $totalApar + $totalApat + $totalFireAlarm + $totalBoxHydrant + $totalRumahPompa + $totalApab + $totalP3k;
+            
+            return compact(
+                'totalUsers', 'totalAdmins', 'totalRegularUsers',
+                'totalApar', 'totalApat', 'totalFireAlarm', 'totalBoxHydrant',
+                'totalRumahPompa', 'totalApab', 'totalP3k', 'totalEquipment'
+            );
+        });
+        
+        extract($stats);
 
         // APAR status breakdown
         $aparData = [

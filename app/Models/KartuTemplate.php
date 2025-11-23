@@ -10,9 +10,15 @@ class KartuTemplate extends Model
         'module',
         'title',
         'subtitle',
+        'company_name',
+        'company_address',
+        'company_phone',
+        'company_fax',
+        'company_email',
         'header_fields',
         'inspection_fields',
         'footer_fields',
+        'table_header',
         'is_active'
     ];
 
@@ -25,7 +31,23 @@ class KartuTemplate extends Model
 
     public static function getTemplate($module)
     {
-        return self::where('module', $module)->where('is_active', true)->first();
+        return \Cache::remember('kartu_template_' . $module, 3600, function () use ($module) {
+            return self::where('module', $module)->where('is_active', true)->first();
+        });
+    }
+    
+    protected static function boot()
+    {
+        parent::boot();
+        
+        // Clear cache saat template di-update atau delete
+        static::updated(function ($template) {
+            \Cache::forget('kartu_template_' . $template->module);
+        });
+        
+        static::deleted(function ($template) {
+            \Cache::forget('kartu_template_' . $template->module);
+        });
     }
 
     public static function getModules()

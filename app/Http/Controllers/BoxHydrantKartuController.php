@@ -18,24 +18,66 @@ class BoxHydrantKartuController extends Controller
         }
 
         $boxHydrant = BoxHydrant::findOrFail($boxHydrantId);
+        $template = \App\Models\KartuTemplate::getTemplate('box-hydrant');
 
-        return view('box-hydrant.kartu.create', compact('boxHydrant'));
+        return view('box-hydrant.kartu.create', compact('boxHydrant', 'template'));
     }
 
     public function store(Request $request)
     {
-        $data = $request->validate([
+        $template = \App\Models\KartuTemplate::getTemplate('box-hydrant');
+        
+        // Build validation rules
+        $rules = [
             'box_hydrant_id' => ['required', 'exists:box_hydrants,id'],
-            'pilar_hydrant'  => ['required', 'in:baik,tidak_baik'],
-            'box_hydrant'    => ['required', 'in:baik,tidak_baik'],
-            'nozzle'         => ['required', 'in:baik,tidak_baik'],
-            'selang'         => ['required', 'in:baik,tidak_baik'],
-            'uji_fungsi'     => ['required', 'in:baik,tidak_baik'],
-            'kesimpulan'     => ['required', 'in:baik,tidak_baik'],
+            'kesimpulan'     => ['required', 'string', 'max:50'],
             'tgl_periksa'    => ['required', 'date'],
-            'petugas'        => ['required', 'string', 'max:255'],
-            'pengawas'       => ['nullable', 'string', 'max:255'],
-        ]);
+            'petugas'        => ['required', 'string', 'max:100'],
+        ];
+        
+        // Add dynamic inspection fields validation
+        if ($template && $template->inspection_fields) {
+            foreach ($template->inspection_fields as $index => $field) {
+                $fieldName = 'inspection_' . $index;
+                $rules[$fieldName] = ['required', 'string', 'max:255'];
+            }
+        } else {
+            // Fallback ke field lama
+            $rules = array_merge($rules, [
+                'pilar_hydrant'  => ['required', 'string', 'max:50'],
+                'box_hydrant'    => ['required', 'string', 'max:50'],
+                'nozzle'         => ['required', 'string', 'max:50'],
+                'selang'         => ['required', 'string', 'max:50'],
+                'uji_fungsi'     => ['required', 'string', 'max:50'],
+            ]);
+        }
+        
+        $data = $request->validate($rules);
+        
+        // Jika menggunakan template, map inspection fields ke kolom database lama
+        if ($template && $template->inspection_fields) {
+            // Mapping label template ke kolom database
+            $fieldMapping = [
+                'Pilar Hydrant' => 'pilar_hydrant',
+                'Box Hydrant' => 'box_hydrant',
+                'Hose/Selang' => 'selang',
+                'Nozzle' => 'nozzle',
+                'Coupling' => 'uji_fungsi',
+                'Kondisi Fisik' => 'kondisi_fisik',
+            ];
+            
+            foreach ($template->inspection_fields as $index => $field) {
+                $fieldName = 'inspection_' . $index;
+                if (isset($data[$fieldName])) {
+                    // Map ke kolom database jika ada mapping
+                    if (isset($fieldMapping[$field['label']])) {
+                        $dbColumn = $fieldMapping[$field['label']];
+                        $data[$dbColumn] = $data[$fieldName];
+                    }
+                    unset($data[$fieldName]);
+                }
+            }
+        }
 
         $data['user_id'] = auth()->id();
         \App\Models\KartuBoxHydrant::create($data);

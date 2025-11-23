@@ -40,9 +40,18 @@ class KartuTemplateController extends Controller
             'footer_fields' => 'required|array',
             'footer_fields.*.label' => 'required|string',
             'footer_fields.*.value' => 'required|string',
+            'company_name' => 'nullable|string',
+            'company_address' => 'nullable|string',
+            'company_phone' => 'nullable|string',
+            'company_fax' => 'nullable|string',
+            'company_email' => 'nullable|email',
+            'table_header' => 'nullable|string|max:255',
         ]);
 
         $template->update($validated);
+        
+        // Clear cache untuk real-time update
+        \Cache::forget('kartu_template_' . $module);
 
         return redirect()->route('admin.kartu-templates.index')
             ->with('success', 'Template berhasil diupdate!');
