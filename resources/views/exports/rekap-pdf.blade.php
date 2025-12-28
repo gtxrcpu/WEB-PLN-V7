@@ -2,11 +2,11 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Rekap Peralatan</title>
+    <title>{{ $type === 'kartu' ? 'Rekap Kartu Kendali' : 'Rekap Peralatan' }}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            font-size: 12px;
+            font-size: 10px;
         }
         .header {
             text-align: center;
@@ -31,13 +31,15 @@
         th {
             background-color: #4F46E5;
             color: white;
-            padding: 10px;
+            padding: 8px 5px;
             text-align: left;
             font-weight: bold;
+            font-size: 9px;
         }
         td {
-            padding: 8px;
+            padding: 6px 5px;
             border-bottom: 1px solid #ddd;
+            font-size: 9px;
         }
         tr:nth-child(even) {
             background-color: #f9f9f9;
@@ -56,47 +58,92 @@
             color: #EF4444;
             font-weight: bold;
         }
+        .status-approved {
+            color: #10B981;
+            font-weight: bold;
+        }
+        .status-pending {
+            color: #F59E0B;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>REKAP PERALATAN PEMADAM KEBAKARAN</h1>
+        <h1>{{ $type === 'kartu' ? 'REKAP KARTU KENDALI' : 'REKAP PERALATAN PEMADAM KEBAKARAN' }}</h1>
         <p>PT PLN (Persero)</p>
         <p>Tanggal: {{ $date }}</p>
         <p>Modul: {{ strtoupper($module) }}</p>
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>No</th>
-                <th>Modul</th>
-                <th>Serial No</th>
-                <th>Barcode</th>
-                <th>Lokasi</th>
-                <th>Status</th>
-                <th>Kapasitas</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($data as $index => $item)
+    @if($type === 'kartu')
+        <table>
+            <thead>
                 <tr>
-                    <td>{{ $index + 1 }}</td>
-                    <td>{{ $item['modul'] }}</td>
-                    <td>{{ $item['serial_no'] }}</td>
-                    <td>{{ $item['barcode'] }}</td>
-                    <td>{{ $item['lokasi'] }}</td>
-                    <td class="{{ strtolower($item['status']) === 'baik' ? 'status-baik' : 'status-rusak' }}">
-                        {{ strtoupper($item['status']) }}
-                    </td>
-                    <td>{{ $item['kapasitas'] }}</td>
+                    <th style="width: 3%;">No</th>
+                    <th style="width: 10%;">Modul</th>
+                    <th style="width: 10%;">Serial No</th>
+                    <th style="width: 10%;">Tgl Periksa</th>
+                    <th style="width: 12%;">Kesimpulan</th>
+                    <th style="width: 15%;">Dibuat Oleh</th>
+                    <th style="width: 12%;">Tgl Dibuat</th>
+                    <th style="width: 10%;">Status</th>
+                    <th style="width: 15%;">Di-approve Oleh</th>
+                    <th style="width: 13%;">Tgl Approval</th>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach($data as $index => $item)
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td>{{ $item['modul'] }}</td>
+                        <td>{{ $item['serial_no'] }}</td>
+                        <td>{{ $item['tgl_periksa'] }}</td>
+                        <td>{{ $item['kesimpulan'] }}</td>
+                        <td>{{ $item['dibuat_oleh'] }}</td>
+                        <td>{{ $item['tgl_dibuat'] }}</td>
+                        <td class="{{ strtolower($item['status']) === 'approved' ? 'status-approved' : 'status-pending' }}">
+                            {{ $item['status'] }}
+                        </td>
+                        <td>{{ $item['approved_oleh'] }}</td>
+                        <td>{{ $item['tgl_approval'] }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @else
+        <table>
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Modul</th>
+                    <th>Serial No</th>
+                    <th>Barcode</th>
+                    <th>Lokasi</th>
+                    <th>Status</th>
+                    <th>Kapasitas</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($data as $index => $item)
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td>{{ $item['modul'] }}</td>
+                        <td>{{ $item['serial_no'] }}</td>
+                        <td>{{ $item['barcode'] }}</td>
+                        <td>{{ $item['lokasi'] }}</td>
+                        <td class="{{ strtolower($item['status']) === 'baik' ? 'status-baik' : 'status-rusak' }}">
+                            {{ strtoupper($item['status']) }}
+                        </td>
+                        <td>{{ $item['kapasitas'] }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @endif
 
     <div class="footer">
-        <p>Total: {{ count($data) }} unit</p>
+        <p>Total: {{ count($data) }} {{ $type === 'kartu' ? 'kartu' : 'unit' }}</p>
         <p>Dicetak pada: {{ date('d/m/Y H:i:s') }}</p>
     </div>
 </body>

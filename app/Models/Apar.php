@@ -25,82 +25,163 @@ class Apar extends Model
         'status',        // "BAIK" / "ISI ULANG" / "RUSAK"
         'notes',
         'qr_svg_path',
+        'floor_plan_id',
+        'floor_plan_x',
+        'floor_plan_y',
     ];
 
     /**
-     * Generate serial berikutnya: A1.001, A1.002, dst.
+     * Generate serial berikutnya berdasarkan format custom dari settings
      */
-    public static function generateNextSerial(): string
+    public static function generateNextSerial($unitCode = null): string
     {
-        $last = static::orderBy('id', 'desc')->first();
-
-        if (!$last || !$last->serial_no) {
-            return 'A1.001';
+        $format = \App\Models\AparSetting::get('apar_kode_format', 'APAR A1.{NNN}');
+        $counter = (int) \App\Models\AparSetting::get('apar_kode_counter', 1);
+        
+        // Get unit code
+        if (!$unitCode && auth()->check() && auth()->user()->unit) {
+            $unitCode = auth()->user()->unit->code;
         }
-
-        if (preg_match('/A1\.(\d+)/', $last->serial_no, $m)) {
-            $num = (int) $m[1] + 1;
-        } else {
-            $num = $last->id + 1;
-        }
-
-        return 'A1.' . str_pad($num, 3, '0', STR_PAD_LEFT);
+        $unitCode = $unitCode ?? 'INDUK';
+        
+        // Replace variables (tanpa tahun dan bulan)
+        $serial = str_replace([
+            '{UNIT}',
+            '{NNNN}',
+            '{NNN}',
+        ], [
+            $unitCode,
+            str_pad($counter, 4, '0', STR_PAD_LEFT),
+            str_pad($counter, 3, '0', STR_PAD_LEFT),
+        ], $format);
+        
+        // Increment counter
+        \App\Models\AparSetting::set('apar_kode_counter', $counter + 1);
+        
+        return $serial;
     }
 
     /**
-     * Generate / regenerate QR SVG untuk APAR ini.
-     * Disimpan di storage/app/public/qr/apar-{id}.svg
+     * Generate and save QR code as SVG file
      */
-    public function generateQrSvg(bool $force = false): void
+    public function generateQrSvg($force = false): void
     {
-        $disk = Storage::disk('public'); // => storage/app/public
-
-        // nama file relatif di dalam disk "public"
-        $relativePath = 'qr/apar-' . $this->id . '.svg';
-
-        // Kalau sudah ada & nggak dipaksa, skip
-        if (!$force && $this->qr_svg_path && $disk->exists($relativePath)) {
+        if (!$force && $this->qr_svg_path && Storage::disk('public')->exists($this->qr_svg_path)) {
             return;
         }
 
-        // Pastikan folder qr/ ada
-        if (!$disk->exists('qr')) {
-            $disk->makeDirectory('qr');
+        $url = route('apar.riwayat', $this->id);
+        
+        try {
+            $qrCode = QrCode::format('svg')
+                ->size(300)
+                ->margin(1)
+                ->errorCorrection('H')
+                ->generate($url);
+            
+            $filename = 'qrcodes/apar_' . $this->id . '.svg';
+            Storage::disk('public')->put($filename, $qrCode);
+            
+            $this->update(['qr_svg_path' => $filename]);
+        } catch (\Exception $e) {
+            \Log::error('Failed to generate QR for APAR ' . $this->id . ': ' . $e->getMessage());
         }
-
-        $value = $this->barcode ?: ('APAR ' . ($this->serial_no ?? $this->id));
-
-        $svg = QrCode::format('svg')
-            ->size(300)
-            ->margin(1)
-            ->generate($value);
-
-        // Simpan ke storage/app/public/qr/apar-{id}.svg
-        $disk->put($relativePath, $svg);
-
-        // Path publik untuk dipakai asset()
-        $this->qr_svg_path = 'storage/' . $relativePath; // storage/qr/apar-{id}.svg
-        $this->save();
     }
 
     /**
-     * Accessor: $apar->qr_url → URL ke file SVG
-     */
-    public function getQrUrlAttribute(): string
-    {
-        if ($this->qr_svg_path) {
-            return asset($this->qr_svg_path);
-        }
-
-        return asset('storage/qr/apar-' . $this->id . '.svg');
-    }
-
-    /**
-     * Wrapper supaya command apar:qr-backfill yang lama tetap jalan.
+     * Alias for generateQrSvg() for backward compatibility
      */
     public function refreshQrSvg(): void
     {
         $this->generateQrSvg(true);
+    }
+
+    /**
+     * Accessor: $apar->qr_url → Generate QR as SVG data URI (no file, no HTTP request!)
+     * This generates QR on-the-fly as base64 encoded SVG (works without imagick)
+     */
+    public function getQrUrlAttribute(): string
+    {
+        // Generate QR content with equipment info (not URL)
+        $qrContent = json_encode([
+            'type' => 'APAR',
+            'code' => $this->barcode ?? $this->serial_no,
+            'serial' => $this->serial_no,
+            'location' => $this->location_code ?? '-',
+            'status' => $this->status ?? '-',
+            'capacity' => $this->capacity ?? '-',
+            'type_detail' => $this->type ?? '-',
+        ], JSON_UNESCAPED_UNICODE);
+        
+        try {
+            $qrCode = QrCode::format('svg')
+                ->size(300)
+                ->margin(1)
+                ->errorCorrection('H')
+                ->generate($qrContent);
+            
+            $base64 = base64_encode($qrCode);
+            return 'data:image/svg+xml;base64,' . $base64;
+        } catch (\Exception $e) {
+            // Fallback placeholder
+            return 'data:image/svg+xml;base64,' . base64_encode(
+                '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><rect width="300" height="300" fill="#f3f4f6"/><text x="150" y="150" text-anchor="middle" font-size="14" fill="#6b7280">QR Error</text></svg>'
+            );
+        }
+    }
+    
+    /**
+     * Generate QR Code as data URI (base64 encoded PNG)
+     * This works on any hosting without file storage issues
+     * Usage: <img src="{{ $apar->qr_data_uri }}" />
+     * 
+     * @return string Base64 data URI
+     */
+    public function getQrDataUriAttribute(): string
+    {
+        $url = route('apar.riwayat', $this->id);
+        
+        try {
+            $qrCode = QrCode::format('png')
+                ->size(300)
+                ->margin(1)
+                ->errorCorrection('H')
+                ->generate($url);
+            
+            $base64 = base64_encode($qrCode);
+            return 'data:image/png;base64,' . $base64;
+        } catch (\Exception $e) {
+            // Fallback placeholder
+            return 'data:image/svg+xml;base64,' . base64_encode(
+                '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><rect width="300" height="300" fill="#f3f4f6"/><text x="150" y="150" text-anchor="middle" font-size="14" fill="#6b7280">QR Code</text></svg>'
+            );
+        }
+    }
+    
+    /**
+     * Generate QR Code as SVG data URI (smaller size, better quality)
+     * Usage: <img src="{{ $apar->qr_svg_data_uri }}" />
+     * 
+     * @return string SVG data URI
+     */
+    public function getQrSvgDataUriAttribute(): string
+    {
+        $url = route('apar.riwayat', $this->id);
+        
+        try {
+            $qrCode = QrCode::format('svg')
+                ->size(300)
+                ->margin(1)
+                ->errorCorrection('H')
+                ->generate($url);
+            
+            $base64 = base64_encode($qrCode);
+            return 'data:image/svg+xml;base64,' . $base64;
+        } catch (\Exception $e) {
+            return 'data:image/svg+xml;base64,' . base64_encode(
+                '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><rect width="300" height="300" fill="#f3f4f6"/><text x="150" y="150" text-anchor="middle" font-size="14" fill="#6b7280">QR Code</text></svg>'
+            );
+        }
     }
 
     /**
@@ -109,5 +190,13 @@ class Apar extends Model
     public function kartuApars()
     {
         return $this->hasMany(\App\Models\KartuApar::class, 'apar_id');
+    }
+
+    /**
+     * Get the floor plan that this equipment belongs to
+     */
+    public function floorPlan()
+    {
+        return $this->belongsTo(FloorPlan::class);
     }
 }

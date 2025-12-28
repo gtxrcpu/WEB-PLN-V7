@@ -46,6 +46,7 @@
         <div class="relative w-full sm:w-auto">
           <select id="moduleSelector" onchange="switchModule(this.value)" 
                   class="w-full sm:w-auto appearance-none bg-white border-2 border-slate-200 rounded-xl px-4 py-2.5 pr-10 text-xs sm:text-sm font-semibold text-slate-700 hover:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all cursor-pointer shadow-sm">
+            <option value="all">Laporan Keseluruhan - Semua Modul</option>
             <option value="apar">APAR - Alat Pemadam Api Ringan</option>
             <option value="apat">APAT - Alat Pemadam Api Tradisional</option>
             <option value="apab">APAB - Alat Pemadam Api Berat</option>
@@ -209,7 +210,7 @@
   {{-- KPI Cards --}}
   <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
     @foreach ([
-      ['Total Users', $totalUsers ?? 0, $totalAdmins . ' Admin • ' . $totalRegularUsers . ' User', 'blue', 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z'],
+      ['Total Users', $totalUsers ?? 0, $totalSuperadmin . ' Superadmin • ' . $totalLeader . ' Leader • ' . $totalInspector . ' Inspector • ' . $totalPetugas . ' Petugas', 'blue', 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z'],
       ['Total Item', $totalItems ?? 0, 'Semua modul', 'cyan', 'M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z'],
       ['Kondisi Baik', $totalBaik, 'Siap digunakan', 'emerald', 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'],
       ['Perlu Perbaikan', $totalRusak, 'Segera perbaiki', 'rose', 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z'],
@@ -285,7 +286,8 @@
               <p class="text-sm text-gray-500 truncate">{{ $user->email }}</p>
             </div>
             <span class="px-2 py-1 text-xs font-semibold rounded-full
-              @if($user->hasRole('admin')) bg-purple-100 text-purple-700
+              @if($user->hasRole('superadmin')) bg-purple-100 text-purple-700
+              @elseif($user->hasRole('leader')) bg-green-100 text-green-700
               @else bg-blue-100 text-blue-700 @endif">
               {{ $user->getRoleNames()->first() ?? 'user' }}
             </span>
@@ -381,6 +383,32 @@
         <h3 class="font-bold text-lg mb-2">Kartu Kendali Settings</h3>
         <p class="text-sm text-gray-600">Template per modul</p>
       </a>
+
+      <a href="{{ route('admin.edit-kode.index') }}" class="group relative rounded-lg bg-white p-6 shadow-lg ring-1 ring-slate-200 hover:shadow-xl transition-all">
+        <div class="flex items-start justify-between mb-3">
+          <div class="w-12 h-12 rounded-lg flex items-center justify-center bg-green-100">
+            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+            </svg>
+          </div>
+          <span class="text-gray-400 group-hover:text-gray-600 group-hover:translate-x-1 transition-all">→</span>
+        </div>
+        <h3 class="font-bold text-lg mb-2">Edit Kode</h3>
+        <p class="text-sm text-gray-600">Format kode serial modul</p>
+      </a>
+
+      <a href="{{ route('admin.floor-plans.index') }}" class="group relative rounded-lg bg-white p-6 shadow-lg ring-1 ring-slate-200 hover:shadow-xl transition-all">
+        <div class="flex items-start justify-between mb-3">
+          <div class="w-12 h-12 rounded-lg flex items-center justify-center bg-blue-100">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+            </svg>
+          </div>
+          <span class="text-gray-400 group-hover:text-gray-600 group-hover:translate-x-1 transition-all">→</span>
+        </div>
+        <h3 class="font-bold text-lg mb-2">Floor Plans</h3>
+        <p class="text-sm text-gray-600">Kelola denah gedung</p>
+      </a>
     </div>
   </section>
 
@@ -409,6 +437,12 @@
           // Admin routes untuk equipment
           $adminRoute = match($name) {
             'APAR' => 'admin.apar.index',
+            'APAT' => 'admin.apat.index',
+            'APAB' => 'admin.apab.index',
+            'Fire Alarm' => 'admin.fire-alarm.index',
+            'Box Hydrant' => 'admin.box-hydrant.index',
+            'Rumah Pompa' => 'admin.rumah-pompa.index',
+            'P3K' => 'admin.p3k.index',
             default => $route
           };
           
@@ -527,11 +561,13 @@
     // User data for chart
     const userData = {
       total: {{ $totalUsers }},
-      admin: {{ $totalAdmins }},
-      user: {{ $totalRegularUsers }}
+      superadmin: {{ $totalSuperadmin }},
+      leader: {{ $totalLeader }},
+      inspector: {{ $totalInspector }},
+      petugas: {{ $totalPetugas }}
     };
 
-    let currentModule = 'apar';
+    let currentModule = 'all';
     let statusChart = null;
     let userChart = null;
     let comparisonChart = null;
@@ -606,15 +642,19 @@
       userChart = new Chart(userCtx, {
         type: 'doughnut',
         data: {
-          labels: ['Admin', 'User'],
+          labels: ['Superadmin', 'Leader', 'Inspector', 'Petugas'],
           datasets: [{
-            data: [userData.admin, userData.user],
+            data: [userData.superadmin, userData.leader, userData.inspector, userData.petugas],
             backgroundColor: [
-              'rgba(147, 51, 234, 0.85)',
-              'rgba(59, 130, 246, 0.85)'
+              'rgba(147, 51, 234, 0.85)',   // Purple for Superadmin
+              'rgba(16, 185, 129, 0.85)',   // Green for Leader
+              'rgba(251, 146, 60, 0.85)',   // Orange for Inspector
+              'rgba(59, 130, 246, 0.85)'    // Blue for Petugas
             ],
             borderColor: [
               'rgb(126, 34, 206)',
+              'rgb(5, 150, 105)',
+              'rgb(234, 88, 12)',
               'rgb(37, 99, 235)'
             ],
             borderWidth: 2

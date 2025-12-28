@@ -18,34 +18,22 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Cache dashboard stats for 5 minutes
-        $cacheKey = 'admin_dashboard_stats_' . auth()->id();
-        $cacheDuration = now()->addMinutes(5);
-        
-        $stats = cache()->remember($cacheKey, $cacheDuration, function() {
-            // Total users
-            $totalUsers = User::count();
-            $totalAdmins = User::role('admin')->count();
-            $totalRegularUsers = User::role('user')->count();
+        // Total users by role
+        $totalUsers = User::count();
+        $totalSuperadmin = User::role('superadmin')->count();
+        $totalLeader = User::role('leader')->count();
+        $totalInspector = User::role('inspector')->count();
+        $totalPetugas = User::role('petugas')->count();
 
-            // Total equipment - optimized single queries
-            $totalApar = Apar::count();
-            $totalApat = Apat::count();
-            $totalFireAlarm = FireAlarm::count();
-            $totalBoxHydrant = BoxHydrant::count();
-            $totalRumahPompa = RumahPompa::count();
-            $totalApab = Apab::count();
-            $totalP3k = P3k::count();
-            $totalEquipment = $totalApar + $totalApat + $totalFireAlarm + $totalBoxHydrant + $totalRumahPompa + $totalApab + $totalP3k;
-            
-            return compact(
-                'totalUsers', 'totalAdmins', 'totalRegularUsers',
-                'totalApar', 'totalApat', 'totalFireAlarm', 'totalBoxHydrant',
-                'totalRumahPompa', 'totalApab', 'totalP3k', 'totalEquipment'
-            );
-        });
-        
-        extract($stats);
+        // Total equipment
+        $totalApar = Apar::count();
+        $totalApat = Apat::count();
+        $totalFireAlarm = FireAlarm::count();
+        $totalBoxHydrant = BoxHydrant::count();
+        $totalRumahPompa = RumahPompa::count();
+        $totalApab = Apab::count();
+        $totalP3k = P3k::count();
+        $totalEquipment = $totalApar + $totalApat + $totalFireAlarm + $totalBoxHydrant + $totalRumahPompa + $totalApab + $totalP3k;
 
         // APAR status breakdown
         $aparData = [
@@ -105,31 +93,74 @@ class DashboardController extends Controller
         ];
 
         // Total items for KPI
-        $totalItems = $totalEquipment;
         $totalBaik = $aparData['baik'] + $apatData['baik'] + $apabData['baik'] + 
                      $fireAlarmData['baik'] + $boxHydrantData['baik'] + $rumahPompaData['baik'];
         $totalRusak = $aparData['rusak'] + $apatData['rusak'] + $apabData['tidak_baik'] + 
                       $fireAlarmData['rusak'] + $boxHydrantData['rusak'] + $rumahPompaData['rusak'];
 
-        // Tren inspeksi 12 bulan terakhir
+        // Pending approvals
+        $pendingApprovals = \App\Models\KartuApar::whereNull('approved_at')->count();
+        $pendingApprovalsList = \App\Models\KartuApar::with(['apar.unit', 'user'])
+            ->whereNull('approved_at')
+            ->latest()
+            ->take(10)
+            ->get();
+
+        // Tren inspeksi 12 bulan terakhir (gabungan semua modul)
         $monthlyInspections = [];
         $monthLabels = [];
         for ($i = 11; $i >= 0; $i--) {
             $date = now()->subMonths($i);
             $monthLabels[] = $date->format('M Y');
             
-            $count = DB::table('kartu_apars')
+            // Hitung dari semua tabel kartu
+            $countApar = DB::table('kartu_apars')
                 ->whereYear('tgl_periksa', $date->year)
                 ->whereMonth('tgl_periksa', $date->month)
                 ->count();
             
-            $monthlyInspections[] = $count;
+            $countApat = DB::table('kartu_apats')
+                ->whereYear('tgl_periksa', $date->year)
+                ->whereMonth('tgl_periksa', $date->month)
+                ->count();
+            
+            $countApab = DB::table('kartu_apabs')
+                ->whereYear('tgl_periksa', $date->year)
+                ->whereMonth('tgl_periksa', $date->month)
+                ->count();
+            
+            $countFireAlarm = DB::table('kartu_fire_alarms')
+                ->whereYear('tgl_periksa', $date->year)
+                ->whereMonth('tgl_periksa', $date->month)
+                ->count();
+            
+            $countBoxHydrant = DB::table('kartu_box_hydrants')
+                ->whereYear('tgl_periksa', $date->year)
+                ->whereMonth('tgl_periksa', $date->month)
+                ->count();
+            
+            $countRumahPompa = DB::table('kartu_rumah_pompas')
+                ->whereYear('tgl_periksa', $date->year)
+                ->whereMonth('tgl_periksa', $date->month)
+                ->count();
+            
+            $countP3k = DB::table('kartu_p3ks')
+                ->whereYear('tgl_periksa', $date->year)
+                ->whereMonth('tgl_periksa', $date->month)
+                ->count();
+            
+            $totalCount = $countApar + $countApat + $countApab + $countFireAlarm + $countBoxHydrant + $countRumahPompa + $countP3k;
+            $monthlyInspections[] = $totalCount;
         }
+
+        $totalItems = $totalEquipment;
 
         return view('dashboard.admin', compact(
             'totalUsers',
-            'totalAdmins',
-            'totalRegularUsers',
+            'totalSuperadmin',
+            'totalLeader',
+            'totalInspector',
+            'totalPetugas',
             'totalEquipment',
             'totalApar',
             'totalApat',

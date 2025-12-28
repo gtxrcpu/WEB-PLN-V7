@@ -142,26 +142,87 @@
             </div>
         </div>
 
-        {{-- STATUS APPROVAL --}}
-        @if($kartu->isApproved())
-            <div class="no-print mb-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
-                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        {{-- APPROVAL HISTORY TIMELINE --}}
+        <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>
-                <span class="text-sm font-medium text-green-800">
-                    Kartu ini telah di-approve oleh {{ $kartu->approver->name ?? 'Admin' }} pada {{ $kartu->approved_at->format('d M Y H:i') }}
-                </span>
+                Riwayat Approval
+            </h3>
+            
+            <div class="space-y-4">
+                {{-- Created By --}}
+                <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="font-semibold text-gray-900">Dibuat oleh</span>
+                            @if($kartu->user)
+                                <span class="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded">
+                                    {{ get_user_role_display($kartu->user) }}
+                                </span>
+                            @endif
+                        </div>
+                        <p class="text-sm text-gray-700 font-medium">
+                            {{ get_user_display_name($kartu->user, 'User Deleted') }}
+                        </p>
+                        <p class="text-xs text-gray-500 mt-1">
+                            {{ $kartu->created_at->format('d M Y, H:i') }} WIB
+                        </p>
+                    </div>
+                </div>
+
+                {{-- Approval Status --}}
+                @if($kartu->isApproved())
+                    <div class="flex items-start gap-3">
+                        <div class="flex-shrink-0 w-10 h-10 bg-green-600 rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="font-semibold text-gray-900">Di-approve oleh</span>
+                                @if($kartu->approver)
+                                    @php
+                                        $approverRole = 'Admin';
+                                        if ($kartu->approver->hasRole('superadmin')) {
+                                        @if($kartu->approver)
+                                    <span class="px-2 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded">
+                                        {{ get_user_role_display($kartu->approver) }}
+                                    </span>
+                                @endif
+                            </div>
+                            <p class="text-sm text-gray-700 font-medium">
+                                {{ get_user_display_name($kartu->approver, 'User Deleted') }}
+                            </p>
+                            <p class="text-xs text-gray-500 mt-1">
+                                {{ $kartu->approved_at->format('d M Y, H:i') }} WIB
+                            </p>
+                        </div>
+                    </div>
+                @else
+                    <div class="flex items-start gap-3">
+                        <div class="flex-shrink-0 w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <span class="font-semibold text-gray-900">Status</span>
+                            <p class="text-sm text-yellow-700 font-medium mt-1">
+                                Menunggu approval dari Leader/Superadmin
+                            </p>
+                        </div>
+                    </div>
+                @endif
             </div>
-        @else
-            <div class="no-print mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center gap-2">
-                <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                <span class="text-sm font-medium text-yellow-800">
-                    Kartu ini belum di-approve oleh admin
-                </span>
-            </div>
-        @endif
+        </div>
 
         {{-- TABEL PEMERIKSAAN --}}
         <div class="mb-6">
@@ -213,13 +274,9 @@
                 <p class="text-sm text-gray-600">Tanggal Pemeriksaan</p>
                 <p class="font-semibold">{{ \Carbon\Carbon::parse($kartu->tgl_periksa)->format('d M Y') }}</p>
             </div>
-            <div>
+            <div class="col-span-2">
                 <p class="text-sm text-gray-600">Petugas Pemeriksa</p>
                 <p class="font-semibold">{{ $kartu->petugas }}</p>
-            </div>
-            <div>
-                <p class="text-sm text-gray-600">Dibuat Oleh</p>
-                <p class="font-semibold">{{ $kartu->user->name ?? 'Unknown' }}</p>
             </div>
         </div>
 

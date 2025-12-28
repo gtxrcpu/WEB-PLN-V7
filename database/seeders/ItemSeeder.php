@@ -9,7 +9,15 @@ class ItemSeeder extends Seeder
 {
     public function run(): void
     {
-        $uid = 1; // contoh: milik user #1
+        // Ambil superadmin sebagai owner default
+        $superadmin = \App\Models\User::where('email', 'superadmin@pln.co.id')->first();
+        
+        if (!$superadmin) {
+            $this->command->warn('⚠️  Superadmin not found, skipping ItemSeeder');
+            return;
+        }
+
+        $uid = $superadmin->id;
         $now = now();
 
         $rows = [
@@ -26,5 +34,7 @@ class ItemSeeder extends Seeder
         ];
 
         DB::table('items')->insert($rows);
+        
+        $this->command->info('✅ Sample items created');
     }
 }

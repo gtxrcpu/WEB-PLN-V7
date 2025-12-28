@@ -13,11 +13,17 @@ class RedirectByRole
 
         if ($u) {
             if (method_exists($u, 'hasRole')) {
-                if ($u->hasRole('Admin')) {
+                if ($u->hasRole('superadmin')) {
                     return redirect()->route('admin.dashboard');
                 }
-                if ($u->hasRole('Inspector')) {
+                if ($u->hasRole('leader')) {
+                    return redirect()->route('leader.dashboard');
+                }
+                if ($u->hasRole('inspector')) {
                     return redirect()->route('inspector.dashboard');
+                }
+                if ($u->hasRole('petugas')) {
+                    return redirect()->route('user.dashboard');
                 }
                 return redirect()->route('user.dashboard');
             }

@@ -11,6 +11,7 @@ class KartuRumahPompa extends Model
 
     protected $casts = [
         'tgl_periksa' => 'date',
+        'approved_at' => 'datetime',
     ];
 
     public function rumahPompa(): BelongsTo
@@ -21,5 +22,15 @@ class KartuRumahPompa extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function approver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function isApproved(): bool
+    {
+        return !is_null($this->approved_at);
     }
 }

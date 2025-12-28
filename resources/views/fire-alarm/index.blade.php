@@ -25,6 +25,7 @@
                 </p>
             </div>
 
+            @hasanyrole('admin|user')
             <div class="flex items-center gap-3">
                 <a href="{{ route('fire-alarm.create') }}"
                    class="group inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-pink-600 text-white text-sm font-semibold hover:from-red-700 hover:to-pink-700 shadow-lg shadow-red-500/30 hover:shadow-xl hover:shadow-red-500/40 transition-all duration-300">
@@ -34,6 +35,7 @@
                     <span>Tambah Fire Alarm</span>
                 </a>
             </div>
+            @endhasanyrole
         </div>
 
         {{-- Stats Cards --}}
@@ -151,10 +153,6 @@
                     'icon' => 'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
                 ],
             };
-
-            $qrAsset = $fireAlarm->qr_svg_path
-                ? asset($fireAlarm->qr_svg_path)
-                : null;
           @endphp
 
           <div data-item 
@@ -214,35 +212,26 @@
                     </div>
                 </div>
 
-                {{-- QR Code Section --}}
+                {{-- QR Code Section - LEBIH BESAR --}}
                 <div class="relative mb-5">
                     <div class="absolute inset-0 bg-gradient-to-br {{ $statusConfig['gradient'] }} opacity-5 rounded-2xl"></div>
                     <div class="relative flex flex-col items-center justify-center p-5 rounded-2xl border-2 border-dashed border-slate-200 bg-white">
-                        @if($qrAsset)
-                            <div class="mb-3">
-                                <img src="{{ $qrAsset }}"
-                                     alt="QR Fire Alarm {{ $kodePendek }}"
-                                     class="w-40 h-40 object-contain rounded-xl shadow-lg ring-4 ring-white bg-white">
-                            </div>
-                            <div class="text-center">
-                                <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Scan QR Code</p>
-                                <p class="text-xs text-slate-500 mt-0.5">untuk akses cepat</p>
-                            </div>
-                        @else
-                            <div class="w-40 h-40 flex items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50">
-                                <div class="text-center px-4">
-                                    <svg class="w-12 h-12 mx-auto text-slate-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1z"/>
-                                    </svg>
-                                    <p class="text-xs text-slate-500">QR belum dibuat</p>
-                                </div>
-                            </div>
-                        @endif
+                        <div class="mb-3">
+                            <img src="{{ $fireAlarm->qr_url }}"
+                                 alt="QR Fire Alarm {{ $kodePendek }}"
+                                 class="w-40 h-40 object-contain rounded-xl shadow-lg ring-4 ring-white bg-white"
+                                 loading="lazy">
+                        </div>
+                        <div class="text-center">
+                            <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Scan QR Code</p>
+                            <p class="text-xs text-slate-500 mt-0.5">untuk akses cepat</p>
+                        </div>
                     </div>
                 </div>
 
                 {{-- Action Buttons --}}
                 <div class="flex flex-col gap-2">
+                    @hasanyrole('admin|user')
                     <a href="{{ route('fire-alarm.kartu.create', ['fire_alarm_id' => $fireAlarm->id]) }}"
                        class="group/btn relative overflow-hidden inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 text-white text-sm font-semibold hover:from-sky-700 hover:to-blue-700 shadow-lg shadow-sky-500/30 hover:shadow-xl hover:shadow-sky-500/40 transition-all duration-300">
                         <svg class="w-5 h-5 group-hover/btn:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -250,6 +239,7 @@
                         </svg>
                         <span>Kartu Kendali</span>
                     </a>
+                    @endhasanyrole
 
                     <a href="{{ route('fire-alarm.riwayat', $fireAlarm) }}"
                        class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border-2 border-red-200 bg-red-50 text-sm font-medium text-red-700 hover:bg-red-100 hover:border-red-300 transition-all duration-200">
@@ -259,6 +249,7 @@
                         <span>Lihat Riwayat</span>
                     </a>
 
+                    @hasanyrole('admin|user')
                     <a href="{{ route('fire-alarm.edit', $fireAlarm) }}"
                        class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border-2 border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all duration-200">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -266,6 +257,7 @@
                         </svg>
                         <span>Edit Fire Alarm</span>
                     </a>
+                    @endhasanyrole
                 </div>
             </div>
           </div>

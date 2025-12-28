@@ -64,9 +64,35 @@ class RumahPompaController extends Controller
             ->with('success', 'Rumah Pompa ' . $rumahPompa->serial_no . ' berhasil diperbarui');
     }
 
-    public function riwayat(RumahPompa $rumahPompa)
+    public function riwayat(Request $request, RumahPompa $rumahPompa)
     {
-        $riwayatInspeksi = $rumahPompa->kartuInspeksi()->with('user')->get();
+        $query = $rumahPompa->kartuInspeksi()->with(['user', 'approver', 'signature']);
+        
+        // Filter by creator
+        if ($request->filled('creator')) {
+            $query->whereHas('user', function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->creator . '%');
+            });
+        }
+        
+        // Filter by approver
+        if ($request->filled('approver')) {
+            $query->whereHas('approver', function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->approver . '%');
+            });
+        }
+        
+        // Filter by approval status
+        if ($request->filled('status')) {
+            if ($request->status === 'approved') {
+                $query->whereNotNull('approved_at');
+            } elseif ($request->status === 'pending') {
+                $query->whereNull('approved_at');
+            }
+        }
+        
+        $riwayatInspeksi = $query->orderBy('tgl_periksa', 'desc')->get();
+        
         return view('rumah-pompa.riwayat', compact('rumahPompa', 'riwayatInspeksi'));
     }
 }

@@ -32,7 +32,8 @@ class RumahPompaController extends Controller
 
     public function create()
     {
-        return view('admin.rumah-pompa.create');
+        $nextSerial = RumahPompa::generateNextSerial();
+        return view('admin.rumah-pompa.create', compact('nextSerial'));
     }
 
     public function store(Request $request)

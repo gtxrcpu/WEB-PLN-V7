@@ -32,7 +32,8 @@ class BoxHydrantController extends Controller
 
     public function create()
     {
-        return view('admin.box-hydrant.create');
+        $nextSerial = BoxHydrant::generateNextSerial();
+        return view('admin.box-hydrant.create', compact('nextSerial'));
     }
 
     public function store(Request $request)

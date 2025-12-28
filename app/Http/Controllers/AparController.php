@@ -56,6 +56,9 @@ class AparController extends Controller
             'agent'         => 'nullable|string|max:100',
             'status'        => 'required|string|max:20',
             'notes'         => 'nullable|string',
+            'floor_plan_id' => 'nullable|exists:floor_plans,id',
+            'floor_plan_x'  => 'nullable|numeric|min:0|max:100',
+            'floor_plan_y'  => 'nullable|numeric|min:0|max:100',
         ]);
 
         $serial = Apar::generateNextSerial();
@@ -73,6 +76,9 @@ class AparController extends Controller
             'agent'         => $request->agent,
             'status'        => $request->status,
             'notes'         => $request->notes,
+            'floor_plan_id' => $request->floor_plan_id,
+            'floor_plan_x'  => $request->floor_plan_x,
+            'floor_plan_y'  => $request->floor_plan_y,
         ]);
 
         // generate QR untuk APAR baru
@@ -103,6 +109,9 @@ class AparController extends Controller
             'agent'         => 'nullable|string|max:100',
             'status'        => 'required|string|max:20',
             'notes'         => 'nullable|string',
+            'floor_plan_id' => 'nullable|exists:floor_plans,id',
+            'floor_plan_x'  => 'nullable|numeric|min:0|max:100',
+            'floor_plan_y'  => 'nullable|numeric|min:0|max:100',
         ]);
 
         $apar->update([
@@ -112,6 +121,9 @@ class AparController extends Controller
             'agent'         => $request->agent,
             'status'        => $request->status,
             'notes'         => $request->notes,
+            'floor_plan_id' => $request->floor_plan_id,
+            'floor_plan_x'  => $request->floor_plan_x,
+            'floor_plan_y'  => $request->floor_plan_y,
         ]);
 
         // kalau mau bisa regenerate QR (opsional, tapi nggak masalah)
@@ -125,9 +137,34 @@ class AparController extends Controller
     /**
      * Tampilkan riwayat kartu kendali APAR
      */
-    public function riwayat(Apar $apar)
+    public function riwayat(Request $request, Apar $apar)
     {
-        $kartuKendali = $apar->kartuApars()->with(['signature', 'approver'])->latest()->get();
+        $query = $apar->kartuApars()->with(['signature', 'user', 'approver']);
+        
+        // Filter by creator
+        if ($request->filled('creator')) {
+            $query->whereHas('user', function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->creator . '%');
+            });
+        }
+        
+        // Filter by approver
+        if ($request->filled('approver')) {
+            $query->whereHas('approver', function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->approver . '%');
+            });
+        }
+        
+        // Filter by approval status
+        if ($request->filled('status')) {
+            if ($request->status === 'approved') {
+                $query->whereNotNull('approved_at');
+            } elseif ($request->status === 'pending') {
+                $query->whereNull('approved_at');
+            }
+        }
+        
+        $kartuKendali = $query->latest()->get();
         
         return view('apar.riwayat', compact('apar', 'kartuKendali'));
     }
@@ -138,7 +175,7 @@ class AparController extends Controller
     public function viewKartu($aparId, $kartuId)
     {
         $apar = Apar::findOrFail($aparId);
-        $kartu = \App\Models\KartuApar::with(['signature', 'approver'])->findOrFail($kartuId);
+        $kartu = \App\Models\KartuApar::with(['signature', 'user', 'approver'])->findOrFail($kartuId);
         
         // Get template for APAR module
         $template = \App\Models\KartuTemplate::getTemplate('apar');

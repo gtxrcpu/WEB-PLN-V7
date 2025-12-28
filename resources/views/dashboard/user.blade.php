@@ -1,4 +1,4 @@
-<x-layouts.app :title="'Dashboard — User'">
+<x-layouts.app :title="'Dashboard — ' . ucfirst(auth()->user()->getRoleNames()->first() ?? 'User')">
   {{-- Unit Info Banner --}}
   @if(auth()->user()->unit)
     <div class="mb-4 sm:mb-6 p-4 sm:p-6 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl shadow-lg">
@@ -40,6 +40,7 @@
         <div class="relative w-full sm:w-auto">
           <select id="moduleSelector" onchange="switchModule(this.value)" 
                   class="w-full sm:w-auto appearance-none bg-white border-2 border-slate-200 rounded-xl px-4 py-2.5 pr-10 text-xs sm:text-sm font-semibold text-slate-700 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-pointer shadow-sm">
+            <option value="all">Laporan Keseluruhan - Semua Modul</option>
             <option value="apar">APAR - Alat Pemadam Api Ringan</option>
             <option value="apat">APAT - Alat Pemadam Api Tradisional</option>
             <option value="apab">APAB - Alat Pemadam Api Berat</option>
@@ -152,7 +153,7 @@
         <span class="w-1.5 h-5 sm:h-6 bg-gradient-to-b from-blue-500 to-blue-400 rounded-full"></span>
         Quick Actions
       </h2>
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-5">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-5">
         <a href="{{ route('quick.scan') }}" class="group relative rounded-lg bg-white p-3 sm:p-4 shadow-sm ring-1 ring-slate-200 hover:shadow-lg transition-all duration-300 overflow-hidden">
           <div class="relative z-10">
             <div class="flex items-start justify-between mb-2 sm:mb-3">
@@ -164,7 +165,7 @@
               <span class="text-gray-400 group-hover:text-gray-600 group-hover:translate-x-1 transition-all text-lg sm:text-xl">→</span>
             </div>
             <h3 class="font-bold text-sm sm:text-md mb-1 sm:mb-2">Scan / Input QR</h3>
-            <p class="text-xs sm:text-sm text-gray-600 mb-2">Gunakan scanner untuk tambah item.</p>
+            <p class="text-xs sm:text-sm text-gray-600 mb-2 hidden sm:block">Gunakan scanner untuk tambah item.</p>
             <div class="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold bg-blue-500 text-white group-hover:bg-blue-600 transition-colors">
               Scan
             </div>
@@ -182,7 +183,7 @@
               <span class="text-gray-400 group-hover:text-gray-600 group-hover:translate-x-1 transition-all text-lg sm:text-xl">→</span>
             </div>
             <h3 class="font-bold text-sm sm:text-md mb-1 sm:mb-2">Buat Inspeksi</h3>
-            <p class="text-xs sm:text-sm text-gray-600 mb-2">Catat status baik/rusak/perbaikan.</p>
+            <p class="text-xs sm:text-sm text-gray-600 mb-2 hidden sm:block">Catat status baik/rusak/perbaikan.</p>
             <div class="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold bg-sky-500 text-white group-hover:bg-sky-600 transition-colors">
               Form
             </div>
@@ -200,9 +201,27 @@
               <span class="text-gray-400 group-hover:text-gray-600 group-hover:translate-x-1 transition-all text-lg sm:text-xl">→</span>
             </div>
             <h3 class="font-bold text-sm sm:text-md mb-1 sm:mb-2">Rekap & Export</h3>
-            <p class="text-xs sm:text-sm text-gray-600 mb-2">Unduh laporan periodik.</p>
+            <p class="text-xs sm:text-sm text-gray-600 mb-2 hidden sm:block">Unduh laporan periodik.</p>
             <div class="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold bg-cyan-500 text-white group-hover:bg-cyan-600 transition-colors">
               Export
+            </div>
+          </div>
+        </a>
+
+        <a href="{{ route('floor-plan.index') }}" class="group relative rounded-lg bg-white p-3 sm:p-4 shadow-sm ring-1 ring-slate-200 hover:shadow-lg transition-all duration-300 overflow-hidden">
+          <div class="relative z-10">
+            <div class="flex items-start justify-between mb-2 sm:mb-3">
+              <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center bg-indigo-100">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                </svg>
+              </div>
+              <span class="text-gray-400 group-hover:text-gray-600 group-hover:translate-x-1 transition-all text-lg sm:text-xl">→</span>
+            </div>
+            <h3 class="font-bold text-sm sm:text-md mb-1 sm:mb-2">Denah Lokasi</h3>
+            <p class="text-xs sm:text-sm text-gray-600 mb-2 hidden sm:block">Lihat lokasi peralatan real-time.</p>
+            <div class="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold bg-indigo-500 text-white group-hover:bg-indigo-600 transition-colors">
+              Lihat
             </div>
           </div>
         </a>
@@ -299,6 +318,23 @@
   <script>
     // Data dari Backend (Real-time)
     const moduleData = {
+      'all': {
+        name: 'Semua Modul',
+        fullName: 'Laporan Keseluruhan',
+        baik: {{ ($aparData['baik'] ?? 0) + ($apatData['baik'] ?? 0) + ($apabData['baik'] ?? 0) + ($fireAlarmData['baik'] ?? 0) + ($boxHydrantData['baik'] ?? 0) + ($rumahPompaData['baik'] ?? 0) }},
+        isi_ulang: {{ $aparData['isi_ulang'] ?? 0 }},
+        rusak: {{ ($aparData['rusak'] ?? 0) + ($apatData['rusak'] ?? 0) + ($apabData['tidak_baik'] ?? 0) + ($fireAlarmData['rusak'] ?? 0) + ($boxHydrantData['rusak'] ?? 0) + ($rumahPompaData['rusak'] ?? 0) }},
+        total: {{ ($aparData['total'] ?? 0) + ($apatData['total'] ?? 0) + ($apabData['total'] ?? 0) + ($fireAlarmData['total'] ?? 0) + ($boxHydrantData['total'] ?? 0) + ($rumahPompaData['total'] ?? 0) }},
+        color: 'rgb(99, 102, 241)',
+        trendData: [
+          {{ array_sum(array_column($trendData['datasets'], 0)) }},
+          {{ array_sum(array_column($trendData['datasets'], 1)) }},
+          {{ array_sum(array_column($trendData['datasets'], 2)) }},
+          {{ array_sum(array_column($trendData['datasets'], 3)) }},
+          {{ array_sum(array_column($trendData['datasets'], 4)) }},
+          {{ array_sum(array_column($trendData['datasets'], 5)) }}
+        ]
+      },
       'apar': {
         name: 'APAR',
         fullName: 'Alat Pemadam Api Ringan',
@@ -361,7 +397,7 @@
       }
     };
 
-    let currentModule = 'apar';
+    let currentModule = 'all';
     let statusChart = null;
     let trendChart = null;
 
@@ -434,17 +470,17 @@
           labels: {!! json_encode($trendData['labels'] ?? ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun']) !!},
           datasets: [{
             label: 'Inspeksi',
-            data: moduleData['apar'].trendData,
-            borderColor: 'rgb(59, 130, 246)',
-            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            data: moduleData['all'].trendData,
+            borderColor: 'rgb(99, 102, 241)',
+            backgroundColor: 'rgba(99, 102, 241, 0.1)',
             tension: 0.4,
             fill: true,
             pointRadius: 5,
             pointHoverRadius: 7,
-            pointBackgroundColor: 'rgb(59, 130, 246)',
+            pointBackgroundColor: 'rgb(99, 102, 241)',
             pointBorderColor: '#fff',
             pointBorderWidth: 2,
-            pointHoverBackgroundColor: 'rgb(59, 130, 246)',
+            pointHoverBackgroundColor: 'rgb(99, 102, 241)',
             pointHoverBorderColor: '#fff',
             pointHoverBorderWidth: 3
           }]
@@ -610,7 +646,7 @@
       document.getElementById('moduleStats').innerHTML = statsHtml;
     }
 
-    // Initialize with APAR data
-    switchModule('apar');
+    // Initialize with All data (Laporan Keseluruhan)
+    switchModule('all');
   </script>
 </x-layouts.app>

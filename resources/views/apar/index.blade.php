@@ -1,9 +1,6 @@
 {{-- resources/views/apar/index.blade.php --}}
-@extends('layouts.app')
-
-@section('title', 'APAR')
-
-@section('content')
+<x-layouts.app>
+    <x-slot name="title">APAR</x-slot>
 <div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
 
     {{-- Back Button --}}
@@ -29,6 +26,7 @@
                 </p>
             </div>
 
+            @hasanyrole('superadmin|leader|petugas')
             <div class="flex items-center gap-3">
                 <a href="{{ route('apar.create') }}"
                    class="group inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-sm font-semibold hover:from-blue-700 hover:to-cyan-700 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-300">
@@ -38,6 +36,7 @@
                     <span>Tambah APAR</span>
                 </a>
             </div>
+            @endhasanyrole
         </div>
 
         {{-- Stats Cards --}}
@@ -181,8 +180,6 @@
                             'icon' => 'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
                         ],
                     };
-
-                    $qrAsset = $apar->qr_url;
                 @endphp
 
                 <div data-item 
@@ -248,9 +245,10 @@
                             <div class="absolute inset-0 bg-gradient-to-br {{ $statusConfig['gradient'] }} opacity-5 rounded-2xl"></div>
                             <div class="relative flex flex-col items-center justify-center p-5 rounded-2xl border-2 border-dashed border-slate-200 bg-white">
                                 <div class="mb-3">
-                                    <img src="{{ $qrAsset }}"
+                                    <img src="{{ $apar->qr_url }}"
                                          alt="QR APAR {{ $kodePendek }}"
-                                         class="w-40 h-40 object-contain rounded-xl shadow-lg ring-4 ring-white bg-white">
+                                         class="w-40 h-40 object-contain rounded-xl shadow-lg ring-4 ring-white bg-white"
+                                         loading="lazy">
                                 </div>
                                 <div class="text-center">
                                     <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Scan QR Code</p>
@@ -261,6 +259,7 @@
 
                         {{-- Action Buttons --}}
                         <div class="flex flex-col gap-2">
+                            @hasanyrole('superadmin|leader|petugas')
                             @if(Route::has('kartu.create'))
                                 <a href="{{ route('kartu.create', ['apar_id' => $apar->id]) }}"
                                    class="group/btn relative overflow-hidden inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 text-white text-sm font-semibold hover:from-sky-700 hover:to-blue-700 shadow-lg shadow-sky-500/30 hover:shadow-xl hover:shadow-sky-500/40 transition-all duration-300">
@@ -270,6 +269,7 @@
                                     <span>Buat Kartu Kendali</span>
                                 </a>
                             @endif
+                            @endhasanyrole
 
                             <a href="{{ route('apar.riwayat', $apar) }}"
                                class="group/btn inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-semibold hover:from-purple-700 hover:to-indigo-700 shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 transition-all duration-300">
@@ -288,6 +288,7 @@
                                 @endif
                             </a>
 
+                            @hasanyrole('superadmin|leader|petugas')
                             <a href="{{ route('apar.edit', $apar) }}"
                                class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border-2 border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all duration-200">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -295,6 +296,7 @@
                                 </svg>
                                 <span>Edit APAR</span>
                             </a>
+                            @endhasanyrole
                         </div>
                     </div>
                 </div>
@@ -363,5 +365,4 @@ function filterItems() {
     }
 }
 </script>
-
-@endsection
+</x-layouts.app>

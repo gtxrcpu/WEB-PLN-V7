@@ -39,7 +39,7 @@ class ApabController extends Controller
     {
         $data = $request->validate([
             'location_code' => 'required|string|max:50',
-            'type' => 'required|string|max:100',
+            'isi_apab' => 'required|string|max:100',
             'capacity' => 'required|string|max:100',
             'status' => 'required|string|max:20',
             'notes' => 'nullable|string',
@@ -54,7 +54,7 @@ class ApabController extends Controller
             'barcode' => $barcode,
             'serial_no' => $serial,
             'location_code' => $data['location_code'],
-            'type' => $data['type'],
+            'isi_apab' => $data['isi_apab'],
             'capacity' => $data['capacity'],
             'status' => $data['status'],
             'notes' => $data['notes'],
@@ -82,7 +82,7 @@ class ApabController extends Controller
     {
         $data = $request->validate([
             'location_code' => 'required|string|max:50',
-            'type' => 'required|string|max:100',
+            'isi_apab' => 'required|string|max:100',
             'capacity' => 'required|string|max:100',
             'status' => 'required|string|max:20',
             'notes' => 'nullable|string',

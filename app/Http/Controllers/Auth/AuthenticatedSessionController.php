@@ -41,23 +41,32 @@ class AuthenticatedSessionController extends Controller
         }
 
         $request->session()->regenerate();
+        
+        // Clear intended URL to prevent redirect to wrong role's page after session timeout
+        $request->session()->forget('url.intended');
 
         $user = $request->user();
 
         // Redirect by role (spatie/permission)
         if ($user && method_exists($user, 'hasRole')) {
-            if ($user->hasRole('admin')) {
-                return redirect()->intended(route('admin.dashboard'));
+            if ($user->hasRole('superadmin')) {
+                return redirect()->route('admin.dashboard');
+            }
+            if ($user->hasRole('leader')) {
+                return redirect()->route('leader.dashboard');
             }
             if ($user->hasRole('inspector')) {
-                return redirect()->intended(route('inspector.dashboard'));
+                return redirect()->route('inspector.dashboard');
+            }
+            if ($user->hasRole('petugas')) {
+                return redirect()->route('user.dashboard');
             }
             // Default ke user dashboard
-            return redirect()->intended(route('user.dashboard'));
+            return redirect()->route('user.dashboard');
         }
 
         // Fallback jika belum ada role: arahkan ke route dashboard generik
-        return redirect()->intended(route('dashboard'));
+        return redirect()->route('dashboard');
     }
 
     /**

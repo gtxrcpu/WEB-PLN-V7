@@ -10,11 +10,20 @@ use App\Http\Controllers\ApatKartuController;
 
 Route::get('/', fn () => redirect()->route('login'));
 
-// Admin Routes
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+// QR Code Generator (Public - no auth needed for scanning)
+Route::get('/qr', [\App\Http\Controllers\QrCodeController::class, 'generate'])->name('qr.generate');
+
+// Superadmin Routes (Full Access)
+Route::middleware(['auth', 'role:superadmin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
     Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
     Route::resource('signatures', \App\Http\Controllers\Admin\SignatureController::class);
+    
+    // Floor Plans
+    Route::resource('floor-plans', \App\Http\Controllers\Admin\FloorPlanController::class);
+    Route::get('floor-plans/{floor_plan}/placement', [\App\Http\Controllers\Admin\FloorPlanController::class, 'placement'])->name('floor-plans.placement');
+    Route::post('floor-plans/{floor_plan}/save-placement', [\App\Http\Controllers\Admin\FloorPlanController::class, 'savePlacement'])->name('floor-plans.save-placement');
+    Route::post('floor-plans/{floor_plan}/remove-placement', [\App\Http\Controllers\Admin\FloorPlanController::class, 'removePlacement'])->name('floor-plans.remove-placement');
     
     // Equipment Modules
     Route::resource('apar', \App\Http\Controllers\Admin\AparController::class);
@@ -24,12 +33,6 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('box-hydrant', \App\Http\Controllers\Admin\BoxHydrantController::class);
     Route::resource('rumah-pompa', \App\Http\Controllers\Admin\RumahPompaController::class);
     Route::resource('p3k', \App\Http\Controllers\Admin\P3kController::class);
-    
-    // Approvals
-    Route::get('/approvals', [\App\Http\Controllers\Admin\ApprovalController::class, 'index'])->name('approvals.index');
-    Route::get('/approvals/{id}', [\App\Http\Controllers\Admin\ApprovalController::class, 'show'])->name('approvals.show');
-    Route::post('/approvals/{id}/approve', [\App\Http\Controllers\Admin\ApprovalController::class, 'approve'])->name('approvals.approve');
-    Route::post('/approvals/{id}/reject', [\App\Http\Controllers\Admin\ApprovalController::class, 'reject'])->name('approvals.reject');
     
     // Kartu Settings (Legacy - will be replaced by templates)
     Route::get('/kartu-settings', [\App\Http\Controllers\Admin\KartuSettingController::class, 'index'])->name('kartu-settings.index');
@@ -41,16 +44,81 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/kartu-templates', [\App\Http\Controllers\Admin\KartuTemplateController::class, 'store'])->name('kartu-templates.store');
     Route::get('/kartu-templates/{module}/edit', [\App\Http\Controllers\Admin\KartuTemplateController::class, 'edit'])->name('kartu-templates.edit');
     Route::put('/kartu-templates/{module}', [\App\Http\Controllers\Admin\KartuTemplateController::class, 'update'])->name('kartu-templates.update');
+    
+    // Approvals - Superadmin bisa approve semua kartu
+    Route::get('/approvals', [\App\Http\Controllers\Admin\ApprovalController::class, 'index'])->name('approvals.index');
+    Route::get('/approvals/{id}', [\App\Http\Controllers\Admin\ApprovalController::class, 'show'])->name('approvals.show');
+    Route::post('/approvals/{id}/approve', [\App\Http\Controllers\Admin\ApprovalController::class, 'approve'])->name('approvals.approve');
+    Route::post('/approvals/{id}/reject', [\App\Http\Controllers\Admin\ApprovalController::class, 'reject'])->name('approvals.reject');
+    
+    // Edit Kode (Settings untuk semua modul)
+    Route::get('/edit-kode', [\App\Http\Controllers\Admin\KodeSettingController::class, 'index'])->name('edit-kode.index');
+    Route::get('/edit-kode/{module}', [\App\Http\Controllers\Admin\KodeSettingController::class, 'edit'])->name('edit-kode.edit');
+    Route::put('/edit-kode/{module}', [\App\Http\Controllers\Admin\KodeSettingController::class, 'update'])->name('edit-kode.update');
+    Route::post('/edit-kode/{module}/reset-counter', [\App\Http\Controllers\Admin\KodeSettingController::class, 'resetCounter'])->name('edit-kode.reset-counter');
 });
 
-Route::get('/inspector', fn () => view('dashboard.inspector'))->name('inspector.dashboard');
+// Leader Routes (Admin Unit - Bisa Approval)
+Route::middleware(['auth', 'role:leader|superadmin'])->prefix('leader')->name('leader.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Leader\DashboardController::class, 'index'])->name('dashboard');
+    
+    // Approvals - Leader bisa approve kartu di unit-nya
+    Route::get('/approvals', [\App\Http\Controllers\Leader\ApprovalController::class, 'index'])->name('approvals.index');
+    Route::get('/approvals/{id}', [\App\Http\Controllers\Leader\ApprovalController::class, 'show'])->name('approvals.show');
+    Route::post('/approvals/{id}/approve', [\App\Http\Controllers\Leader\ApprovalController::class, 'approve'])->name('approvals.approve');
+    Route::post('/approvals/{id}/reject', [\App\Http\Controllers\Leader\ApprovalController::class, 'reject'])->name('approvals.reject');
+    
+    // Manage users di unit sendiri
+    Route::resource('users', \App\Http\Controllers\Leader\UserController::class);
+});
+
+// Inspector Routes (Read-Only Access)
+Route::middleware(['auth', 'role:Inspector'])->prefix('inspector')->name('inspector.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Inspector\InspectorDashboardController::class, 'index'])->name('dashboard');
+    
+    // APAR
+    Route::get('/apar', [\App\Http\Controllers\Inspector\InspectorDashboardController::class, 'apar'])->name('apar');
+    Route::get('/apar/{apar}/riwayat', [\App\Http\Controllers\Inspector\InspectorDashboardController::class, 'aparRiwayat'])->name('apar.riwayat');
+    
+    // APAT
+    Route::get('/apat', [\App\Http\Controllers\Inspector\InspectorDashboardController::class, 'apat'])->name('apat');
+    Route::get('/apat/{apat}/riwayat', [\App\Http\Controllers\Inspector\InspectorDashboardController::class, 'apatRiwayat'])->name('apat.riwayat');
+    
+    // P3K
+    Route::get('/p3k', [\App\Http\Controllers\Inspector\InspectorDashboardController::class, 'p3k'])->name('p3k');
+    Route::get('/p3k/{p3k}/riwayat', [\App\Http\Controllers\Inspector\InspectorDashboardController::class, 'p3kRiwayat'])->name('p3k.riwayat');
+    
+    // APAB
+    Route::get('/apab', [\App\Http\Controllers\Inspector\InspectorDashboardController::class, 'apab'])->name('apab');
+    Route::get('/apab/{apab}/riwayat', [\App\Http\Controllers\Inspector\InspectorDashboardController::class, 'apabRiwayat'])->name('apab.riwayat');
+    
+    // Fire Alarm
+    Route::get('/fire-alarm', [\App\Http\Controllers\Inspector\InspectorDashboardController::class, 'fireAlarm'])->name('fire-alarm');
+    Route::get('/fire-alarm/{fireAlarm}/riwayat', [\App\Http\Controllers\Inspector\InspectorDashboardController::class, 'fireAlarmRiwayat'])->name('fire-alarm.riwayat');
+    
+    // Box Hydrant
+    Route::get('/box-hydrant', [\App\Http\Controllers\Inspector\InspectorDashboardController::class, 'boxHydrant'])->name('box-hydrant');
+    Route::get('/box-hydrant/{boxHydrant}/riwayat', [\App\Http\Controllers\Inspector\InspectorDashboardController::class, 'boxHydrantRiwayat'])->name('box-hydrant.riwayat');
+    
+    // Rumah Pompa
+    Route::get('/rumah-pompa', [\App\Http\Controllers\Inspector\InspectorDashboardController::class, 'rumahPompa'])->name('rumah-pompa');
+    Route::get('/rumah-pompa/{rumahPompa}/riwayat', [\App\Http\Controllers\Inspector\InspectorDashboardController::class, 'rumahPompaRiwayat'])->name('rumah-pompa.riwayat');
+});
+
 Route::get('/user', [\App\Http\Controllers\DashboardController::class, 'user'])->name('user.dashboard');
 
 Route::get('/dashboard', function () {
     $u = auth()->user();
     if (!$u) return redirect()->route('login');
-    if (method_exists($u, 'hasRole') && $u->hasRole('admin'))     return redirect()->route('admin.dashboard');
-    if (method_exists($u, 'hasRole') && $u->hasRole('Inspector')) return redirect()->route('inspector.dashboard');
+    
+    // Redirect berdasarkan role
+    if (method_exists($u, 'hasRole')) {
+        if ($u->hasRole('superadmin')) return redirect()->route('admin.dashboard');
+        if ($u->hasRole('leader')) return redirect()->route('leader.dashboard');
+        if ($u->hasRole('inspector')) return redirect()->route('inspector.dashboard');
+        if ($u->hasRole('petugas')) return redirect()->route('user.dashboard');
+    }
+    
     return redirect()->route('user.dashboard');
 })->middleware('auth')->name('dashboard');
 
@@ -180,11 +248,18 @@ Route::middleware(['auth'])->group(function () {
 // Quick Actions
 Route::middleware(['auth'])->group(function () {
     Route::get('/quick/scan', [\App\Http\Controllers\QuickActionController::class, 'scan'])->name('quick.scan');
-    Route::post('/quick/scan', [\App\Http\Controllers\QuickActionController::class, 'searchQR'])->name('quick.scan.search');
+    Route::match(['get', 'post'], '/quick/scan/search', [\App\Http\Controllers\QuickActionController::class, 'searchQR'])->name('quick.scan.search');
     Route::get('/quick/inspeksi', [\App\Http\Controllers\QuickActionController::class, 'inspeksi'])->name('quick.inspeksi');
     Route::get('/quick/rekap', [\App\Http\Controllers\QuickActionController::class, 'rekap'])->name('quick.rekap');
     Route::get('/quick/export-excel', [\App\Http\Controllers\QuickActionController::class, 'exportExcel'])->name('quick.export.excel');
     Route::get('/quick/export-pdf', [\App\Http\Controllers\QuickActionController::class, 'exportPdf'])->name('quick.export.pdf');
+});
+
+// Floor Plan View (User Access)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/floor-plan', [\App\Http\Controllers\FloorPlanController::class, 'index'])->name('floor-plan.index');
+    Route::get('/floor-plan/{floorPlan}/equipment-data', [\App\Http\Controllers\FloorPlanController::class, 'getEquipmentData'])->name('floor-plan.equipment-data');
+    Route::post('/floor-plan/equipment/update-coordinates', [\App\Http\Controllers\FloorPlanController::class, 'updateEquipmentCoordinates'])->name('floor-plan.update-coordinates');
 });
 
 // API Search

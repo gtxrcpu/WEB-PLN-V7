@@ -28,12 +28,9 @@ class KartuApat extends Model
 
     protected $casts = [
         'tgl_periksa' => 'date',
-        'tgl_surat' => 'date',
+        'approved_at' => 'datetime',
     ];
 
-    /**
-     * Relasi ke APAT
-     */
     public function apat()
     {
         return $this->belongsTo(Apat::class);
@@ -45,5 +42,21 @@ class KartuApat extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Relasi ke User yang approve
+     */
+    public function approver()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    /**
+     * Check if approved
+     */
+    public function isApproved()
+    {
+        return !is_null($this->approved_at);
     }
 }

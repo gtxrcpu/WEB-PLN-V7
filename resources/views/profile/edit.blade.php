@@ -1,6 +1,6 @@
 <x-layouts.app :title="'Profile'">
   <div class="mb-4 sm:mb-6">
-    <a href="{{ auth()->user()->hasRole('admin') ? route('admin.dashboard') : route('user.dashboard') }}" 
+    <a href="{{ auth()->user()->hasRole('superadmin') ? route('admin.dashboard') : (auth()->user()->hasRole('leader') ? route('leader.dashboard') : route('user.dashboard')) }}" 
             class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white hover:bg-slate-50 text-slate-700 transition-colors shadow-sm border border-slate-200 mb-4">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
@@ -179,7 +179,8 @@
         <div class="space-y-1 text-sm text-gray-600">
           <p><span class="font-semibold">Role:</span> 
             <span class="px-2 py-1 text-xs font-bold rounded-full
-              @if($user->hasRole('admin')) bg-purple-100 text-purple-700
+              @if($user->hasRole('superadmin')) bg-purple-100 text-purple-700
+              @elseif($user->hasRole('leader')) bg-green-100 text-green-700
               @else bg-blue-100 text-blue-700 @endif">
               {{ strtoupper($user->getRoleNames()->first() ?? 'user') }}
             </span>

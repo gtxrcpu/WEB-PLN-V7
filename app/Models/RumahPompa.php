@@ -63,6 +63,29 @@ class RumahPompa extends Model
     }
 
     /**
+     * Accessor: $rumahPompa->qr_url → Generate QR as SVG data URI
+     */
+    public function getQrUrlAttribute(): string
+    {
+        // Generate QR content with equipment info (not URL)
+        $qrContent = json_encode([
+            'type' => 'Rumah Pompa',
+            'code' => $this->barcode ?? $this->serial_no,
+            'serial' => $this->serial_no,
+            'location' => $this->location_code ?? '-',
+            'status' => $this->status ?? '-',
+        ], JSON_UNESCAPED_UNICODE);
+        
+        $svg = QrCode::size(300)
+            ->format('svg')
+            ->margin(1)
+            ->errorCorrection('H')
+            ->generate($qrContent);
+        
+        return 'data:image/svg+xml;base64,' . base64_encode($svg);
+    }
+
+    /**
      * Generate / regenerate QR SVG untuk Rumah Pompa ini.
      * - File disimpan di: storage/app/public/qr/rumah-pompa-{id}.svg
      * - Kolom qr_svg_path akan berisi: "storage/qr/rumah-pompa-{id}.svg"
@@ -96,8 +119,80 @@ class RumahPompa extends Model
         $this->saveQuietly();
     }
 
+    /**
+     * Generate next serial number for Rumah Pompa using custom format from settings
+     */
+    public static function generateNextSerial($unitCode = null): string
+    {
+        $format = \App\Models\AparSetting::get('rumah-pompa_kode_format', 'RP.{NNN}');
+        $counter = (int) \App\Models\AparSetting::get('rumah-pompa_kode_counter', 1);
+        
+        // Get unit code
+        if (!$unitCode && auth()->check() && auth()->user()->unit) {
+            $unitCode = auth()->user()->unit->code;
+        }
+        $unitCode = $unitCode ?? 'INDUK';
+        
+        // Replace variables (no year/month)
+        $serial = str_replace([
+            '{UNIT}',
+            '{NNNN}',
+            '{NNN}',
+        ], [
+            $unitCode,
+            str_pad($counter, 4, '0', STR_PAD_LEFT),
+            str_pad($counter, 3, '0', STR_PAD_LEFT),
+        ], $format);
+        
+        // Increment counter
+        \App\Models\AparSetting::set('rumah-pompa_kode_counter', $counter + 1);
+        
+        return $serial;
+    }
+
+    /**
+     * Generate and save QR code as SVG file
+     */
+    public function generateQrSvg($force = false): void
+    {
+        if (!$force && $this->qr_svg_path && Storage::disk('public')->exists($this->qr_svg_path)) {
+            return;
+        }
+
+        $url = route('rumah-pompa.riwayat', $this->id);
+        
+        try {
+            $qrCode = QrCode::format('svg')
+                ->size(300)
+                ->margin(1)
+                ->errorCorrection('H')
+                ->generate($url);
+            
+            $path = 'qrcodes/rumah-pompa/' . $this->serial_no . '.svg';
+            Storage::disk('public')->put($path, $qrCode);
+            
+            $this->qr_svg_path = $path;
+            $this->saveQuietly();
+        } catch (\Exception $e) {
+            \Log::error('Failed to generate QR for Rumah Pompa: ' . $e->getMessage());
+        }
+    }
+
     public function kartuInspeksi()
     {
         return $this->hasMany(KartuRumahPompa::class)->latest('tgl_periksa');
+    }
+
+    public function kartuRumahPompas()
+    {
+        return $this->hasMany(KartuRumahPompa::class, 'rumah_pompa_id');
+    }
+
+    /**
+     * Get the floor plan that this equipment belongs to
+     */
+    public function floorPlan()
+    {
+        return $this->belongsTo(FloorPlan::class);
     }
 }

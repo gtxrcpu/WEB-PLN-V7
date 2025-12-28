@@ -1,83 +1,273 @@
-<x-layouts.app :title="'Edit APAR — Admin'">
-  <div class="mb-6">
-    <a href="{{ route('admin.apar.index') }}" class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors mb-4">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-      </svg>
-      Kembali
-    </a>
-    <h1 class="text-2xl font-bold text-gray-900">Edit APAR</h1>
-    <p class="text-sm text-gray-600 mt-1">{{ $apar->serial_no }} - {{ $apar->barcode }}</p>
-  </div>
+{{-- resources/views/admin/apar/edit.blade.php --}}
+<x-layouts.app :title="'Edit APAR ' . ($apar->serial_no ?? '')">
+<div class="max-w-4xl mx-auto px-4 py-6 space-y-6">
+    {{-- Header Section --}}
+    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-600 via-amber-600 to-rose-600 p-8 shadow-xl">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
+        <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-24 -mb-24"></div>
+        
+        <div class="relative flex items-start justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg">
+                    <svg class="w-9 h-9 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold text-white mb-1">Edit APAR {{ $apar->serial_no }}</h1>
+                    <p class="text-orange-100 text-sm">Perbarui informasi dan status APAR</p>
+                </div>
+            </div>
+            <a href="{{ route('admin.apar.index') }}"
+               class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/20 backdrop-blur-sm text-white text-sm font-medium hover:bg-white/30 transition-all duration-200 border border-white/20">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Kembali
+            </a>
+        </div>
+    </div>
 
-  <div class="bg-white rounded-xl shadow-lg ring-1 ring-slate-200 p-6">
-    <form action="{{ route('admin.apar.update', $apar) }}" method="POST" class="space-y-6">
-      @csrf
-      @method('PUT')
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2">Lokasi *</label>
-          <input type="text" name="location_code" value="{{ old('location_code', $apar->location_code) }}" required
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent @error('location_code') border-red-500 @enderror">
-          @error('location_code')
-            <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
-          @enderror
+    {{-- Form Card --}}
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
+        {{-- Form Header --}}
+        <div class="bg-gradient-to-r from-slate-50 to-slate-100 px-8 py-5 border-b border-slate-200">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-lg">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900">Informasi APAR</h2>
+                    <p class="text-xs text-slate-600">Update data APAR yang sudah ada</p>
+                </div>
+            </div>
         </div>
 
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2">Tipe *</label>
-          <input type="text" name="type" value="{{ old('type', $apar->type) }}" required
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent @error('type') border-red-500 @enderror">
-          @error('type')
-            <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
-          @enderror
-        </div>
+        <form action="{{ route('admin.apar.update', $apar) }}" method="POST" class="p-8">
+            @csrf
+            @method('PUT')
 
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2">Kapasitas *</label>
-          <input type="text" name="capacity" value="{{ old('capacity', $apar->capacity) }}" required
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent @error('capacity') border-red-500 @enderror">
-          @error('capacity')
-            <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
-          @enderror
-        </div>
+            <div class="space-y-6">
+                {{-- Serial (readonly) --}}
+                <div class="relative">
+                    <div class="absolute -left-3 top-0 bottom-0 w-1 bg-gradient-to-b from-orange-500 to-amber-500 rounded-full"></div>
+                    <label class="flex items-center gap-2 text-sm font-semibold text-slate-900 mb-2">
+                        <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/>
+                        </svg>
+                        Serial / Kode
+                    </label>
+                    <div class="relative">
+                        <input type="text" value="{{ $apar->serial_no }}" disabled
+                               class="block w-full rounded-xl border-2 border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100 text-slate-900 text-base font-mono font-bold px-4 py-3 shadow-sm">
+                        <div class="absolute right-3 top-1/2 -translate-y-1/2">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-orange-100 text-orange-700 text-xs font-semibold">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                </svg>
+                                Locked
+                            </span>
+                        </div>
+                    </div>
+                    <p class="mt-2 text-xs text-slate-500 flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Serial tidak dapat diubah setelah APAR dibuat
+                    </p>
+                </div>
 
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2">Agent</label>
-          <input type="text" name="agent" value="{{ old('agent', $apar->agent) }}"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-        </div>
+                {{-- Grid Layout untuk Form Fields --}}
+                <div class="grid md:grid-cols-2 gap-6">
+                    {{-- Lokasi --}}
+                    <div>
+                        <label class="flex items-center gap-2 text-sm font-semibold text-slate-900 mb-2">
+                            <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            Lokasi
+                        </label>
+                        <input type="text" name="location_code"
+                               value="{{ old('location_code', $apar->location_code) }}"
+                               placeholder="Contoh: BDG, JKT, SBY"
+                               class="block w-full rounded-xl border-2 border-slate-200 text-slate-900 px-4 py-3 text-sm focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all @error('location_code') border-rose-500 focus:border-rose-500 focus:ring-rose-500/10 @enderror">
+                        @error('location_code')
+                            <p class="mt-2 text-xs text-rose-600 flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                {{ $message }}
+                            </p>
+                        @enderror
+                    </div>
 
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2">Status *</label>
-          <select name="status" required
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent @error('status') border-red-500 @enderror">
-            <option value="">-- Pilih Status --</option>
-            <option value="baik" {{ old('status', $apar->status) === 'baik' ? 'selected' : '' }}>Baik</option>
-            <option value="isi ulang" {{ old('status', $apar->status) === 'isi ulang' ? 'selected' : '' }}>Isi Ulang</option>
-            <option value="rusak" {{ old('status', $apar->status) === 'rusak' ? 'selected' : '' }}>Rusak</option>
-          </select>
-          @error('status')
-            <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
-          @enderror
-        </div>
-      </div>
+                    {{-- Tipe --}}
+                    <div>
+                        <label class="flex items-center gap-2 text-sm font-semibold text-slate-900 mb-2">
+                            <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                            </svg>
+                            Tipe
+                        </label>
+                        <input type="text" name="type"
+                               value="{{ old('type', $apar->type) }}"
+                               placeholder="Contoh: UUV, CO₂, Powder"
+                               class="block w-full rounded-xl border-2 border-slate-200 text-slate-900 px-4 py-3 text-sm focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all @error('type') border-rose-500 focus:border-rose-500 focus:ring-rose-500/10 @enderror">
+                        @error('type')
+                            <p class="mt-2 text-xs text-rose-600 flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                {{ $message }}
+                            </p>
+                        @enderror
+                    </div>
 
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-2">Catatan</label>
-        <textarea name="notes" rows="3"
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">{{ old('notes', $apar->notes) }}</textarea>
-      </div>
+                    {{-- Kapasitas --}}
+                    <div>
+                        <label class="flex items-center gap-2 text-sm font-semibold text-slate-900 mb-2">
+                            <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                            </svg>
+                            Kapasitas
+                        </label>
+                        <input type="text" name="capacity"
+                               value="{{ old('capacity', $apar->capacity) }}"
+                               placeholder="Contoh: 5 Liter, 3 Kg"
+                               class="block w-full rounded-xl border-2 border-slate-200 text-slate-900 px-4 py-3 text-sm focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all @error('capacity') border-rose-500 focus:border-rose-500 focus:ring-rose-500/10 @enderror">
+                        @error('capacity')
+                            <p class="mt-2 text-xs text-rose-600 flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                {{ $message }}
+                            </p>
+                        @enderror
+                    </div>
 
-      <div class="flex items-center gap-3 pt-4 border-t border-gray-200">
-        <button type="submit" class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors shadow-md font-semibold">
-          Update APAR
-        </button>
-        <a href="{{ route('admin.apar.index') }}" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-semibold">
-          Batal
-        </a>
-      </div>
-    </form>
-  </div>
+                    {{-- Agent --}}
+                    <div>
+                        <label class="flex items-center gap-2 text-sm font-semibold text-slate-900 mb-2">
+                            <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                            Agent
+                            <span class="text-xs text-slate-500 font-normal">(opsional)</span>
+                        </label>
+                        <input type="text" name="agent"
+                               value="{{ old('agent', $apar->agent) }}"
+                               placeholder="Keterangan singkat"
+                               class="block w-full rounded-xl border-2 border-slate-200 text-slate-900 px-4 py-3 text-sm focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all @error('agent') border-rose-500 focus:border-rose-500 focus:ring-rose-500/10 @enderror">
+                        @error('agent')
+                            <p class="mt-2 text-xs text-rose-600 flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                {{ $message }}
+                            </p>
+                        @enderror
+                    </div>
+                </div>
+
+                {{-- Status --}}
+                <div>
+                    <label class="flex items-center gap-2 text-sm font-semibold text-slate-900 mb-2">
+                        <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Status Kondisi
+                    </label>
+                    <div class="grid grid-cols-3 gap-3">
+                        @foreach([
+                            ['baik', 'emerald', 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z', 'BAIK'],
+                            ['isi ulang', 'amber', 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z', 'ISI ULANG'],
+                            ['rusak', 'rose', 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z', 'RUSAK']
+                        ] as [$value, $color, $icon, $label])
+                            <label class="relative cursor-pointer group">
+                                <input type="radio" name="status" value="{{ $value }}"
+                                       {{ old('status', $apar->status) === $value ? 'checked' : '' }}
+                                       class="peer sr-only">
+                                <div class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-slate-200 bg-white transition-all peer-checked:border-{{ $color }}-500 peer-checked:bg-{{ $color }}-50 peer-checked:shadow-lg peer-checked:shadow-{{ $color }}-500/20 hover:border-{{ $color }}-300">
+                                    <div class="w-10 h-10 rounded-xl bg-{{ $color }}-100 flex items-center justify-center peer-checked:bg-{{ $color }}-500 transition-colors">
+                                        <svg class="w-6 h-6 text-{{ $color }}-600 peer-checked:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $icon }}"/>
+                                        </svg>
+                                    </div>
+                                    <span class="text-sm font-semibold text-slate-700 peer-checked:text-{{ $color }}-700">{{ $label }}</span>
+                                </div>
+                            </label>
+                        @endforeach
+                    </div>
+                    @error('status')
+                        <p class="mt-2 text-xs text-rose-600 flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            {{ $message }}
+                        </p>
+                    @enderror
+                </div>
+
+                {{-- Catatan --}}
+                <div>
+                    <label class="flex items-center gap-2 text-sm font-semibold text-slate-900 mb-2">
+                        <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                        Catatan
+                        <span class="text-xs text-slate-500 font-normal">(opsional)</span>
+                    </label>
+                    <textarea name="notes" rows="4"
+                              placeholder="Tambahkan catatan atau informasi tambahan..."
+                              class="block w-full rounded-xl border-2 border-slate-200 text-slate-900 px-4 py-3 text-sm focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all resize-none @error('notes') border-rose-500 focus:border-rose-500 focus:ring-rose-500/10 @enderror">{{ old('notes', $apar->notes) }}</textarea>
+                    @error('notes')
+                        <p class="mt-2 text-xs text-rose-600 flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            {{ $message }}
+                        </p>
+                    @enderror
+                </div>
+
+                {{-- Floor Plan Location Picker --}}
+                <div class="pt-6 border-t border-slate-200">
+                    <h3 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                        </svg>
+                        Lokasi di Denah
+                    </h3>
+                    <x-floor-plan-picker 
+                        :floor-plan-id="old('floor_plan_id', $apar->floor_plan_id)"
+                        :floor-plan-x="old('floor_plan_x', $apar->floor_plan_x)"
+                        :floor-plan-y="old('floor_plan_y', $apar->floor_plan_y)"
+                        equipment-type="apar"
+                    />
+                </div>
+            </div>
+
+            {{-- Action Buttons --}}
+            <div class="mt-8 pt-6 border-t border-slate-200 flex items-center justify-between gap-4">
+                <a href="{{ route('admin.apar.index') }}"
+                   class="inline-flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-slate-200 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all duration-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                    Batal
+                </a>
+                <button type="submit"
+                        class="inline-flex items-center gap-2 px-8 py-3 rounded-xl bg-gradient-to-r from-orange-600 to-amber-600 text-white text-sm font-bold hover:from-orange-700 hover:to-amber-700 shadow-lg shadow-orange-500/30 hover:shadow-xl hover:shadow-orange-500/40 transition-all duration-300">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    Simpan Perubahan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 </x-layouts.app>

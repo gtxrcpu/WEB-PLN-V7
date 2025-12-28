@@ -3,74 +3,117 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\Unit;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
 
 class AdminSeeder extends Seeder
 {
     public function run(): void
     {
-        // Buat roles
-        $adminRole = Role::firstOrCreate(['name' => 'admin']);
-        $userRole = Role::firstOrCreate(['name' => 'user']);
+        // Ambil unit
+        $upw2 = Unit::where('code', 'UPW2')->first();
+        $upw3 = Unit::where('code', 'UPW3')->first();
 
-        // Buat permissions
-        $permissions = [
-            'manage users',
-            'manage roles',
-            'view dashboard',
-            'manage equipment',
-            'manage inspections',
-            'manage reports',
-            'manage references',
-        ];
-
-        foreach ($permissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission]);
+        // 1. SUPERADMIN (di Induk) - Full access ke semua unit
+        $superadmin = User::firstOrCreate(
+            ['email' => 'superadmin@pln.co.id'],
+            [
+                'name' => 'Super Administrator',
+                'username' => 'superadmin',
+                'password' => Hash::make('super123'),
+                'unit_id' => null, // Tidak terikat unit
+                'position' => null,
+            ]
+        );
+        if (!$superadmin->hasRole('superadmin')) {
+            $superadmin->assignRole('superadmin');
         }
 
-        // Assign semua permissions ke admin
-        $adminRole->syncPermissions(Permission::all());
-        
-        // Assign permissions terbatas ke user
-        $userRole->syncPermissions([
-            'view dashboard',
-            'manage equipment',
-            'manage inspections',
-        ]);
-
-        // Buat akun admin
-        $admin = User::firstOrCreate(
-            ['email' => 'admin@pln.co.id'],
+        // 2. LEADER UPW2 (Admin Unit 2) - Bisa approval TTD
+        $leaderUpw2 = User::firstOrCreate(
+            ['email' => 'leader.upw2@pln.co.id'],
             [
-                'name' => 'Administrator',
-                'username' => 'admin',
-                'password' => Hash::make('admin123'),
+                'name' => 'Leader UPW2',
+                'username' => 'leader_upw2',
+                'password' => Hash::make('leader123'),
+                'unit_id' => $upw2?->id,
+                'position' => 'leader',
             ]
         );
-        $admin->assignRole('admin');
+        if (!$leaderUpw2->hasRole('leader')) {
+            $leaderUpw2->assignRole('leader');
+        }
 
-        // Buat akun user contoh
-        $user = User::firstOrCreate(
-            ['email' => 'user@pln.co.id'],
+        // 3. LEADER UPW3 (Admin Unit 3) - Bisa approval TTD
+        $leaderUpw3 = User::firstOrCreate(
+            ['email' => 'leader.upw3@pln.co.id'],
             [
-                'name' => 'User PLN',
-                'username' => 'user',
-                'password' => Hash::make('user123'),
+                'name' => 'Leader UPW3',
+                'username' => 'leader_upw3',
+                'password' => Hash::make('leader123'),
+                'unit_id' => $upw3?->id,
+                'position' => 'leader',
             ]
         );
-        $user->assignRole('user');
+        if (!$leaderUpw3->hasRole('leader')) {
+            $leaderUpw3->assignRole('leader');
+        }
 
-        $this->command->info('✅ Admin created:');
-        $this->command->info('   Username: admin');
-        $this->command->info('   Password: admin123');
-        $this->command->info('   Email: admin@pln.co.id');
+        // 4. PETUGAS UPW2 (User biasa) - Input data
+        $petugasUpw2 = User::firstOrCreate(
+            ['email' => 'petugas.upw2@pln.co.id'],
+            [
+                'name' => 'Petugas UPW2',
+                'username' => 'petugas_upw2',
+                'password' => Hash::make('petugas123'),
+                'unit_id' => $upw2?->id,
+                'position' => 'petugas',
+            ]
+        );
+        if (!$petugasUpw2->hasRole('petugas')) {
+            $petugasUpw2->assignRole('petugas');
+        }
+
+        // 5. PETUGAS UPW3 (User biasa) - Input data
+        $petugasUpw3 = User::firstOrCreate(
+            ['email' => 'petugas.upw3@pln.co.id'],
+            [
+                'name' => 'Petugas UPW3',
+                'username' => 'petugas_upw3',
+                'password' => Hash::make('petugas123'),
+                'unit_id' => $upw3?->id,
+                'position' => 'petugas',
+            ]
+        );
+        if (!$petugasUpw3->hasRole('petugas')) {
+            $petugasUpw3->assignRole('petugas');
+        }
+
         $this->command->info('');
-        $this->command->info('✅ User created:');
-        $this->command->info('   Username: user');
-        $this->command->info('   Password: user123');
-        $this->command->info('   Email: user@pln.co.id');
+        $this->command->info('✅ SUPERADMIN (Induk):');
+        $this->command->info('   Username: superadmin');
+        $this->command->info('   Password: super123');
+        $this->command->info('   Email: superadmin@pln.co.id');
+        $this->command->info('');
+        $this->command->info('✅ LEADER UPW2 (Admin Unit 2):');
+        $this->command->info('   Username: leader_upw2');
+        $this->command->info('   Password: leader123');
+        $this->command->info('   Email: leader.upw2@pln.co.id');
+        $this->command->info('');
+        $this->command->info('✅ LEADER UPW3 (Admin Unit 3):');
+        $this->command->info('   Username: leader_upw3');
+        $this->command->info('   Password: leader123');
+        $this->command->info('   Email: leader.upw3@pln.co.id');
+        $this->command->info('');
+        $this->command->info('✅ PETUGAS UPW2:');
+        $this->command->info('   Username: petugas_upw2');
+        $this->command->info('   Password: petugas123');
+        $this->command->info('   Email: petugas.upw2@pln.co.id');
+        $this->command->info('');
+        $this->command->info('✅ PETUGAS UPW3:');
+        $this->command->info('   Username: petugas_upw3');
+        $this->command->info('   Password: petugas123');
+        $this->command->info('   Email: petugas.upw3@pln.co.id');
     }
 }

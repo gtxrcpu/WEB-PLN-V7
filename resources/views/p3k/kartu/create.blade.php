@@ -2,7 +2,8 @@
     :title="'Kartu ' . ucfirst($jenis) . ' P3K'" 
     :subtitle="$lokasi"
     backRoute="p3k.pilih-lokasi"
-    module="p3k"
+    :backParams="['jenis' => $jenis]"
+    module="p3k-{{ $jenis }}"
     :template="$template">
 
     {{-- INFO LOKASI & JENIS --}}
@@ -38,10 +39,29 @@
         <input type="hidden" name="jenis" value="{{ $jenis }}">
         <input type="hidden" name="lokasi" value="{{ $lokasi }}">
 
+        {{-- PILIH P3K --}}
+        <div class="mb-6">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Pilih Kotak P3K</label>
+            <select name="p3k_id" required
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-emerald-500 focus:border-emerald-500">
+                <option value="">-- Pilih Kotak P3K --</option>
+                @foreach(\App\Models\P3k::orderBy('name')->get() as $p3k)
+                    <option value="{{ $p3k->id }}" {{ old('p3k_id') == $p3k->id ? 'selected' : '' }}>
+                        {{ $p3k->serial_no }} - {{ $p3k->name }} ({{ $p3k->location_code }})
+                    </option>
+                @endforeach
+            </select>
+            @error('p3k_id')
+                <p class="text-xs text-rose-600 mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
         @if($jenis === 'stock')
-            {{-- TABEL STOCK P3K (Seperti APAR) --}}
+            {{-- TABEL STOCK P3K --}}
             <div class="mb-6">
-                <h3 class="text-lg font-bold text-gray-900 mb-3">Pemeriksaan Stock P3K</h3>
+                <h3 class="text-lg font-bold text-gray-900 mb-3">
+                    {{ $template && $template->table_header ? $template->table_header : 'Pemeriksaan Stock P3K' }}
+                </h3>
                 <div class="border border-gray-400 rounded-lg overflow-hidden text-xs">
                     <table class="w-full">
                         <thead class="bg-gray-100">
@@ -53,18 +73,27 @@
                         </thead>
                         <tbody>
                             @php
-                                $items = [
-                                    'Kotak P3K',
-                                    'Plester',
-                                    'Perban',
-                                    'Kasa Steril',
-                                    'Antiseptik',
-                                    'Gunting',
-                                    'Sarung Tangan',
-                                    'Masker',
-                                    'Alkohol 70%',
-                                    'Betadine',
-                                ];
+                                // Get items from template or use default
+                                $items = [];
+                                if ($template && $template->inspection_fields) {
+                                    foreach ($template->inspection_fields as $field) {
+                                        $items[] = $field['label'] ?? '';
+                                    }
+                                }
+                                if (empty($items)) {
+                                    $items = [
+                                        'Kotak P3K',
+                                        'Plester',
+                                        'Perban',
+                                        'Kasa Steril',
+                                        'Antiseptik',
+                                        'Gunting',
+                                        'Sarung Tangan',
+                                        'Masker',
+                                        'Alkohol 70%',
+                                        'Betadine',
+                                    ];
+                                }
                             @endphp
                             @foreach($items as $index => $item)
                             <tr class="border-t border-gray-300">
@@ -73,18 +102,19 @@
                                 <td class="px-3 py-2 text-center">
                                     <div class="flex items-center justify-center gap-4">
                                         <label class="inline-flex items-center gap-1.5">
-                                            <input type="radio" name="item_{{ $index }}" value="baik"
+                                            <input type="radio" name="stock_items[{{ $index }}][kondisi]" value="baik"
                                                    class="border-gray-300 text-emerald-600 focus:ring-emerald-500"
-                                                   {{ old('item_'.$index) === 'baik' ? 'checked' : '' }}>
+                                                   {{ old('stock_items.'.$index.'.kondisi') === 'baik' ? 'checked' : '' }}>
                                             <span>Baik</span>
                                         </label>
                                         <label class="inline-flex items-center gap-1.5">
-                                            <input type="radio" name="item_{{ $index }}" value="tidak_baik"
+                                            <input type="radio" name="stock_items[{{ $index }}][kondisi]" value="tidak_baik"
                                                    class="border-gray-300 text-emerald-600 focus:ring-emerald-500"
-                                                   {{ old('item_'.$index) === 'tidak_baik' ? 'checked' : '' }}>
+                                                   {{ old('stock_items.'.$index.'.kondisi') === 'tidak_baik' ? 'checked' : '' }}>
                                             <span>Tidak Baik</span>
                                         </label>
                                     </div>
+                                    <input type="hidden" name="stock_items[{{ $index }}][item]" value="{{ $item }}">
                                 </td>
                             </tr>
                             @endforeach
@@ -96,23 +126,35 @@
         @elseif($jenis === 'pemeriksaan')
             {{-- FORM PEMERIKSAAN --}}
             <div class="mb-6">
-                <h3 class="text-lg font-bold text-gray-900 mb-3">Checklist Pemeriksaan</h3>
+                <h3 class="text-lg font-bold text-gray-900 mb-3">
+                    {{ $template && $template->table_header ? $template->table_header : 'Checklist Pemeriksaan' }}
+                </h3>
                 <div class="space-y-3">
                     @php
-                        $checkItems = [
-                            'Kotak P3K dalam kondisi baik dan bersih',
-                            'Semua item tersedia lengkap',
-                            'Tidak ada item yang kadaluarsa',
-                            'Obat-obatan tersimpan dengan baik',
-                            'Label dan instruksi terbaca jelas',
-                        ];
+                        // Get checklist items from template or use default
+                        $checkItems = [];
+                        if ($template && $template->inspection_fields) {
+                            foreach ($template->inspection_fields as $field) {
+                                $checkItems[] = $field['label'] ?? '';
+                            }
+                        }
+                        if (empty($checkItems)) {
+                            $checkItems = [
+                                'Kotak P3K dalam kondisi baik dan bersih',
+                                'Semua item tersedia lengkap',
+                                'Tidak ada item yang kadaluarsa',
+                                'Obat-obatan tersimpan dengan baik',
+                                'Label dan instruksi terbaca jelas',
+                            ];
+                        }
                     @endphp
                     @foreach($checkItems as $index => $checkItem)
                     <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                        <input type="checkbox" name="check_{{ $index }}" value="1"
+                        <input type="checkbox" name="checklist[{{ $index }}][checked]" value="1"
                                class="w-5 h-5 border-gray-300 text-emerald-600 focus:ring-emerald-500 rounded"
-                               {{ old('check_'.$index) ? 'checked' : '' }}>
+                               {{ old('checklist.'.$index.'.checked') ? 'checked' : '' }}>
                         <label class="text-sm text-gray-700">{{ $checkItem }}</label>
+                        <input type="hidden" name="checklist[{{ $index }}][item]" value="{{ $checkItem }}">
                     </div>
                     @endforeach
                 </div>
@@ -121,20 +163,61 @@
         @else
             {{-- FORM PEMAKAIAN --}}
             <div class="mb-6 space-y-4">
-                <h3 class="text-lg font-bold text-gray-900 mb-3">Detail Pemakaian</h3>
+                <h3 class="text-lg font-bold text-gray-900 mb-3">
+                    {{ $template && $template->table_header ? $template->table_header : 'Detail Pemakaian' }}
+                </h3>
                 
+                @php
+                    // Get item options from template
+                    $itemOptions = [];
+                    if ($template && $template->inspection_fields) {
+                        foreach ($template->inspection_fields as $field) {
+                            if (!empty($field['label'])) {
+                                $itemOptions[] = $field['label'];
+                            }
+                        }
+                    }
+                @endphp
+
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Item yang Digunakan</label>
-                    <input type="text" name="item_digunakan" value="{{ old('item_digunakan') }}"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm"
-                           placeholder="Contoh: Plester, Perban">
+                    @if(!empty($itemOptions))
+                        <select name="item_digunakan" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-emerald-500 focus:border-emerald-500">
+                            <option value="">-- Pilih Item --</option>
+                            @foreach($itemOptions as $opt)
+                                <option value="{{ $opt }}" {{ old('item_digunakan') === $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                            @endforeach
+                            <option value="lainnya" {{ old('item_digunakan') === 'lainnya' ? 'selected' : '' }}>Lainnya...</option>
+                        </select>
+                        <input type="text" name="item_digunakan_lainnya" value="{{ old('item_digunakan_lainnya') }}"
+                               class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg text-sm hidden"
+                               placeholder="Masukkan nama item lainnya" id="item_lainnya_input">
+                    @else
+                        <input type="text" name="item_digunakan" value="{{ old('item_digunakan') }}" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm"
+                               placeholder="Contoh: Plester, Perban">
+                    @endif
+                    @error('item_digunakan')
+                        <p class="text-xs text-rose-600 mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Jumlah</label>
-                    <input type="number" name="jumlah" value="{{ old('jumlah') }}"
+                    <input type="number" name="jumlah" value="{{ old('jumlah', 1) }}" required min="1"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm"
                            placeholder="Jumlah item yang digunakan">
+                    @error('jumlah')
+                        <p class="text-xs text-rose-600 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Pengguna</label>
+                    <input type="text" name="nama_pengguna" value="{{ old('nama_pengguna') }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm"
+                           placeholder="Nama orang yang menggunakan">
                 </div>
 
                 <div>
@@ -155,7 +238,7 @@
                 <div class="col-span-9 px-3 py-2">
                     <div class="flex items-center gap-6">
                         <label class="inline-flex items-center gap-1.5">
-                            <input type="radio" name="kesimpulan" value="baik"
+                            <input type="radio" name="kesimpulan" value="baik" required
                                    class="border-gray-300 text-emerald-600 focus:ring-emerald-500"
                                    {{ old('kesimpulan') === 'baik' ? 'checked' : '' }}>
                             <span>Baik</span>
@@ -179,10 +262,14 @@
                 </div>
                 <div class="col-span-9 px-3 py-2">
                     <input type="date"
-                           name="tgl_periksa"
-                           value="{{ old('tgl_periksa', now()->toDateString()) }}"
+                           name="{{ $jenis === 'pemakaian' ? 'tgl_pemakaian' : 'tgl_periksa' }}"
+                           value="{{ old($jenis === 'pemakaian' ? 'tgl_pemakaian' : 'tgl_periksa', now()->toDateString()) }}"
+                           required
                            class="border border-gray-300 rounded-md px-2 py-1 text-xs">
                     @error('tgl_periksa')
+                        <p class="text-[11px] text-rose-600 mt-1">{{ $message }}</p>
+                    @enderror
+                    @error('tgl_pemakaian')
                         <p class="text-[11px] text-rose-600 mt-1">{{ $message }}</p>
                     @enderror
                 </div>
@@ -195,8 +282,9 @@
                 <div class="col-span-9 px-3 py-2">
                     <input type="text"
                            name="petugas"
-                           value="{{ old('petugas') }}"
+                           value="{{ old('petugas', auth()->user()->name ?? '') }}"
                            placeholder="Nama Petugas"
+                           required
                            class="border border-gray-300 rounded-md px-2 py-1 text-xs w-64">
                     @error('petugas')
                         <p class="text-[11px] text-rose-600 mt-1">{{ $message }}</p>
@@ -221,8 +309,8 @@
             <div class="flex justify-end">
                 <div class="text-center">
                     @php
-                        $lokasi_ttd = 'Surabaya'; // default
-                        $labelPimpinan = 'Team Leader K3L & KAM'; // default
+                        $lokasi_ttd = 'Surabaya';
+                        $labelPimpinan = 'Team Leader K3L & KAM';
                         if ($template && $template->footer_fields) {
                             $lokasiField = collect($template->footer_fields)->firstWhere('label', 'Lokasi');
                             if ($lokasiField && isset($lokasiField['value'])) {
@@ -260,4 +348,31 @@
             </div>
         </div>
     </form>
+
+    @if($jenis === 'pemakaian' && !empty($itemOptions))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const select = document.querySelector('select[name="item_digunakan"]');
+            const inputLainnya = document.getElementById('item_lainnya_input');
+            
+            if (select && inputLainnya) {
+                select.addEventListener('change', function() {
+                    if (this.value === 'lainnya') {
+                        inputLainnya.classList.remove('hidden');
+                        inputLainnya.required = true;
+                    } else {
+                        inputLainnya.classList.add('hidden');
+                        inputLainnya.required = false;
+                    }
+                });
+                
+                // Check initial value
+                if (select.value === 'lainnya') {
+                    inputLainnya.classList.remove('hidden');
+                    inputLainnya.required = true;
+                }
+            }
+        });
+    </script>
+    @endif
 </x-kartu-layout>

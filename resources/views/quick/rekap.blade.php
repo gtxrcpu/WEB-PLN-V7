@@ -16,21 +16,39 @@
             </h1>
             <p class="text-sm text-slate-600 mt-1">Unduh laporan periodik dalam format Excel atau PDF</p>
         </div>
-        <div class="flex gap-3">
-            <a href="{{ route('quick.export.excel', ['module' => 'all']) }}" 
-               class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-sm font-semibold hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40 transition-all duration-300">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                </svg>
-                <span>Excel</span>
-            </a>
-            <a href="{{ route('quick.export.pdf', ['module' => 'all']) }}" 
-               class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 text-white text-sm font-semibold hover:from-red-700 hover:to-rose-700 shadow-lg shadow-red-500/30 hover:shadow-xl hover:shadow-red-500/40 transition-all duration-300">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                </svg>
-                <span>PDF</span>
-            </a>
+        <div class="flex flex-col sm:flex-row gap-3">
+            <div class="flex gap-2">
+                <a href="{{ route('quick.export.excel', ['module' => 'all', 'type' => 'equipment']) }}" 
+                   class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-sm font-semibold hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40 transition-all duration-300">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <span>Excel Peralatan</span>
+                </a>
+                <a href="{{ route('quick.export.pdf', ['module' => 'all', 'type' => 'equipment']) }}" 
+                   class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 text-white text-sm font-semibold hover:from-red-700 hover:to-rose-700 shadow-lg shadow-red-500/30 hover:shadow-xl hover:shadow-red-500/40 transition-all duration-300">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                    </svg>
+                    <span>PDF Peralatan</span>
+                </a>
+            </div>
+            <div class="flex gap-2">
+                <a href="{{ route('quick.export.excel', ['module' => 'all', 'type' => 'kartu']) }}" 
+                   class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-300">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <span>Excel Kartu</span>
+                </a>
+                <a href="{{ route('quick.export.pdf', ['module' => 'all', 'type' => 'kartu']) }}" 
+                   class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-semibold hover:from-purple-700 hover:to-pink-700 shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 transition-all duration-300">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <span>PDF Kartu</span>
+                </a>
+            </div>
         </div>
     </div>
 
@@ -50,18 +68,32 @@
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-bold text-slate-900">{{ $name }}</h3>
                         <div class="flex gap-2">
-                            <a href="{{ route('quick.export.excel', ['module' => $key]) }}" 
-                               class="text-emerald-600 hover:text-emerald-700 transition-colors" title="Export Excel">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                </svg>
-                            </a>
-                            <a href="{{ route('quick.export.pdf', ['module' => $key]) }}" 
-                               class="text-red-600 hover:text-red-700 transition-colors" title="Export PDF">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                                </svg>
-                            </a>
+                            <div class="relative group">
+                                <button class="text-emerald-600 hover:text-emerald-700 transition-colors" title="Export Excel">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                </button>
+                                <div class="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
+                                    <a href="{{ route('quick.export.excel', ['module' => $key, 'type' => 'equipment']) }}" 
+                                       class="block px-4 py-2 text-sm text-slate-700 hover:bg-emerald-50 rounded-t-lg">Peralatan</a>
+                                    <a href="{{ route('quick.export.excel', ['module' => $key, 'type' => 'kartu']) }}" 
+                                       class="block px-4 py-2 text-sm text-slate-700 hover:bg-emerald-50 rounded-b-lg">Kartu Kendali</a>
+                                </div>
+                            </div>
+                            <div class="relative group">
+                                <button class="text-red-600 hover:text-red-700 transition-colors" title="Export PDF">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                    </svg>
+                                </button>
+                                <div class="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
+                                    <a href="{{ route('quick.export.pdf', ['module' => $key, 'type' => 'equipment']) }}" 
+                                       class="block px-4 py-2 text-sm text-slate-700 hover:bg-red-50 rounded-t-lg">Peralatan</a>
+                                    <a href="{{ route('quick.export.pdf', ['module' => $key, 'type' => 'kartu']) }}" 
+                                       class="block px-4 py-2 text-sm text-slate-700 hover:bg-red-50 rounded-b-lg">Kartu Kendali</a>
+                                </div>
+                            </div>
                         </div>
                     </div>
 

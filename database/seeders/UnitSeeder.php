@@ -12,17 +12,16 @@ class UnitSeeder extends Seeder
      */
     public function run(): void
     {
+        // Hanya 2 unit: UPW2 dan UPW3
         $units = [
-            ['code' => 'UP2W1', 'name' => 'Unit Pelayanan Pelanggan Wilayah 1', 'description' => 'Unit wilayah 1'],
-            ['code' => 'UP2W2', 'name' => 'Unit Pelayanan Pelanggan Wilayah 2', 'description' => 'Unit wilayah 2'],
-            ['code' => 'UP2W3', 'name' => 'Unit Pelayanan Pelanggan Wilayah 3', 'description' => 'Unit wilayah 3'],
-            ['code' => 'UP2W4', 'name' => 'Unit Pelayanan Pelanggan Wilayah 4', 'description' => 'Unit wilayah 4'],
-            ['code' => 'UP2W5', 'name' => 'Unit Pelayanan Pelanggan Wilayah 5', 'description' => 'Unit wilayah 5'],
-            ['code' => 'UP2W6', 'name' => 'Unit Pelayanan Pelanggan Wilayah 6', 'description' => 'Unit wilayah 6'],
+            ['code' => 'UPW2', 'name' => 'Unit Pelayanan Wilayah 2', 'description' => 'Unit wilayah 2'],
+            ['code' => 'UPW3', 'name' => 'Unit Pelayanan Wilayah 3', 'description' => 'Unit wilayah 3'],
         ];
 
         foreach ($units as $unit) {
-            \App\Models\Unit::create($unit);
+            \App\Models\Unit::firstOrCreate(['code' => $unit['code']], $unit);
         }
+
+        $this->command->info('✅ Units created: UPW2, UPW3');
     }
 }

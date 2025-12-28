@@ -31,6 +31,7 @@
             <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Petugas</th>
             <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Kesimpulan</th>
             <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Dibuat Oleh</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Waktu Dibuat</th>
             <th class="px-6 py-4 text-right text-xs font-semibold text-slate-700 uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
@@ -55,8 +56,17 @@
                   {{ ucfirst($kartu->kesimpulan) }}
                 </span>
               </td>
+              <td class="px-6 py-4">
+                <div class="text-sm">
+                  <p class="font-medium text-gray-900">{{ get_user_display_name($kartu->user, 'Unknown User') }}</p>
+                  @if($kartu->user)
+                    <p class="text-xs text-gray-500">{{ $kartu->user->username ?? '-' }}</p>
+                    <p class="text-xs text-gray-500">{{ get_user_role_display($kartu->user) }}</p>
+                  @endif
+                </div>
+              </td>
               <td class="px-6 py-4 text-sm text-gray-600">
-                {{ $kartu->user->name ?? 'Unknown' }}
+                {{ $kartu->created_at->format('d M Y H:i') }}
               </td>
               <td class="px-6 py-4 text-right">
                 <a href="{{ route('admin.approvals.show', $kartu->id) }}" 
@@ -70,7 +80,7 @@
             </tr>
           @empty
             <tr>
-              <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+              <td colspan="7" class="px-6 py-12 text-center text-gray-500">
                 <svg class="w-12 h-12 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>

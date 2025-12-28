@@ -157,45 +157,57 @@
   <script>
     let html5QrCode = null;
     let isScanning = false;
+    let isProcessing = false;
+
+    function submitQRCode(qrText) {
+        // Show processing status
+        const statusOverlay = document.getElementById('scan-status');
+        if (statusOverlay) {
+            statusOverlay.classList.remove('hidden');
+        }
+        
+        // Redirect directly to search with GET parameter
+        window.location.href = '{{ route("quick.scan.search") }}?qr=' + encodeURIComponent(qrText);
+    }
 
     function startCamera() {
         const startBtn = document.getElementById('start-camera');
         const stopBtn = document.getElementById('stop-camera');
         
-        if (isScanning) return;
+        if (isScanning || isProcessing) return;
 
         // Initialize scanner
         html5QrCode = new Html5Qrcode("qr-video");
         
         // Configuration for faster scanning
         const config = {
-            fps: 10, // Frames per second (lower = faster)
-            qrbox: { width: 250, height: 250 }, // Scanning area
+            fps: 10,
+            qrbox: { width: 250, height: 250 },
             aspectRatio: 1.0
         };
 
         html5QrCode.start(
-            { facingMode: "environment" }, // Use back camera
+            { facingMode: "environment" },
             config,
             (decodedText, decodedResult) => {
-                // QR Code detected!
+                // Prevent multiple submissions
+                if (isProcessing) return;
+                isProcessing = true;
+                
                 console.log(`QR Code detected: ${decodedText}`);
                 
-                // Stop scanning
-                stopCamera();
+                // Try to stop camera gracefully, but don't wait
+                if (html5QrCode && isScanning) {
+                    try {
+                        html5QrCode.stop().catch(e => console.log('Stop error (ignored):', e));
+                    } catch (e) {
+                        console.log('Stop exception (ignored):', e);
+                    }
+                    isScanning = false;
+                }
                 
-                // Show processing status
-                document.getElementById('scan-status').classList.remove('hidden');
-                
-                // Submit the form
-                const form = document.querySelector('form');
-                const input = form.querySelector('input[name="qr"]');
-                input.value = decodedText;
-                
-                // Auto submit immediately
-                setTimeout(() => {
-                    form.submit();
-                }, 300);
+                // Submit immediately
+                submitQRCode(decodedText);
             },
             (errorMessage) => {
                 // Scanning error (ignore, happens frequently)
@@ -205,18 +217,23 @@
             isScanning = true;
             
             // Update buttons
-            startBtn.disabled = true;
-            startBtn.classList.add('bg-slate-300', 'text-slate-600', 'cursor-not-allowed');
-            startBtn.classList.remove('bg-gradient-to-r', 'from-blue-600', 'to-cyan-600', 'hover:from-blue-700', 'hover:to-cyan-700');
+            if (startBtn) {
+                startBtn.disabled = true;
+                startBtn.classList.add('bg-slate-300', 'text-slate-600', 'cursor-not-allowed');
+                startBtn.classList.remove('bg-gradient-to-r', 'from-blue-600', 'to-cyan-600', 'hover:from-blue-700', 'hover:to-cyan-700');
+            }
             
-            stopBtn.disabled = false;
-            stopBtn.classList.remove('bg-slate-300', 'text-slate-600', 'cursor-not-allowed');
-            stopBtn.classList.add('bg-gradient-to-r', 'from-red-600', 'to-rose-600', 'hover:from-red-700', 'hover:to-rose-700', 'text-white');
+            if (stopBtn) {
+                stopBtn.disabled = false;
+                stopBtn.classList.remove('bg-slate-300', 'text-slate-600', 'cursor-not-allowed');
+                stopBtn.classList.add('bg-gradient-to-r', 'from-red-600', 'to-rose-600', 'hover:from-red-700', 'hover:to-rose-700', 'text-white');
+            }
         })
         .catch((err) => {
             console.error('Error starting camera:', err);
             alert('Tidak dapat mengakses kamera. Pastikan Anda memberikan izin akses kamera.');
             isScanning = false;
+            isProcessing = false;
         });
     }
 
@@ -232,16 +249,22 @@
                 html5QrCode = null;
                 
                 // Update buttons
-                startBtn.disabled = false;
-                startBtn.classList.remove('bg-slate-300', 'text-slate-600', 'cursor-not-allowed');
-                startBtn.classList.add('bg-gradient-to-r', 'from-blue-600', 'to-cyan-600', 'hover:from-blue-700', 'hover:to-cyan-700');
+                if (startBtn) {
+                    startBtn.disabled = false;
+                    startBtn.classList.remove('bg-slate-300', 'text-slate-600', 'cursor-not-allowed');
+                    startBtn.classList.add('bg-gradient-to-r', 'from-blue-600', 'to-cyan-600', 'hover:from-blue-700', 'hover:to-cyan-700');
+                }
                 
-                stopBtn.disabled = true;
-                stopBtn.classList.add('bg-slate-300', 'text-slate-600', 'cursor-not-allowed');
-                stopBtn.classList.remove('bg-gradient-to-r', 'from-red-600', 'to-rose-600', 'hover:from-red-700', 'hover:to-rose-700', 'text-white');
+                if (stopBtn) {
+                    stopBtn.disabled = true;
+                    stopBtn.classList.add('bg-slate-300', 'text-slate-600', 'cursor-not-allowed');
+                    stopBtn.classList.remove('bg-gradient-to-r', 'from-red-600', 'to-rose-600', 'hover:from-red-700', 'hover:to-rose-700', 'text-white');
+                }
             })
             .catch((err) => {
                 console.error('Error stopping camera:', err);
+                isScanning = false;
+                html5QrCode = null;
             });
     }
 
@@ -255,8 +278,10 @@
 
     // Cleanup on page unload
     window.addEventListener('beforeunload', function() {
-        if (isScanning) {
-            stopCamera();
+        if (isScanning && html5QrCode) {
+            try {
+                html5QrCode.stop().catch(e => {});
+            } catch (e) {}
         }
     });
   </script>

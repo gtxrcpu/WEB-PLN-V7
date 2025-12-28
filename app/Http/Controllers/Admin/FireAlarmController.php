@@ -32,7 +32,8 @@ class FireAlarmController extends Controller
 
     public function create()
     {
-        return view('admin.fire-alarm.create');
+        $nextSerial = FireAlarm::generateNextSerial();
+        return view('admin.fire-alarm.create', compact('nextSerial'));
     }
 
     public function store(Request $request)

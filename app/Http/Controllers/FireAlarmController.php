@@ -96,9 +96,35 @@ class FireAlarmController extends Controller
             ->with('success', 'Fire Alarm ' . $fireAlarm->serial_no . ' berhasil diperbarui');
     }
 
-    public function riwayat(FireAlarm $fireAlarm)
+    public function riwayat(Request $request, FireAlarm $fireAlarm)
     {
-        $riwayatInspeksi = $fireAlarm->kartuInspeksi()->with('user')->get();
+        $query = $fireAlarm->kartuInspeksi()->with(['user', 'approver', 'signature']);
+        
+        // Filter by creator
+        if ($request->filled('creator')) {
+            $query->whereHas('user', function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->creator . '%');
+            });
+        }
+        
+        // Filter by approver
+        if ($request->filled('approver')) {
+            $query->whereHas('approver', function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->approver . '%');
+            });
+        }
+        
+        // Filter by approval status
+        if ($request->filled('status')) {
+            if ($request->status === 'approved') {
+                $query->whereNotNull('approved_at');
+            } elseif ($request->status === 'pending') {
+                $query->whereNull('approved_at');
+            }
+        }
+        
+        $riwayatInspeksi = $query->orderBy('tgl_periksa', 'desc')->get();
+        
         return view('fire-alarm.riwayat', compact('fireAlarm', 'riwayatInspeksi'));
     }
 }

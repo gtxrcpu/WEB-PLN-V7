@@ -86,7 +86,7 @@
                         </svg>
                         Approved
                       </span>
-                      <p class="text-xs text-gray-500 mt-1">{{ $kartu->approver->name ?? 'Admin' }}</p>
+                      <p class="text-xs text-gray-500 mt-1">{{ get_user_display_name($kartu->approver, 'Admin') }}</p>
                     @else
                       <span class="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-700">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -111,14 +111,9 @@
       <div class="bg-white rounded-xl shadow-lg ring-1 ring-slate-200 p-6">
         <h2 class="text-lg font-bold mb-4">QR Code</h2>
         <div class="flex justify-center">
-          @if($apar->qr_svg_path && file_exists(public_path($apar->qr_svg_path)))
-            <img src="{{ asset($apar->qr_svg_path) }}" alt="QR" class="w-48 h-48 border-2 border-gray-300 rounded-lg p-2">
-          @else
-            <div class="w-48 h-48 border-2 border-gray-300 rounded-lg flex items-center justify-center bg-gray-50">
-              <span class="text-gray-400">QR Not Available</span>
-            </div>
-          @endif
+          <img src="{{ $apar->qr_url }}" alt="QR Code APAR {{ $apar->serial_no }}" class="w-48 h-48 border-2 border-gray-300 rounded-lg p-2 bg-white">
         </div>
+        <p class="text-xs text-center text-gray-500 mt-2">Scan untuk akses cepat</p>
       </div>
 
       <div class="bg-white rounded-xl shadow-lg ring-1 ring-slate-200 p-6">

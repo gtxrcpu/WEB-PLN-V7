@@ -76,9 +76,28 @@
         </p>
       </div>
 
-      <div class="mt-4 text-sm text-gray-600">
-        <p>Dibuat oleh: <span class="font-medium">{{ $kartu->user->name ?? 'Unknown' }}</span></p>
-        <p>Pada: {{ $kartu->created_at->format('d M Y H:i') }}</p>
+      <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <h3 class="font-semibold text-blue-900 mb-2">Informasi Pembuat</h3>
+        <div class="space-y-1 text-sm text-blue-800">
+          <p>
+            <span class="text-blue-600">Nama:</span> 
+            <span class="font-medium">{{ get_user_display_name($kartu->user, 'Unknown User') }}</span>
+          </p>
+          @if($kartu->user)
+            <p>
+              <span class="text-blue-600">Username:</span> 
+              <span class="font-medium">{{ $kartu->user->username ?? '-' }}</span>
+            </p>
+            <p>
+              <span class="text-blue-600">Role:</span> 
+              <span class="font-medium">{{ get_user_role_display($kartu->user) }}</span>
+            </p>
+          @endif
+          <p>
+            <span class="text-blue-600">Dibuat pada:</span> 
+            <span class="font-medium">{{ $kartu->created_at->format('d M Y H:i') }}</span>
+          </p>
+        </div>
       </div>
     </div>
 

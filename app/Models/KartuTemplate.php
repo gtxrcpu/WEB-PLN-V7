@@ -59,7 +59,10 @@ class KartuTemplate extends Model
             'fire-alarm' => 'Fire Alarm - Panel & Titik Alarm',
             'box-hydrant' => 'Box Hydrant - Box, Hose, Nozzle',
             'rumah-pompa' => 'Rumah Pompa - Hydrant Rumah Pompa',
-            'p3k' => 'P3K - Kotak & Isi P3K',
+            'p3k' => 'P3K - Kotak & Isi P3K (Legacy)',
+            'p3k-pemeriksaan' => 'P3K Pemeriksaan - Checklist Kondisi Kotak P3K',
+            'p3k-pemakaian' => 'P3K Pemakaian - Catatan Penggunaan Obat/Alat',
+            'p3k-stock' => 'P3K Stock - Kartu Kendali Stock P3K',
         ];
     }
 }

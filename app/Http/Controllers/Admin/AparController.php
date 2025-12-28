@@ -65,8 +65,6 @@ class AparController extends Controller
             'notes' => $data['notes'],
         ]);
 
-        $apar->generateQrSvg(true);
-
         return redirect()
             ->route('admin.apar.index')
             ->with('success', 'APAR berhasil ditambahkan');
@@ -92,6 +90,9 @@ class AparController extends Controller
             'agent' => 'nullable|string|max:100',
             'status' => 'required|string|max:20',
             'notes' => 'nullable|string',
+            'floor_plan_id' => 'nullable|exists:floor_plans,id',
+            'floor_plan_x' => 'nullable|numeric|min:0|max:100',
+            'floor_plan_y' => 'nullable|numeric|min:0|max:100',
         ]);
 
         $apar->update($data);

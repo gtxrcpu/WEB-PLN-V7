@@ -41,8 +41,6 @@ class P3kController extends Controller
         $p3k->notes         = $data['notes'] ?? null;
         $p3k->save();
 
-        $p3k->refreshQrSvg();
-
         return redirect()
             ->route('p3k.index')
             ->with('success', 'P3K baru berhasil ditambahkan dengan barcode ' . $p3k->barcode);
@@ -75,10 +73,86 @@ class P3kController extends Controller
             ->with('success', 'P3K ' . $p3k->serial_no . ' berhasil diperbarui');
     }
 
-    public function riwayat(P3k $p3k)
+    public function riwayat(Request $request, P3k $p3k)
     {
-        $riwayatInspeksi = $p3k->kartuP3ks()->orderBy('tgl_periksa', 'desc')->get();
-        return view('p3k.riwayat', compact('p3k', 'riwayatInspeksi'));
+        // Get riwayat dari 3 jenis kartu
+        $riwayatPemeriksaan = $p3k->kartuPemeriksaan()
+            ->with(['user', 'approver', 'signature'])
+            ->orderBy('tgl_periksa', 'desc')
+            ->get()
+            ->map(function($item) {
+                $item->jenis = 'pemeriksaan';
+                $item->tanggal = $item->tgl_periksa;
+                return $item;
+            });
+        
+        $riwayatPemakaian = $p3k->kartuPemakaian()
+            ->with(['user', 'approver', 'signature'])
+            ->orderBy('tgl_pemakaian', 'desc')
+            ->get()
+            ->map(function($item) {
+                $item->jenis = 'pemakaian';
+                $item->tanggal = $item->tgl_pemakaian;
+                return $item;
+            });
+        
+        $riwayatStock = $p3k->kartuStock()
+            ->with(['user', 'approver', 'signature'])
+            ->orderBy('tgl_periksa', 'desc')
+            ->get()
+            ->map(function($item) {
+                $item->jenis = 'stock';
+                $item->tanggal = $item->tgl_periksa;
+                return $item;
+            });
+        
+        // Legacy kartu (jika ada)
+        $riwayatLegacy = $p3k->kartuP3ks()
+            ->with(['user', 'approver'])
+            ->orderBy('tgl_periksa', 'desc')
+            ->get()
+            ->map(function($item) {
+                $item->jenis = 'legacy';
+                $item->tanggal = $item->tgl_periksa;
+                return $item;
+            });
+        
+        // Filter by jenis if specified
+        $filterJenis = $request->query('jenis');
+        
+        if ($filterJenis === 'pemeriksaan') {
+            $riwayatInspeksi = $riwayatPemeriksaan;
+        } elseif ($filterJenis === 'pemakaian') {
+            $riwayatInspeksi = $riwayatPemakaian;
+        } elseif ($filterJenis === 'stock') {
+            $riwayatInspeksi = $riwayatStock;
+        } else {
+            // Gabungkan semua dan sort by tanggal
+            $riwayatInspeksi = $riwayatPemeriksaan
+                ->concat($riwayatPemakaian)
+                ->concat($riwayatStock)
+                ->concat($riwayatLegacy)
+                ->sortByDesc('tanggal')
+                ->values();
+        }
+        
+        // Filter by creator
+        if ($request->filled('creator')) {
+            $riwayatInspeksi = $riwayatInspeksi->filter(function($item) use ($request) {
+                return $item->user && str_contains(strtolower($item->user->name), strtolower($request->creator));
+            });
+        }
+        
+        // Filter by approval status
+        if ($request->filled('status')) {
+            if ($request->status === 'approved') {
+                $riwayatInspeksi = $riwayatInspeksi->filter(fn($item) => !is_null($item->approved_at));
+            } elseif ($request->status === 'pending') {
+                $riwayatInspeksi = $riwayatInspeksi->filter(fn($item) => is_null($item->approved_at));
+            }
+        }
+        
+        return view('p3k.riwayat', compact('p3k', 'riwayatInspeksi', 'filterJenis'));
     }
 
     public function pilihJenis()

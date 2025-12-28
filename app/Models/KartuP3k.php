@@ -31,6 +31,7 @@ class KartuP3k extends Model
 
     protected $casts = [
         'tgl_periksa' => 'date',
+        'approved_at' => 'datetime',
     ];
 
     /**
@@ -47,5 +48,21 @@ class KartuP3k extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Relasi ke User yang approve
+     */
+    public function approver()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    /**
+     * Check if approved
+     */
+    public function isApproved()
+    {
+        return !is_null($this->approved_at);
     }
 }

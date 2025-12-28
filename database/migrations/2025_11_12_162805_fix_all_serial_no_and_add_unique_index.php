@@ -56,6 +56,24 @@ return new class extends Migration
     /** Cek apakah index ada tanpa Doctrine DBAL */
     private function indexExists(string $table, string $index): bool
     {
+        $driver = DB::getDriverName();
+        
+        // For SQLite, use a different approach
+        if ($driver === 'sqlite') {
+            try {
+                $indexes = DB::select("PRAGMA index_list({$table})");
+                foreach ($indexes as $idx) {
+                    if ($idx->name === $index) {
+                        return true;
+                    }
+                }
+                return false;
+            } catch (\Exception $e) {
+                return false;
+            }
+        }
+        
+        // For MySQL
         $db = DB::getDatabaseName();
         $count = DB::table('information_schema.statistics')
             ->where('table_schema', $db)

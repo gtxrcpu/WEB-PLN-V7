@@ -103,10 +103,11 @@
               </td>
               <td class="px-4 sm:px-6 py-4">
                 <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg shadow-sm
-                  @if($user->hasRole('admin')) bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-700 ring-1 ring-purple-200
+                  @if($user->hasRole('superadmin')) bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-700 ring-1 ring-purple-200
+                  @elseif($user->hasRole('leader')) bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 ring-1 ring-green-200
                   @else bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700 ring-1 ring-blue-200 @endif">
                   <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                    @if($user->hasRole('admin'))
+                    @if($user->hasRole('superadmin') || $user->hasRole('leader'))
                       <path fill-rule="evenodd" d="M9.243 3.03a1 1 0 01.727 1.213L9.53 6h2.94l.56-2.243a1 1 0 111.94.486L14.53 6H17a1 1 0 110 2h-2.97l-1 4H15a1 1 0 110 2h-2.47l-.56 2.242a1 1 0 11-1.94-.485L10.47 14H7.53l-.56 2.242a1 1 0 11-1.94-.485L5.47 14H3a1 1 0 110-2h2.97l1-4H5a1 1 0 110-2h2.47l.56-2.243a1 1 0 011.213-.727zM9.03 8l-1 4h2.938l1-4H9.031z" clip-rule="evenodd"/>
                     @else
                       <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>

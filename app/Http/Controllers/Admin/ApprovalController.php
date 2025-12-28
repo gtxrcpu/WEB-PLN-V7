@@ -12,7 +12,7 @@ class ApprovalController extends Controller
     public function index()
     {
         // Get all pending approvals (kartu yang belum di-approve)
-        $pendingApprovals = KartuApar::with(['apar', 'user'])
+        $pendingApprovals = KartuApar::with(['apar', 'user', 'approver'])
             ->whereNull('approved_at')
             ->latest()
             ->paginate(20);
@@ -22,7 +22,7 @@ class ApprovalController extends Controller
 
     public function show($id)
     {
-        $kartu = KartuApar::with(['apar', 'user'])->findOrFail($id);
+        $kartu = KartuApar::with(['apar', 'user', 'approver'])->findOrFail($id);
         $signatures = Signature::where('is_active', true)->get();
 
         return view('admin.approvals.show', compact('kartu', 'signatures'));

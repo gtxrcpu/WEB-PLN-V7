@@ -16,7 +16,7 @@ class ApatController extends Controller
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('barcode', 'like', "%{$search}%")
-                  ->orWhere('location_code', 'like', "%{$search}%")
+                  ->orWhere('lokasi', 'like', "%{$search}%")
                   ->orWhere('serial_no', 'like', "%{$search}%");
             });
         }
@@ -39,9 +39,9 @@ class ApatController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'location_code' => 'required|string|max:50',
-            'type' => 'required|string|max:100',
-            'capacity' => 'required|string|max:100',
+            'lokasi' => 'required|string|max:50',
+            'jenis' => 'required|string|max:100',
+            'kapasitas' => 'required|string|max:100',
             'status' => 'required|string|max:20',
             'notes' => 'nullable|string',
         ]);
@@ -54,9 +54,9 @@ class ApatController extends Controller
             'name' => 'APAT ' . $serial,
             'barcode' => $barcode,
             'serial_no' => $serial,
-            'location_code' => $data['location_code'],
-            'type' => $data['type'],
-            'capacity' => $data['capacity'],
+            'lokasi' => $data['lokasi'],
+            'jenis' => $data['jenis'],
+            'kapasitas' => $data['kapasitas'],
             'status' => $data['status'],
             'notes' => $data['notes'],
         ]);
@@ -82,9 +82,9 @@ class ApatController extends Controller
     public function update(Request $request, Apat $apat)
     {
         $data = $request->validate([
-            'location_code' => 'required|string|max:50',
-            'type' => 'required|string|max:100',
-            'capacity' => 'required|string|max:100',
+            'lokasi' => 'required|string|max:50',
+            'jenis' => 'required|string|max:100',
+            'kapasitas' => 'required|string|max:100',
             'status' => 'required|string|max:20',
             'notes' => 'nullable|string',
         ]);

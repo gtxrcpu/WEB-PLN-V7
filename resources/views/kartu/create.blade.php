@@ -239,6 +239,24 @@
             </div>
         @endif
 
+        {{-- DEBUG INFO (ONLY IN DEVELOPMENT) --}}
+        @if(config('app.debug'))
+            <div class="no-print mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p class="font-semibold text-blue-800 mb-2">Debug Info:</p>
+                <ul class="text-sm text-blue-700">
+                    <li>Template: {{ $template ? 'Ada' : 'Tidak ada' }}</li>
+                    @if($template && $template->inspection_fields)
+                        <li>Jumlah Inspection Fields: {{ count($template->inspection_fields) }}</li>
+                        <li>Fields: 
+                            @foreach($template->inspection_fields as $index => $field)
+                                inspection_{{ $index }} ({{ $field['label'] }}){{ !$loop->last ? ', ' : '' }}
+                            @endforeach
+                        </li>
+                    @endif
+                </ul>
+            </div>
+        @endif
+
         {{-- FORM --}}
         <form method="POST" action="{{ route('kartu.store') }}">
             @csrf

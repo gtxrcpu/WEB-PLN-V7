@@ -1,5 +1,5 @@
 {{-- Reusable Kartu Layout Component --}}
-@props(['title', 'subtitle' => '', 'template', 'module', 'backRoute'])
+@props(['title', 'subtitle' => '', 'template', 'module', 'backRoute', 'backParams' => []])
 
 <!DOCTYPE html>
 <html lang="id">
@@ -34,7 +34,7 @@
             @endif
         </div>
         <div class="flex gap-2">
-            <a href="{{ route($backRoute) }}" class="px-4 py-2 border rounded-lg hover:bg-gray-50 text-sm font-medium">
+            <a href="{{ route($backRoute, $backParams) }}" class="px-4 py-2 border rounded-lg hover:bg-gray-50 text-sm font-medium">
                 ← Kembali
             </a>
             <button onclick="window.print()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">

@@ -25,6 +25,7 @@
                 </p>
             </div>
 
+            @hasanyrole('admin|user')
             <div class="flex items-center gap-3">
                 <a href="{{ route('p3k.create') }}"
                    class="group inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-green-600 text-white text-sm font-semibold hover:from-emerald-700 hover:to-green-700 shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40 transition-all duration-300">
@@ -34,6 +35,7 @@
                     <span>Tambah P3K</span>
                 </a>
             </div>
+            @endhasanyrole
         </div>
 
         {{-- Stats Cards --}}
@@ -41,10 +43,9 @@
             $totalP3k = ($p3ks ?? collect())->count();
             $statusLengkap = ($p3ks ?? collect())->where('status', 'lengkap')->count();
             $statusTidakLengkap = ($p3ks ?? collect())->where('status', 'tidak_lengkap')->count();
-            $statusKadaluarsa = ($p3ks ?? collect())->where('status', 'kadaluarsa')->count();
         @endphp
 
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-3 gap-4">
             <div class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 p-5 shadow-lg hover:shadow-xl transition-all duration-300">
                 <div class="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-12 -mt-12"></div>
                 <div class="relative">
@@ -87,21 +88,6 @@
                     </div>
                     <p class="text-white/80 text-sm font-medium">Tidak Lengkap</p>
                     <p class="text-3xl font-bold text-white mt-1">{{ $statusTidakLengkap }}</p>
-                </div>
-            </div>
-
-            <div class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-rose-500 to-rose-600 p-5 shadow-lg hover:shadow-xl transition-all duration-300">
-                <div class="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-12 -mt-12"></div>
-                <div class="relative">
-                    <div class="flex items-center gap-3 mb-2">
-                        <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <p class="text-white/80 text-sm font-medium">Kadaluarsa</p>
-                    <p class="text-3xl font-bold text-white mt-1">{{ $statusKadaluarsa }}</p>
                 </div>
             </div>
         </div>
@@ -161,11 +147,6 @@
                     'gradient' => 'from-amber-500 to-orange-500',
                     'icon' => 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z'
                 ],
-                'kadaluarsa'    => [
-                    'badge' => 'bg-rose-100 text-rose-700 border-rose-200',
-                    'gradient' => 'from-rose-500 to-red-500',
-                    'icon' => 'M6 18L18 6M6 6l12 12'
-                ],
                 default         => [
                     'badge' => 'bg-slate-100 text-slate-600 border-slate-200',
                     'gradient' => 'from-slate-500 to-slate-600',
@@ -173,7 +154,7 @@
                 ],
             };
 
-            $qrAsset = $p3k->qr_svg_path ? asset($p3k->qr_svg_path) : null;
+
           @endphp
 
           <div data-item 
@@ -237,31 +218,22 @@
                 <div class="relative mb-5">
                     <div class="absolute inset-0 bg-gradient-to-br {{ $statusConfig['gradient'] }} opacity-5 rounded-2xl"></div>
                     <div class="relative flex flex-col items-center justify-center p-5 rounded-2xl border-2 border-dashed border-slate-200 bg-white">
-                        @if($qrAsset)
-                            <div class="mb-3">
-                                <img src="{{ $qrAsset }}"
-                                     alt="QR P3K {{ $kodePendek }}"
-                                     class="w-40 h-40 object-contain rounded-xl shadow-lg ring-4 ring-white bg-white">
-                            </div>
-                            <div class="text-center">
-                                <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Scan QR Code</p>
-                                <p class="text-xs text-slate-500 mt-0.5">untuk akses cepat</p>
-                            </div>
-                        @else
-                            <div class="w-40 h-40 flex items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50">
-                                <div class="text-center px-4">
-                                    <svg class="w-12 h-12 mx-auto text-slate-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1z"/>
-                                    </svg>
-                                    <p class="text-xs text-slate-500">QR belum dibuat</p>
-                                </div>
-                            </div>
-                        @endif
+                        <div class="mb-3">
+                            <img src="{{ $p3k->qr_url }}"
+                                 alt="QR P3K {{ $kodePendek }}"
+                                 class="w-40 h-40 object-contain rounded-xl shadow-lg ring-4 ring-white bg-white"
+                                 loading="lazy">
+                        </div>
+                        <div class="text-center">
+                            <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Scan QR Code</p>
+                            <p class="text-xs text-slate-500 mt-0.5">untuk akses cepat</p>
+                        </div>
                     </div>
                 </div>
 
                 {{-- Action Buttons --}}
                 <div class="flex flex-col gap-2">
+                    @hasanyrole('admin|user')
                     <a href="{{ route('p3k.kartu.create', ['p3k_id' => $p3k->id]) }}"
                        class="group/btn relative overflow-hidden inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 text-white text-sm font-semibold hover:from-sky-700 hover:to-blue-700 shadow-lg shadow-sky-500/30 hover:shadow-xl hover:shadow-sky-500/40 transition-all duration-300">
                         <svg class="w-5 h-5 group-hover/btn:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -269,6 +241,7 @@
                         </svg>
                         <span>Kartu Kendali</span>
                     </a>
+                    @endhasanyrole
 
                     <a href="{{ route('p3k.riwayat', $p3k) }}"
                        class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border-2 border-emerald-200 bg-emerald-50 text-sm font-medium text-emerald-700 hover:bg-emerald-100 hover:border-emerald-300 transition-all duration-200">
@@ -278,6 +251,7 @@
                         <span>Lihat Riwayat</span>
                     </a>
 
+                    @hasanyrole('admin|user')
                     <a href="{{ route('p3k.edit', $p3k) }}"
                        class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border-2 border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all duration-200">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -285,6 +259,7 @@
                         </svg>
                         <span>Edit P3K</span>
                     </a>
+                    @endhasanyrole
                 </div>
             </div>
           </div>
