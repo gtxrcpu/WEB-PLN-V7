@@ -158,7 +158,8 @@
                         <div 
                             class="relative w-full h-full"
                             id="floor-plan-container"
-                            @click="placeEquipment($event)"
+                            @click="!dragging && placeEquipment($event)"
+                            @mouseup="endDrag()"
                         >
                             <!-- Floor Plan Image -->
                             <img 
@@ -172,10 +173,14 @@
                             <!-- Placed Markers - positioned relative to container -->
                             <template x-for="marker in placedMarkers" :key="marker.uid">
                                 <div 
-                                    class="absolute cursor-move transform -translate-x-1/2 -translate-y-1/2 transition-all hover:scale-110 z-20 hover:z-50"
-                                    :class="{ 'animate-bounce': marker.isNew }"
+                                    class="absolute cursor-grab active:cursor-grabbing transform -translate-x-1/2 -translate-y-1/2 hover:scale-110 z-20 hover:z-50 select-none"
+                                    :class="{ 
+                                        'animate-bounce': marker.isNew,
+                                        'cursor-grabbing scale-125 z-50': dragging && dragging.uid === marker.uid,
+                                        'transition-all duration-200': !dragging || dragging.uid !== marker.uid
+                                    }"
                                     :style="getMarkerStyle(marker)"
-                                    @mousedown.stop="startDrag($event, marker)"
+                                    @mousedown.prevent="startDrag($event, marker)"
                                     @contextmenu.prevent="removeMarker(marker)"
                                 >
                                     <div class="relative group">
@@ -289,10 +294,26 @@ function placementApp() {
             });
 
             // Add mouse move and up listeners for dragging
-            document.addEventListener('mousemove', (e) => this.onDrag(e));
-            document.addEventListener('mouseup', () => this.endDrag());
+            const onDragHandler = (e) => {
+                if (this.dragging) {
+                    this.onDrag(e);
+                }
+            };
+            
+            const endDragHandler = () => {
+                if (this.dragging) {
+                    this.endDrag();
+                }
+            };
+            
+            document.addEventListener('mousemove', onDragHandler);
+            document.addEventListener('mouseup', endDragHandler);
+            
+            // Store handlers for cleanup if needed
+            this._dragHandlers = { onDragHandler, endDragHandler };
             
             console.log('Loaded markers:', this.placedMarkers);
+            console.log('Drag handlers attached');
             console.log('Total markers count:', this.placedMarkers.length);
         },
         
@@ -372,9 +393,16 @@ function placementApp() {
         startDrag(event, marker) {
             event.preventDefault();
             event.stopPropagation();
+            
+            console.log('Start dragging:', marker.name);
             this.dragging = marker;
             
             const container = document.getElementById('floor-plan-container');
+            if (!container) {
+                console.error('Container not found');
+                return;
+            }
+            
             const rect = container.getBoundingClientRect();
             
             // Calculate current marker position in pixels
@@ -385,12 +413,18 @@ function placementApp() {
                 x: event.clientX - rect.left - markerX,
                 y: event.clientY - rect.top - markerY
             };
+            
+            console.log('Drag started with offset:', this.dragOffset);
         },
 
         onDrag(event) {
             if (!this.dragging) return;
+            
+            event.preventDefault();
 
             const container = document.getElementById('floor-plan-container');
+            if (!container) return;
+            
             const rect = container.getBoundingClientRect();
             
             // Calculate new position as percentage
@@ -399,12 +433,21 @@ function placementApp() {
 
             this.dragging.x = Math.max(0, Math.min(100, x));
             this.dragging.y = Math.max(0, Math.min(100, y));
+            
+            // Add visual feedback
+            document.body.style.cursor = 'grabbing';
+            document.body.style.userSelect = 'none';
         },
 
         async endDrag() {
             if (this.dragging) {
+                console.log('End dragging:', this.dragging.name);
                 await this.savePosition(this.dragging);
                 this.dragging = null;
+                
+                // Reset cursor
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
             }
         },
 

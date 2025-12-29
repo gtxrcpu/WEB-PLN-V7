@@ -15,14 +15,67 @@
     <div class="lg:col-span-2 bg-white rounded-xl shadow-lg ring-1 ring-slate-200 p-6">
       <h2 class="text-lg font-bold mb-4">Detail Inspeksi</h2>
       
+      @php
+        // Get equipment info based on module type
+        $equipmentName = '-';
+        $equipmentLocation = '-';
+        
+        switch($type ?? 'apar') {
+          case 'apar':
+            $equipmentName = $kartu->apar->barcode ?? $kartu->apar->serial_no ?? '-';
+            $equipmentLocation = $kartu->apar->location_code ?? '-';
+            break;
+          case 'apat':
+            $equipmentName = $kartu->apat->barcode ?? $kartu->apat->serial_no ?? '-';
+            $equipmentLocation = $kartu->apat->lokasi ?? '-';
+            break;
+          case 'apab':
+            $equipmentName = $kartu->apab->barcode ?? $kartu->apab->serial_no ?? '-';
+            $equipmentLocation = $kartu->apab->lokasi ?? '-';
+            break;
+          case 'fire-alarm':
+            $equipmentName = $kartu->fireAlarm->barcode ?? $kartu->fireAlarm->serial_no ?? '-';
+            $equipmentLocation = $kartu->fireAlarm->lokasi ?? '-';
+            break;
+          case 'box-hydrant':
+            $equipmentName = $kartu->boxHydrant->barcode ?? $kartu->boxHydrant->serial_no ?? '-';
+            $equipmentLocation = $kartu->boxHydrant->lokasi ?? '-';
+            break;
+          case 'rumah-pompa':
+            $equipmentName = $kartu->rumahPompa->barcode ?? $kartu->rumahPompa->serial_no ?? '-';
+            $equipmentLocation = $kartu->rumahPompa->lokasi ?? '-';
+            break;
+          case 'p3k':
+            $equipmentName = $kartu->p3k->barcode ?? $kartu->p3k->serial_no ?? '-';
+            $equipmentLocation = $kartu->p3k->lokasi ?? '-';
+            break;
+        }
+      @endphp
+      
       <div class="grid grid-cols-2 gap-4 mb-6">
         <div>
+          <p class="text-sm text-gray-600">Modul</p>
+          <p class="font-semibold">
+            <span class="inline-flex px-2.5 py-1 text-xs font-bold rounded-lg
+              @if($type === 'apar') bg-red-100 text-red-700
+              @elseif($type === 'apat') bg-cyan-100 text-cyan-700
+              @elseif($type === 'apab') bg-orange-100 text-orange-700
+              @elseif($type === 'fire-alarm') bg-rose-100 text-rose-700
+              @elseif($type === 'box-hydrant') bg-blue-100 text-blue-700
+              @elseif($type === 'rumah-pompa') bg-purple-100 text-purple-700
+              @elseif($type === 'p3k') bg-emerald-100 text-emerald-700
+              @else bg-slate-100 text-slate-700 @endif">
+              {{ strtoupper($type) }}
+            </span>
+          </p>
+        </div>
+        <div>
           <p class="text-sm text-gray-600">Equipment</p>
-          <p class="font-semibold">{{ $kartu->apar->barcode ?? $kartu->apar->serial_no }}</p>
+          <p class="font-semibold">{{ $equipmentName }}</p>
         </div>
         <div>
           <p class="text-sm text-gray-600">Lokasi</p>
-          <p class="font-semibold">{{ $kartu->apar->location_code ?? '-' }}</p>
+          <p class="font-semibold">{{ $equipmentLocation }}</p>
         </div>
         <div>
           <p class="text-sm text-gray-600">Tanggal Periksa</p>
@@ -37,30 +90,61 @@
       <div class="border-t border-gray-200 pt-4">
         <h3 class="font-semibold mb-3">Hasil Pemeriksaan</h3>
         <div class="grid grid-cols-2 gap-3 text-sm">
-          <div class="flex justify-between p-2 bg-slate-50 rounded">
-            <span class="text-gray-600">Pressure Gauge:</span>
-            <span class="font-medium">{{ $kartu->pressure_gauge }}</span>
-          </div>
-          <div class="flex justify-between p-2 bg-slate-50 rounded">
-            <span class="text-gray-600">Pin & Segel:</span>
-            <span class="font-medium">{{ $kartu->pin_segel }}</span>
-          </div>
-          <div class="flex justify-between p-2 bg-slate-50 rounded">
-            <span class="text-gray-600">Selang:</span>
-            <span class="font-medium">{{ $kartu->selang }}</span>
-          </div>
-          <div class="flex justify-between p-2 bg-slate-50 rounded">
-            <span class="text-gray-600">Tabung:</span>
-            <span class="font-medium">{{ $kartu->tabung }}</span>
-          </div>
-          <div class="flex justify-between p-2 bg-slate-50 rounded">
-            <span class="text-gray-600">Label:</span>
-            <span class="font-medium">{{ $kartu->label }}</span>
-          </div>
-          <div class="flex justify-between p-2 bg-slate-50 rounded">
-            <span class="text-gray-600">Kondisi Fisik:</span>
-            <span class="font-medium">{{ $kartu->kondisi_fisik }}</span>
-          </div>
+          @if($type === 'apar')
+            <div class="flex justify-between p-2 bg-slate-50 rounded">
+              <span class="text-gray-600">Pressure Gauge:</span>
+              <span class="font-medium">{{ $kartu->pressure_gauge ?? '-' }}</span>
+            </div>
+            <div class="flex justify-between p-2 bg-slate-50 rounded">
+              <span class="text-gray-600">Pin & Segel:</span>
+              <span class="font-medium">{{ $kartu->pin_segel ?? '-' }}</span>
+            </div>
+            <div class="flex justify-between p-2 bg-slate-50 rounded">
+              <span class="text-gray-600">Selang:</span>
+              <span class="font-medium">{{ $kartu->selang ?? '-' }}</span>
+            </div>
+            <div class="flex justify-between p-2 bg-slate-50 rounded">
+              <span class="text-gray-600">Tabung:</span>
+              <span class="font-medium">{{ $kartu->tabung ?? '-' }}</span>
+            </div>
+            <div class="flex justify-between p-2 bg-slate-50 rounded">
+              <span class="text-gray-600">Label:</span>
+              <span class="font-medium">{{ $kartu->label ?? '-' }}</span>
+            </div>
+            <div class="flex justify-between p-2 bg-slate-50 rounded">
+              <span class="text-gray-600">Kondisi Fisik:</span>
+              <span class="font-medium">{{ $kartu->kondisi_fisik ?? '-' }}</span>
+            </div>
+          @elseif($type === 'apat')
+            <div class="flex justify-between p-2 bg-slate-50 rounded">
+              <span class="text-gray-600">Kondisi Fisik:</span>
+              <span class="font-medium">{{ $kartu->kondisi_fisik ?? '-' }}</span>
+            </div>
+            <div class="flex justify-between p-2 bg-slate-50 rounded">
+              <span class="text-gray-600">Drum:</span>
+              <span class="font-medium">{{ $kartu->drum ?? '-' }}</span>
+            </div>
+            <div class="flex justify-between p-2 bg-slate-50 rounded">
+              <span class="text-gray-600">Aduk Pasir:</span>
+              <span class="font-medium">{{ $kartu->aduk_pasir ?? '-' }}</span>
+            </div>
+            <div class="flex justify-between p-2 bg-slate-50 rounded">
+              <span class="text-gray-600">Sekop:</span>
+              <span class="font-medium">{{ $kartu->sekop ?? '-' }}</span>
+            </div>
+            <div class="flex justify-between p-2 bg-slate-50 rounded">
+              <span class="text-gray-600">Fire Blanket:</span>
+              <span class="font-medium">{{ $kartu->fire_blanket ?? '-' }}</span>
+            </div>
+            <div class="flex justify-between p-2 bg-slate-50 rounded">
+              <span class="text-gray-600">Ember:</span>
+              <span class="font-medium">{{ $kartu->ember ?? '-' }}</span>
+            </div>
+          @else
+            <div class="col-span-2 p-4 bg-slate-50 rounded text-center text-gray-500">
+              <p>Detail pemeriksaan untuk modul {{ strtoupper($type) }}</p>
+            </div>
+          @endif
         </div>
       </div>
 
@@ -107,6 +191,7 @@
       
       <form action="{{ route('admin.approvals.approve', $kartu->id) }}" method="POST">
         @csrf
+        <input type="hidden" name="type" value="{{ $type ?? 'apar' }}">
         
         <div class="space-y-3 mb-6">
           @forelse($signatures as $signature)

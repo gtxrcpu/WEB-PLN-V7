@@ -39,21 +39,26 @@ class ApabKartuController extends Controller
         if ($template && $template->inspection_fields) {
             foreach ($template->inspection_fields as $index => $field) {
                 $fieldName = 'inspection_' . $index;
-                $rules[$fieldName] = ['required', 'string', 'max:255'];
+                $rules[$fieldName] = ['nullable', 'string', 'max:255'];
             }
         } else {
             // Fallback ke field lama
             $rules = array_merge($rules, [
-                'pressure_gauge' => ['required', 'string', 'max:50'],
-                'pin_segel'      => ['required', 'string', 'max:50'],
-                'selang'         => ['required', 'string', 'max:50'],
-                'klem_selang'    => ['required', 'string', 'max:50'],
-                'handle'         => ['required', 'string', 'max:50'],
-                'kondisi_fisik'  => ['required', 'string', 'max:50'],
+                'pressure_gauge' => ['nullable', 'string', 'max:50'],
+                'pin_segel'      => ['nullable', 'string', 'max:50'],
+                'selang'         => ['nullable', 'string', 'max:50'],
+                'klem_selang'    => ['nullable', 'string', 'max:50'],
+                'handle'         => ['nullable', 'string', 'max:50'],
+                'kondisi_fisik'  => ['nullable', 'string', 'max:50'],
             ]);
         }
         
-        $data = $request->validate($rules);
+        $data = $request->validate($rules, [
+            'apab_id.required' => 'Data APAB tidak valid.',
+            'kesimpulan.required' => 'Kesimpulan harus dipilih.',
+            'tgl_periksa.required' => 'Tanggal pemeriksaan harus diisi.',
+            'petugas.required' => 'Nama petugas harus diisi.',
+        ]);
         
         // Jika menggunakan template, map inspection fields ke kolom database lama
         if ($template && $template->inspection_fields) {
@@ -62,10 +67,18 @@ class ApabKartuController extends Controller
                 'Pressure Gauge' => 'pressure_gauge',
                 'Pin & Segel' => 'pin_segel',
                 'Selang' => 'selang',
-                'Tabung' => 'tabung',
-                'Nozzle' => 'nozzle',
+                'Klem Selang' => 'klem_selang',
+                'Handle' => 'handle',
                 'Kondisi Fisik' => 'kondisi_fisik',
             ];
+            
+            // Set default values for all required fields
+            $data['pressure_gauge'] = '-';
+            $data['pin_segel'] = '-';
+            $data['selang'] = '-';
+            $data['klem_selang'] = '-';
+            $data['handle'] = '-';
+            $data['kondisi_fisik'] = '-';
             
             foreach ($template->inspection_fields as $index => $field) {
                 $fieldName = 'inspection_' . $index;
@@ -75,6 +88,7 @@ class ApabKartuController extends Controller
                         $dbColumn = $fieldMapping[$field['label']];
                         $data[$dbColumn] = $data[$fieldName];
                     }
+                    // IMPORTANT: Remove inspection_X field from data
                     unset($data[$fieldName]);
                 }
             }

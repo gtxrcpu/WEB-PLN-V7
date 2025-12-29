@@ -18,7 +18,21 @@
   <header class="sticky top-0 z-40 bg-white/85 backdrop-blur ring-1 ring-slate-200">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <img src="{{ asset('images/logoo.png') }}" alt="PLN" class="h-8 w-auto object-contain">
+        @php
+          $dashboardRoute = 'user.dashboard';
+          if (auth()->check()) {
+            if (auth()->user()->hasRole('superadmin')) {
+              $dashboardRoute = 'admin.dashboard';
+            } elseif (auth()->user()->hasRole('leader')) {
+              $dashboardRoute = 'leader.dashboard';
+            } elseif (auth()->user()->hasRole('inspector')) {
+              $dashboardRoute = 'inspector.dashboard';
+            }
+          }
+        @endphp
+        <a href="{{ route($dashboardRoute) }}" class="hover:opacity-80 transition-opacity">
+          <img src="{{ asset('images/logoo.png') }}" alt="PLN" class="h-8 w-auto object-contain">
+        </a>
         <div class="flex items-center gap-2">
           <span class="font-semibold">Inventaris K3 PLN</span>
           @if(auth()->check())
@@ -159,7 +173,7 @@
                       <option value="">Semua Unit</option>
                       @foreach(\App\Models\Unit::where('is_active', true)->get() as $unit)
                         <option value="{{ $unit->id }}" {{ session('viewing_unit_id') == $unit->id ? 'selected' : '' }}>
-                          {{ $unit->code }}
+                          {{ $unit->name }}
                         </option>
                       @endforeach
                     </select>
@@ -756,7 +770,7 @@
                     <option value="">Semua Unit</option>
                     @foreach(\App\Models\Unit::where('is_active', true)->get() as $unit)
                       <option value="{{ $unit->id }}" {{ session('viewing_unit_id') == $unit->id ? 'selected' : '' }}>
-                        {{ $unit->code }}
+                        {{ $unit->name }}
                       </option>
                     @endforeach
                   </select>

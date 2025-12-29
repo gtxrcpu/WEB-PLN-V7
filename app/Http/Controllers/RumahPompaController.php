@@ -95,4 +95,39 @@ class RumahPompaController extends Controller
         
         return view('rumah-pompa.riwayat', compact('rumahPompa', 'riwayatInspeksi'));
     }
+
+    /**
+     * View detail kartu kendali dengan TTD
+     */
+    public function viewKartu($rumahPompaId, $kartuId)
+    {
+        $rumahPompa = RumahPompa::findOrFail($rumahPompaId);
+        $kartu = \App\Models\KartuRumahPompa::with(['signature', 'user', 'approver'])->findOrFail($kartuId);
+        
+        // Get template for Rumah Pompa module
+        $template = \App\Models\KartuTemplate::getTemplate('rumah-pompa');
+        
+        // Fill template with real data
+        if ($template) {
+            // Map data berdasarkan label field
+            $labelMap = [
+                'No. Dokumen' => 'RP-' . str_pad($kartu->id, 4, '0', STR_PAD_LEFT),
+                'Revisi' => '00',
+                'Tanggal' => \Carbon\Carbon::parse($kartu->tgl_periksa)->format('d F Y'),
+                'Halaman' => '1 dari 1',
+            ];
+            
+            // Update header fields dengan data real
+            $headerFields = collect($template->header_fields)->map(function($field) use ($labelMap) {
+                if (isset($labelMap[$field['label']])) {
+                    $field['value'] = $labelMap[$field['label']];
+                }
+                return $field;
+            })->toArray();
+            
+            $template->header_fields = $headerFields;
+        }
+        
+        return view('rumah-pompa.view-kartu', compact('rumahPompa', 'kartu', 'template'));
+    }
 }

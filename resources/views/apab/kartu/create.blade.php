@@ -30,13 +30,27 @@
 
         {{-- FORM --}}
         @if ($errors->any())
-            <div class="no-print mt-4 mb-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
-                <div class="font-semibold mb-1">Periksa kembali:</div>
-                <ul class="list-disc pl-4 space-y-0.5">
-                    @foreach ($errors->all() as $msg)
-                        <li>{{ $msg }}</li>
-                    @endforeach
-                </ul>
+            <div class="no-print mt-4 mb-4 rounded-xl border-2 border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 px-5 py-4 shadow-sm">
+                <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0 w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-amber-900 mb-2">Mohon lengkapi data berikut:</h4>
+                        <ul class="space-y-1.5 text-sm text-amber-800">
+                            @foreach ($errors->all() as $msg)
+                                <li class="flex items-start gap-2">
+                                    <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>{{ $msg }}</span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
             </div>
         @endif
 
@@ -44,44 +58,73 @@
             @csrf
             <input type="hidden" name="apab_id" value="{{ $apab->id }}">
 
-            {{-- TABEL PEMERIKSAAN --}}
+            {{-- TABEL PEMERIKSAAN - DYNAMIC FROM TEMPLATE --}}
             <div class="border border-slate-400 text-xs">
                 <div class="grid grid-cols-12 bg-slate-100 border-b border-slate-400 font-semibold">
                     <div class="col-span-6 px-3 py-2 border-r border-slate-400">PEMERIKSAAN</div>
                     <div class="col-span-6 px-3 py-2 text-center">KONDISI</div>
                 </div>
 
-                @foreach ([
-                    'pressure_gauge' => 'Pressure Gauge',
-                    'pin_segel'      => 'Pin/Segel',
-                    'selang'         => 'Selang',
-                    'klem_selang'    => 'Klem Selang',
-                    'handle'         => 'Handle',
-                    'kondisi_fisik'  => 'Kondisi Fisik',
-                ] as $field => $label)
-                    <div class="grid grid-cols-12 border-t border-slate-300">
-                        <div class="col-span-6 px-3 py-2 border-r border-slate-300">{{ $label }}</div>
-                        <div class="col-span-6 px-3 py-1.5">
-                            <div class="flex items-center gap-6">
-                                <label class="inline-flex items-center gap-1.5">
-                                    <input type="radio" name="{{ $field }}" value="baik"
-                                           class="border-slate-300 text-red-600 focus:ring-red-500"
-                                           {{ old($field) === 'baik' ? 'checked' : '' }}>
-                                    <span>Baik</span>
-                                </label>
-                                <label class="inline-flex items-center gap-1.5">
-                                    <input type="radio" name="{{ $field }}" value="tidak_baik"
-                                           class="border-slate-300 text-red-600 focus:ring-red-500"
-                                           {{ old($field) === 'tidak_baik' ? 'checked' : '' }}>
-                                    <span>Tidak Baik</span>
-                                </label>
+                @if($template && $template->inspection_fields)
+                    {{-- Use dynamic template fields --}}
+                    @foreach($template->inspection_fields as $index => $field)
+                        <div class="grid grid-cols-12 border-t border-slate-300">
+                            <div class="col-span-6 px-3 py-2 border-r border-slate-300">{{ $field['label'] }}</div>
+                            <div class="col-span-6 px-3 py-1.5">
+                                <div class="flex items-center gap-6">
+                                    <label class="inline-flex items-center gap-1.5">
+                                        <input type="radio" name="inspection_{{ $index }}" value="baik"
+                                               class="border-slate-300 text-red-600 focus:ring-red-500"
+                                               {{ old('inspection_' . $index) === 'baik' ? 'checked' : '' }}>
+                                        <span>Baik</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-1.5">
+                                        <input type="radio" name="inspection_{{ $index }}" value="tidak_baik"
+                                               class="border-slate-300 text-red-600 focus:ring-red-500"
+                                               {{ old('inspection_' . $index) === 'tidak_baik' ? 'checked' : '' }}>
+                                        <span>Tidak Baik</span>
+                                    </label>
+                                </div>
+                                @error('inspection_' . $index)
+                                    <p class="text-[11px] text-rose-600 mt-1">{{ $message }}</p>
+                                @enderror
                             </div>
-                            @error($field)
-                                <p class="text-[11px] text-rose-600 mt-1">{{ $message }}</p>
-                            @enderror
                         </div>
-                    </div>
-                @endforeach
+                    @endforeach
+                @else
+                    {{-- Fallback to hardcoded fields --}}
+                    @foreach ([
+                        'pressure_gauge' => 'Pressure Gauge',
+                        'pin_segel'      => 'Pin/Segel',
+                        'selang'         => 'Selang',
+                        'klem_selang'    => 'Klem Selang',
+                        'handle'         => 'Handle',
+                        'kondisi_fisik'  => 'Kondisi Fisik',
+                    ] as $field => $label)
+                        <div class="grid grid-cols-12 border-t border-slate-300">
+                            <div class="col-span-6 px-3 py-2 border-r border-slate-300">{{ $label }}</div>
+                            <div class="col-span-6 px-3 py-1.5">
+                                <div class="flex items-center gap-6">
+                                    <label class="inline-flex items-center gap-1.5">
+                                        <input type="radio" name="{{ $field }}" value="baik"
+                                               class="border-slate-300 text-red-600 focus:ring-red-500"
+                                               {{ old($field) === 'baik' ? 'checked' : '' }}>
+                                        <span>Baik</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-1.5">
+                                        <input type="radio" name="{{ $field }}" value="tidak_baik"
+                                               class="border-slate-300 text-red-600 focus:ring-red-500"
+                                               {{ old($field) === 'tidak_baik' ? 'checked' : '' }}>
+                                        <span>Tidak Baik</span>
+                                    </label>
+                                </div>
+                                @error($field)
+                                    <p class="text-[11px] text-rose-600 mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+                    @endforeach
+                @endif
             </div>
 
             {{-- KESIMPULAN --}}

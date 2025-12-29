@@ -189,10 +189,6 @@
                             <div class="flex items-center gap-2 mb-1">
                                 <span class="font-semibold text-gray-900">Di-approve oleh</span>
                                 @if($kartu->approver)
-                                    @php
-                                        $approverRole = 'Admin';
-                                        if ($kartu->approver->hasRole('superadmin')) {
-                                        @if($kartu->approver)
                                     <span class="px-2 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded">
                                         {{ get_user_role_display($kartu->approver) }}
                                     </span>

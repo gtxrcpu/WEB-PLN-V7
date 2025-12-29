@@ -13,7 +13,9 @@
   <header class="sticky top-0 z-40 bg-white/85 backdrop-blur ring-1 ring-slate-200">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <img src="{{ asset('images/logoo.png') }}" alt="PLN" class="h-8 w-auto object-contain">
+        <a href="{{ route('user.dashboard') }}" class="hover:opacity-80 transition-opacity">
+          <img src="{{ asset('images/logoo.png') }}" alt="PLN" class="h-8 w-auto object-contain">
+        </a>
         <span class="font-semibold">Inventaris K3 PLN — <span class="text-emerald-700">User</span></span>
       </div>
 

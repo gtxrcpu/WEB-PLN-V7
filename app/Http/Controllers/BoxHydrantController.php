@@ -106,4 +106,39 @@ class BoxHydrantController extends Controller
         
         return view('box-hydrant.riwayat', compact('boxHydrant', 'riwayatInspeksi'));
     }
+
+    /**
+     * View detail kartu kendali dengan TTD
+     */
+    public function viewKartu($boxHydrantId, $kartuId)
+    {
+        $boxHydrant = BoxHydrant::findOrFail($boxHydrantId);
+        $kartu = \App\Models\KartuBoxHydrant::with(['signature', 'user', 'approver'])->findOrFail($kartuId);
+        
+        // Get template for Box Hydrant module
+        $template = \App\Models\KartuTemplate::getTemplate('box-hydrant');
+        
+        // Fill template with real data
+        if ($template) {
+            // Map data berdasarkan label field
+            $labelMap = [
+                'No. Dokumen' => 'BH-' . str_pad($kartu->id, 4, '0', STR_PAD_LEFT),
+                'Revisi' => '00',
+                'Tanggal' => \Carbon\Carbon::parse($kartu->tgl_periksa)->format('d F Y'),
+                'Halaman' => '1 dari 1',
+            ];
+            
+            // Update header fields dengan data real
+            $headerFields = collect($template->header_fields)->map(function($field) use ($labelMap) {
+                if (isset($labelMap[$field['label']])) {
+                    $field['value'] = $labelMap[$field['label']];
+                }
+                return $field;
+            })->toArray();
+            
+            $template->header_fields = $headerFields;
+        }
+        
+        return view('box-hydrant.view-kartu', compact('boxHydrant', 'kartu', 'template'));
+    }
 }

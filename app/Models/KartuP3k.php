@@ -59,6 +59,14 @@ class KartuP3k extends Model
     }
 
     /**
+     * Relasi ke Signature
+     */
+    public function signature()
+    {
+        return $this->belongsTo(Signature::class);
+    }
+
+    /**
      * Check if approved
      */
     public function isApproved()

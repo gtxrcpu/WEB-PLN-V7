@@ -67,7 +67,7 @@ class ApabController extends Controller
 
     public function riwayat(Request $request, Apab $apab)
     {
-        $query = $apab->kartuInspeksi()->with(['user', 'approver', 'signature']);
+        $query = $apab->kartuApabs()->with(['user', 'approver', 'signature']);
         
         // Filter by creator
         if ($request->filled('creator')) {
@@ -92,8 +92,19 @@ class ApabController extends Controller
             }
         }
         
-        $riwayatInspeksi = $query->orderBy('tgl_periksa', 'desc')->get();
+        $kartuKendali = $query->orderBy('tgl_periksa', 'desc')->get();
         
-        return view('apab.riwayat', compact('apab', 'riwayatInspeksi'));
+        return view('apab.riwayat', compact('apab', 'kartuKendali'));
+    }
+
+    /**
+     * View detail kartu kendali APAB (untuk print/view).
+     */
+    public function viewKartu(Apab $apab, $kartuId)
+    {
+        $kartu = \App\Models\KartuApab::with(['user', 'approver', 'signature'])->findOrFail($kartuId);
+        $template = \App\Models\KartuTemplate::getTemplate('apab');
+        
+        return view('apab.view-kartu', compact('apab', 'kartu', 'template'));
     }
 }

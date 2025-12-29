@@ -130,4 +130,15 @@ class ApatController extends Controller
         
         return view('apat.riwayat', compact('apat', 'riwayatInspeksi'));
     }
+
+    /**
+     * View detail kartu kendali APAT (untuk print/view).
+     */
+    public function viewKartu(Apat $apat, $kartuId)
+    {
+        $kartu = \App\Models\KartuApat::with(['user', 'approver', 'signature'])->findOrFail($kartuId);
+        $template = \App\Models\KartuTemplate::getTemplate('apat');
+        
+        return view('apat.view-kartu', compact('apat', 'kartu', 'template'));
+    }
 }

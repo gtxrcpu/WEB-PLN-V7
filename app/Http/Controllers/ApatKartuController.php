@@ -46,21 +46,26 @@ class ApatKartuController extends Controller
         if ($template && $template->inspection_fields) {
             foreach ($template->inspection_fields as $index => $field) {
                 $fieldName = 'inspection_' . $index;
-                $rules[$fieldName] = ['required', 'string', 'max:255'];
+                $rules[$fieldName] = ['nullable', 'string', 'max:255'];
             }
         } else {
             // Fallback ke field lama
             $rules = array_merge($rules, [
-                'kondisi_fisik' => ['required', 'string', 'max:50'],
-                'drum'          => ['required', 'string', 'max:50'],
-                'aduk_pasir'    => ['required', 'string', 'max:50'],
-                'sekop'         => ['required', 'string', 'max:50'],
-                'fire_blanket'  => ['required', 'string', 'max:50'],
-                'ember'         => ['required', 'string', 'max:50'],
+                'kondisi_fisik' => ['nullable', 'string', 'max:50'],
+                'drum'          => ['nullable', 'string', 'max:50'],
+                'aduk_pasir'    => ['nullable', 'string', 'max:50'],
+                'sekop'         => ['nullable', 'string', 'max:50'],
+                'fire_blanket'  => ['nullable', 'string', 'max:50'],
+                'ember'         => ['nullable', 'string', 'max:50'],
             ]);
         }
         
-        $data = $request->validate($rules);
+        $data = $request->validate($rules, [
+            'apat_id.required' => 'Data APAT tidak valid.',
+            'kesimpulan.required' => 'Kesimpulan harus dipilih.',
+            'tgl_periksa.required' => 'Tanggal pemeriksaan harus diisi.',
+            'petugas.required' => 'Nama petugas harus diisi.',
+        ]);
         
         // Jika menggunakan template, map inspection fields ke kolom database lama
         if ($template && $template->inspection_fields) {

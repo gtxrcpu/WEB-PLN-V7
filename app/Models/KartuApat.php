@@ -13,6 +13,7 @@ class KartuApat extends Model
 
     protected $fillable = [
         'apat_id',
+        'user_id',
         'kondisi_fisik',
         'drum',
         'aduk_pasir',
@@ -24,6 +25,9 @@ class KartuApat extends Model
         'tgl_surat',
         'petugas',
         'pengawas',
+        'signature_id',
+        'approved_by',
+        'approved_at',
     ];
 
     protected $casts = [
@@ -50,6 +54,14 @@ class KartuApat extends Model
     public function approver()
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    /**
+     * Relasi ke Signature
+     */
+    public function signature()
+    {
+        return $this->belongsTo(Signature::class);
     }
 
     /**

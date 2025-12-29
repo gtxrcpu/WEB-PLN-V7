@@ -11,7 +11,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                             </svg>
                         </a>
-                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+                        <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg">
                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
                             </svg>
@@ -79,7 +79,7 @@
                 <div class="lg:w-80 flex-shrink-0 space-y-4">
                     <!-- Filter Panel -->
                     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                        <div class="bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-3">
+                        <div class="bg-blue-600 px-4 py-3">
                             <h3 class="text-white font-semibold flex items-center gap-2">
                                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clip-rule="evenodd"/>
@@ -122,7 +122,7 @@
 
                     <!-- Legend Panel -->
                     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                        <div class="bg-gradient-to-r from-green-500 to-emerald-500 px-4 py-3">
+                        <div class="bg-emerald-600 px-4 py-3">
                             <h3 class="text-white font-semibold flex items-center gap-2">
                                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
@@ -156,7 +156,7 @@
 
                     <!-- Equipment Type Legend -->
                     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                        <div class="bg-gradient-to-r from-blue-500 to-cyan-500 px-4 py-3">
+                        <div class="bg-cyan-600 px-4 py-3">
                             <h3 class="text-white font-semibold flex items-center gap-2">
                                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
@@ -242,24 +242,25 @@
                                                 <!-- Pulse for highlighted -->
                                                 <div 
                                                     x-show="isHighlighted(eq)"
-                                                    class="absolute inset-0 rounded-full animate-ping"
+                                                    class="absolute inset-0 rounded-lg animate-ping"
                                                     :style="`background-color: ${getColor(eq.type)}; opacity: 0.5;`"
                                                 ></div>
                                                 
                                                 <!-- Pulse for rusak status -->
                                                 <div 
                                                     x-show="eq.status && eq.status.toLowerCase() === 'rusak'"
-                                                    class="absolute -inset-1 rounded-full animate-ping bg-red-500 opacity-50"
+                                                    class="absolute -inset-1 rounded-lg animate-ping bg-red-500 opacity-50"
                                                 ></div>
                                                 
-                                                <!-- Main Marker -->
+                                                <!-- Main Marker - Simple Square Icon -->
                                                 <div 
-                                                    class="w-8 h-8 rounded-full border-2 border-white shadow-lg flex items-center justify-center relative"
+                                                    class="w-8 h-8 rounded-lg border-2 border-white shadow-lg flex items-center justify-center relative"
                                                     :class="{ 'ring-4 ring-blue-400': isHighlighted(eq) }"
                                                     :style="`background-color: ${getColor(eq.type)};`"
                                                 >
-                                                    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                                                    <!-- Simple Box Icon -->
+                                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
                                                     </svg>
                                                 </div>
                                                 
@@ -420,7 +421,7 @@
                 <div class="px-6 py-4 bg-slate-50 flex gap-3">
                     <a 
                         :href="selectedEquipment?.url || '#'"
-                        class="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-center py-3 rounded-xl font-semibold hover:shadow-lg hover:shadow-blue-500/30 transition"
+                        class="flex-1 bg-blue-600 text-white text-center py-3 rounded-xl font-semibold hover:bg-blue-700 hover:shadow-lg transition"
                     >
                         Lihat Detail
                     </a>

@@ -8,10 +8,47 @@ use App\Http\Controllers\ScanController;
 use App\Http\Controllers\ApatController;
 use App\Http\Controllers\ApatKartuController;
 
-Route::get('/', fn () => redirect()->route('login'));
+Route::get('/', fn () => redirect()->route('guest.dashboard'));
 
 // QR Code Generator (Public - no auth needed for scanning)
 Route::get('/qr', [\App\Http\Controllers\QrCodeController::class, 'generate'])->name('qr.generate');
+
+// Guest Routes (No Authentication Required)
+Route::prefix('guest')->name('guest.')->middleware('throttle:60,1')->group(function () {
+    // Dashboard
+    Route::get('/', [\App\Http\Controllers\GuestController::class, 'index'])->name('dashboard');
+    
+    // Laporan Keseluruhan
+    Route::get('/report', [\App\Http\Controllers\GuestController::class, 'report'])->name('report');
+    
+    // APAR
+    Route::get('/apar', [\App\Http\Controllers\GuestController::class, 'apar'])->name('apar');
+    Route::get('/apar/{apar}/riwayat', [\App\Http\Controllers\GuestController::class, 'aparRiwayat'])->name('apar.riwayat');
+    
+    // APAT
+    Route::get('/apat', [\App\Http\Controllers\GuestController::class, 'apat'])->name('apat');
+    Route::get('/apat/{apat}/riwayat', [\App\Http\Controllers\GuestController::class, 'apatRiwayat'])->name('apat.riwayat');
+    
+    // P3K
+    Route::get('/p3k', [\App\Http\Controllers\GuestController::class, 'p3k'])->name('p3k');
+    Route::get('/p3k/{p3k}/riwayat', [\App\Http\Controllers\GuestController::class, 'p3kRiwayat'])->name('p3k.riwayat');
+    
+    // APAB
+    Route::get('/apab', [\App\Http\Controllers\GuestController::class, 'apab'])->name('apab');
+    Route::get('/apab/{apab}/riwayat', [\App\Http\Controllers\GuestController::class, 'apabRiwayat'])->name('apab.riwayat');
+    
+    // Fire Alarm
+    Route::get('/fire-alarm', [\App\Http\Controllers\GuestController::class, 'fireAlarm'])->name('fire-alarm');
+    Route::get('/fire-alarm/{fireAlarm}/riwayat', [\App\Http\Controllers\GuestController::class, 'fireAlarmRiwayat'])->name('fire-alarm.riwayat');
+    
+    // Box Hydrant
+    Route::get('/box-hydrant', [\App\Http\Controllers\GuestController::class, 'boxHydrant'])->name('box-hydrant');
+    Route::get('/box-hydrant/{boxHydrant}/riwayat', [\App\Http\Controllers\GuestController::class, 'boxHydrantRiwayat'])->name('box-hydrant.riwayat');
+    
+    // Rumah Pompa
+    Route::get('/rumah-pompa', [\App\Http\Controllers\GuestController::class, 'rumahPompa'])->name('rumah-pompa');
+    Route::get('/rumah-pompa/{rumahPompa}/riwayat', [\App\Http\Controllers\GuestController::class, 'rumahPompaRiwayat'])->name('rumah-pompa.riwayat');
+});
 
 // Superadmin Routes (Full Access)
 Route::middleware(['auth', 'role:superadmin'])->prefix('admin')->name('admin.')->group(function () {
@@ -73,7 +110,7 @@ Route::middleware(['auth', 'role:leader|superadmin'])->prefix('leader')->name('l
 });
 
 // Inspector Routes (Read-Only Access)
-Route::middleware(['auth', 'role:Inspector'])->prefix('inspector')->name('inspector.')->group(function () {
+Route::middleware(['auth', 'role:inspector'])->prefix('inspector')->name('inspector.')->group(function () {
     Route::get('/', [\App\Http\Controllers\Inspector\InspectorDashboardController::class, 'index'])->name('dashboard');
     
     // APAR
@@ -156,6 +193,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/apat', [ApatController::class, 'store'])->name('apat.store');
     Route::get('/apat/{apat}/edit', [ApatController::class, 'edit'])->name('apat.edit');
     Route::get('/apat/{apat}/riwayat', [ApatController::class, 'riwayat'])->name('apat.riwayat');
+    Route::get('/apat/{apat}/kartu/{kartu}', [ApatController::class, 'viewKartu'])->name('apat.view-kartu');
     Route::put('/apat/{apat}', [ApatController::class, 'update'])->name('apat.update');
     Route::get('/apat/kartu/create', [ApatKartuController::class, 'create'])->name('apat.kartu.create');
     Route::post('/apat/kartu', [ApatKartuController::class, 'store'])->name('apat.kartu.store');
@@ -169,6 +207,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/fire-alarm/{fireAlarm}/edit', [\App\Http\Controllers\FireAlarmController::class, 'edit'])->name('fire-alarm.edit');
     Route::put('/fire-alarm/{fireAlarm}', [\App\Http\Controllers\FireAlarmController::class, 'update'])->name('fire-alarm.update');
     Route::get('/fire-alarm/{fireAlarm}/riwayat', [\App\Http\Controllers\FireAlarmController::class, 'riwayat'])->name('fire-alarm.riwayat');
+    Route::get('/fire-alarm/{fireAlarm}/kartu/{kartu}', [\App\Http\Controllers\FireAlarmController::class, 'viewKartu'])->name('fire-alarm.view-kartu');
     Route::get('/fire-alarm/kartu/create', [\App\Http\Controllers\FireAlarmKartuController::class, 'create'])->name('fire-alarm.kartu.create');
     Route::post('/fire-alarm/kartu', [\App\Http\Controllers\FireAlarmKartuController::class, 'store'])->name('fire-alarm.kartu.store');
 });
@@ -181,6 +220,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/box-hydrant/{boxHydrant}/edit', [\App\Http\Controllers\BoxHydrantController::class, 'edit'])->name('box-hydrant.edit');
     Route::put('/box-hydrant/{boxHydrant}', [\App\Http\Controllers\BoxHydrantController::class, 'update'])->name('box-hydrant.update');
     Route::get('/box-hydrant/{boxHydrant}/riwayat', [\App\Http\Controllers\BoxHydrantController::class, 'riwayat'])->name('box-hydrant.riwayat');
+    Route::get('/box-hydrant/{boxHydrant}/kartu/{kartu}', [\App\Http\Controllers\BoxHydrantController::class, 'viewKartu'])->name('box-hydrant.view-kartu');
     Route::get('/box-hydrant/kartu/create', [\App\Http\Controllers\BoxHydrantKartuController::class, 'create'])->name('box-hydrant.kartu.create');
     Route::post('/box-hydrant/kartu', [\App\Http\Controllers\BoxHydrantKartuController::class, 'store'])->name('box-hydrant.kartu.store');
 });
@@ -193,6 +233,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/rumah-pompa/{rumahPompa}/edit', [\App\Http\Controllers\RumahPompaController::class, 'edit'])->name('rumah-pompa.edit');
     Route::put('/rumah-pompa/{rumahPompa}', [\App\Http\Controllers\RumahPompaController::class, 'update'])->name('rumah-pompa.update');
     Route::get('/rumah-pompa/{rumahPompa}/riwayat', [\App\Http\Controllers\RumahPompaController::class, 'riwayat'])->name('rumah-pompa.riwayat');
+    Route::get('/rumah-pompa/{rumahPompa}/kartu/{kartu}', [\App\Http\Controllers\RumahPompaController::class, 'viewKartu'])->name('rumah-pompa.view-kartu');
     Route::get('/rumah-pompa/kartu/create', [\App\Http\Controllers\RumahPompaKartuController::class, 'create'])->name('rumah-pompa.kartu.create');
     Route::post('/rumah-pompa/kartu', [\App\Http\Controllers\RumahPompaKartuController::class, 'store'])->name('rumah-pompa.kartu.store');
 });
@@ -205,6 +246,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/apab/{apab}/edit', [\App\Http\Controllers\ApabController::class, 'edit'])->name('apab.edit');
     Route::put('/apab/{apab}', [\App\Http\Controllers\ApabController::class, 'update'])->name('apab.update');
     Route::get('/apab/{apab}/riwayat', [\App\Http\Controllers\ApabController::class, 'riwayat'])->name('apab.riwayat');
+    Route::get('/apab/{apab}/kartu/{kartu}', [\App\Http\Controllers\ApabController::class, 'viewKartu'])->name('apab.view-kartu');
     Route::get('/apab/kartu/create', [\App\Http\Controllers\ApabKartuController::class, 'create'])->name('apab.kartu.create');
     Route::post('/apab/kartu', [\App\Http\Controllers\ApabKartuController::class, 'store'])->name('apab.kartu.store');
 });

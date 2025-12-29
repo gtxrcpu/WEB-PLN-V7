@@ -40,123 +40,135 @@
         @csrf
         <input type="hidden" name="fire_alarm_id" value="{{ $fireAlarm->id }}">
 
-        @php
-            $opsi = [
-                'baik'       => 'Baik',
-                'tidak_baik' => 'Tidak Baik',
-            ];
-        @endphp
-
-        {{-- TABEL PEMERIKSAAN --}}
-        <div class="border border-slate-400 text-xs">
-            <div class="grid grid-cols-12 bg-slate-100 border-b border-slate-400 font-semibold">
-                <div class="col-span-6 px-3 py-2 border-r border-slate-400">
-                    PEMERIKSAAN
-                </div>
-                <div class="col-span-6 px-3 py-2 text-center">
-                    KONDISI
-                </div>
-            </div>
-
-            @foreach ([
-                'panel'       => 'Kondisi Fisik',
-                'detector'    => 'Fungsi',
-            ] as $field => $label)
-                <div class="grid grid-cols-12 border-t border-slate-300">
-                    <div class="col-span-6 px-3 py-2 border-r border-slate-300">
-                        {{ $label }}
-                    </div>
-                    <div class="col-span-6 px-3 py-1.5">
-                        <div class="flex items-center gap-6">
-                            @foreach ($opsi as $val => $text)
-                                <label class="inline-flex items-center gap-1.5">
-                                    <input type="radio"
-                                           name="{{ $field }}"
-                                           value="{{ $val }}"
-                                           class="border-slate-300 text-red-600 focus:ring-red-500"
-                                           {{ old($field) === $val ? 'checked' : '' }}>
-                                    <span>{{ $text }}</span>
-                                </label>
+        {{-- TABEL PEMERIKSAAN - FROM TEMPLATE --}}
+        <div class="mb-6">
+            <h3 class="text-lg font-bold text-gray-900 mb-3">Hasil Pemeriksaan</h3>
+            <div class="border border-gray-300 rounded-lg overflow-hidden">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-4 py-3 text-left font-semibold text-gray-700 w-1/3">Komponen</th>
+                            <th class="px-4 py-3 text-left font-semibold text-gray-700">Kondisi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        @if($template && $template->inspection_fields)
+                            @foreach($template->inspection_fields as $index => $field)
+                                @php
+                                    $fieldName = 'inspection_' . $index;
+                                @endphp
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-3 font-medium text-gray-900">{{ $field['label'] }}</td>
+                                    <td class="px-4 py-3">
+                                        @if($field['type'] === 'checkbox')
+                                            <div class="flex gap-4">
+                                                <label class="inline-flex items-center cursor-pointer">
+                                                    <input type="radio" name="{{ $fieldName }}" value="baik" 
+                                                        {{ old($fieldName) === 'baik' ? 'checked' : '' }}
+                                                        class="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500">
+                                                    <span class="ml-2 text-gray-700">Baik</span>
+                                                </label>
+                                                <label class="inline-flex items-center cursor-pointer">
+                                                    <input type="radio" name="{{ $fieldName }}" value="tidak_baik"
+                                                        {{ old($fieldName) === 'tidak_baik' ? 'checked' : '' }}
+                                                        class="w-4 h-4 text-red-600 border-gray-300 focus:ring-red-500">
+                                                    <span class="ml-2 text-gray-700">Tidak Baik</span>
+                                                </label>
+                                            </div>
+                                        @elseif($field['type'] === 'text')
+                                            <input type="text" name="{{ $fieldName }}" value="{{ old($fieldName) }}"
+                                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                        @elseif($field['type'] === 'textarea')
+                                            <textarea name="{{ $fieldName }}" rows="2"
+                                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">{{ old($fieldName) }}</textarea>
+                                        @endif
+                                        @error($fieldName)
+                                            <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                                        @enderror
+                                    </td>
+                                </tr>
                             @endforeach
-                        </div>
-                        @error($field)
-                            <p class="text-[11px] text-rose-600 mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-                </div>
-            @endforeach
+                        @else
+                            {{-- FALLBACK jika template tidak ada --}}
+                            @foreach([
+                                'panel_kontrol' => 'Panel Kontrol',
+                                'detector' => 'Detector',
+                                'manual_call_point' => 'Manual Call Point',
+                                'alarm_bell' => 'Alarm Bell',
+                                'battery_backup' => 'Battery Backup',
+                                'uji_fungsi' => 'Uji Fungsi'
+                            ] as $field => $label)
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-3 font-medium text-gray-900">{{ $label }}</td>
+                                    <td class="px-4 py-3">
+                                        <div class="flex gap-4">
+                                            <label class="inline-flex items-center cursor-pointer">
+                                                <input type="radio" name="{{ $field }}" value="baik" 
+                                                    {{ old($field) === 'baik' ? 'checked' : '' }}
+                                                    class="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500">
+                                                <span class="ml-2 text-gray-700">Baik</span>
+                                            </label>
+                                            <label class="inline-flex items-center cursor-pointer">
+                                                <input type="radio" name="{{ $field }}" value="tidak_baik"
+                                                    {{ old($field) === 'tidak_baik' ? 'checked' : '' }}
+                                                    class="w-4 h-4 text-red-600 border-gray-300 focus:ring-red-500">
+                                                <span class="ml-2 text-gray-700">Tidak Baik</span>
+                                            </label>
+                                        </div>
+                                        @error($field)
+                                            <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                                        @enderror
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @endif
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        {{-- KESIMPULAN --}}
-        <div class="border border-slate-400 text-xs">
-            <div class="grid grid-cols-12 border-b border-slate-300">
-                <div class="col-span-3 px-3 py-2 border-r border-slate-300 font-semibold">
-                    KESIMPULAN
-                </div>
-                <div class="col-span-9 px-3 py-2">
-                    <div class="flex items-center gap-6">
-                        <label class="inline-flex items-center gap-1.5">
-                            <input type="radio" name="kesimpulan" value="baik"
-                                   class="border-slate-300 text-red-600 focus:ring-red-500"
-                                   {{ old('kesimpulan') === 'baik' ? 'checked' : '' }}>
-                            <span>Baik</span>
-                        </label>
-                        <label class="inline-flex items-center gap-1.5">
-                            <input type="radio" name="kesimpulan" value="tidak_baik"
-                                   class="border-slate-300 text-red-600 focus:ring-red-500"
-                                   {{ old('kesimpulan') === 'tidak_baik' ? 'checked' : '' }}>
-                            <span>Tidak Baik</span>
-                        </label>
-                    </div>
-                    @error('kesimpulan')
-                        <p class="text-[11px] text-rose-600 mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
+        {{-- KESIMPULAN & INFO --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Kesimpulan *</label>
+                <select name="kesimpulan" required
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="">-- Pilih Kesimpulan --</option>
+                    <option value="baik" {{ old('kesimpulan') === 'baik' ? 'selected' : '' }}>Baik</option>
+                    <option value="tidak_baik" {{ old('kesimpulan') === 'tidak_baik' ? 'selected' : '' }}>Tidak Baik</option>
+                </select>
+                @error('kesimpulan')
+                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
-            <div class="grid grid-cols-12 border-b border-slate-300">
-                <div class="col-span-3 px-3 py-2 border-r border-slate-300">
-                    Tanggal Pemeriksaan
-                </div>
-                <div class="col-span-9 px-3 py-2">
-                    <input type="date"
-                           name="tgl_periksa"
-                           value="{{ old('tgl_periksa', now()->toDateString()) }}"
-                           class="border border-slate-300 rounded-md px-2 py-1 text-xs">
-                    @error('tgl_periksa')
-                        <p class="text-[11px] text-rose-600 mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Tanggal Pemeriksaan *</label>
+                <input type="date" name="tgl_periksa" required
+                    value="{{ old('tgl_periksa', now()->toDateString()) }}"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                @error('tgl_periksa')
+                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
-            <div class="grid grid-cols-12 border-b border-slate-300">
-                <div class="col-span-3 px-3 py-2 border-r border-slate-300">
-                    Petugas
-                </div>
-                <div class="col-span-9 px-3 py-2">
-                    <input type="text"
-                           name="petugas"
-                           value="{{ old('petugas') }}"
-                           class="border border-slate-300 rounded-md px-2 py-1 text-xs w-64">
-                    @error('petugas')
-                        <p class="text-[11px] text-rose-600 mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Petugas Pemeriksa *</label>
+                <input type="text" name="petugas" required
+                    value="{{ old('petugas') }}"
+                    placeholder="Nama petugas"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                @error('petugas')
+                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
-            <div class="grid grid-cols-12">
-                <div class="col-span-3 px-3 py-2 border-r border-slate-300">
-                    Pengawas
-                </div>
-                <div class="col-span-9 px-3 py-2">
-                    <input type="text"
-                           name="pengawas"
-                           value="{{ old('pengawas') }}"
-                           class="border border-slate-300 rounded-md px-2 py-1 text-xs w-64">
-                    @error('pengawas')
-                        <p class="text-[11px] text-rose-600 mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Pengawas</label>
+                <input type="text" name="pengawas"
+                    value="{{ old('pengawas') }}"
+                    placeholder="Nama pengawas (opsional)"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
             </div>
         </div>
 
@@ -190,7 +202,7 @@
         {{-- FOOTER TOMBOL (HANYA LAYAR) --}}
         <div class="no-print pt-4 mt-2 border-t border-dashed border-slate-200 flex items-center justify-between gap-3 text-xs">
             <p class="text-slate-500">
-                Data Kartu Kendali akan disimpan dan bisa dicetak ulang dari modul Fire Alarm.
+                <span class="text-red-600">*</span> Wajib diisi. Data akan disimpan dan menunggu approval.
             </p>
             <div class="flex gap-2">
                 <a href="{{ route('fire-alarm.index') }}"
@@ -198,7 +210,7 @@
                     Batal
                 </a>
                 <button type="submit"
-                        class="px-4 py-2 rounded-lg bg-gradient-to-r from-red-600 to-pink-600 text-white text-sm font-medium hover:from-red-700 hover:to-pink-700">
+                        class="px-4 py-2 rounded-lg bg-green-600 text-white text-sm font-semibold hover:bg-green-700 shadow-md">
                     Simpan Kartu Kendali
                 </button>
             </div>

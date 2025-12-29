@@ -29,6 +29,11 @@ class KartuRumahPompa extends Model
         return $this->belongsTo(User::class, 'approved_by');
     }
 
+    public function signature(): BelongsTo
+    {
+        return $this->belongsTo(Signature::class);
+    }
+
     public function isApproved(): bool
     {
         return !is_null($this->approved_at);

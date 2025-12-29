@@ -2,12 +2,21 @@
     {{-- TOAST di luar kartu --}}
     <x-alert-toast :message="session('auth_error')" type="error" :ms="4500" />
 
-    <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-md w-full">
-            <div class="bg-white rounded-2xl shadow-xl p-8 space-y-6 transform hover:shadow-2xl transition-shadow duration-300">
+    <div class="min-h-screen flex items-center justify-center relative py-12 px-4 sm:px-6 lg:px-8">
+        {{-- Background Image with Overlay --}}
+        <div class="absolute inset-0 z-0">
+            <img src="{{ asset('images/background.png') }}" 
+                 alt="Background" 
+                 class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-br from-blue-900/70 via-purple-900/60 to-indigo-900/70"></div>
+        </div>
+
+        {{-- Login Card --}}
+        <div class="max-w-md w-full relative z-10">
+            <div class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 space-y-6 transform hover:shadow-3xl transition-all duration-300 border border-white/20">
                 <div class="text-center">
                     <div class="mx-auto mb-6">
-                        <img src="{{ asset('/images/logoo.png') }}" alt="Logo" class="h-16 w-auto mx-auto">
+                        <img src="{{ asset('/images/logoo.png') }}" alt="Logo" class="h-16 w-auto mx-auto drop-shadow-lg">
                     </div>
                     <h2 class="text-3xl font-extrabold text-gray-900">Welcome Back</h2>
                     <p class="mt-2 text-sm text-gray-600">Sign in to continue to your account</p>
