@@ -45,7 +45,7 @@
       <div>
         <label class="block text-sm font-semibold text-gray-700 mb-2">Gambar Denah Saat Ini</label>
         <div class="bg-gray-100 rounded-lg p-4">
-          <img src="{{ Storage::url($floorPlan->image_path) }}" 
+          <img src="{{ url($floorPlan->image_path) }}" 
                alt="{{ $floorPlan->name }}"
                class="max-h-64 mx-auto rounded-lg shadow-md">
           <p class="text-xs text-gray-500 text-center mt-2">{{ $floorPlan->width }} × {{ $floorPlan->height }} px</p>
@@ -54,17 +54,30 @@
 
       <div>
         <label class="block text-sm font-semibold text-gray-700 mb-2">Ganti Gambar Denah (opsional)</label>
-        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-blue-400 transition-colors">
+        
+        <!-- Hidden File Input -->
+        <input 
+          id="image" 
+          name="image" 
+          type="file" 
+          class="hidden" 
+          accept="image/jpeg,image/png,image/jpg,image/svg+xml" 
+          @change="previewImage"
+          onchange="handleFileSelect(event)"
+        >
+        
+        <!-- Upload Area -->
+        <div 
+          class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-blue-400 transition-colors cursor-pointer"
+          onclick="document.getElementById('image').click()"
+        >
           <div class="space-y-1 text-center">
             <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
               <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
-            <div class="flex text-sm text-gray-600">
-              <label for="image" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
-                <span>Upload gambar baru</span>
-                <input id="image" name="image" type="file" class="sr-only" accept="image/jpeg,image/png,image/jpg,image/svg+xml" @change="previewImage">
-              </label>
-              <p class="pl-1">atau drag and drop</p>
+            <div class="text-sm text-gray-600">
+              <span class="font-medium text-blue-600 hover:text-blue-500">Upload gambar baru</span>
+              <span class="pl-1">atau drag and drop</span>
             </div>
             <p class="text-xs text-gray-500">PNG, JPG, JPEG, SVG hingga 10MB</p>
           </div>
@@ -74,11 +87,11 @@
         @enderror
 
         {{-- New Image Preview --}}
-        <div x-show="imagePreview" x-cloak class="mt-4">
+        <div id="preview-container" x-show="imagePreview" x-transition class="mt-4" style="display: none;">
           <p class="text-sm font-semibold text-gray-700 mb-2">Preview Gambar Baru:</p>
           <div class="relative bg-gray-100 rounded-lg p-4">
-            <img :src="imagePreview" alt="Preview" class="max-h-64 mx-auto rounded-lg shadow-md">
-            <button type="button" @click="clearImage" class="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors">
+            <img id="preview-image" :src="imagePreview" alt="Preview" class="max-h-64 mx-auto rounded-lg shadow-md">
+            <button type="button" @click="clearImage" onclick="clearImagePreview()" class="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
               </svg>
@@ -117,18 +130,59 @@
     </form>
   </div>
 
-  @push('scripts')
   <script>
+    console.log('Floor plan edit script loaded');
+    
+    // Vanilla JS - Pure implementation
+    function handleFileSelect(event) {
+      console.log('File selected:', event.target.files[0]);
+      const file = event.target.files[0];
+      if (file) {
+        console.log('Reading file...');
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          console.log('File loaded, showing preview');
+          const previewContainer = document.getElementById('preview-container');
+          const previewImage = document.getElementById('preview-image');
+          
+          if (previewContainer && previewImage) {
+            previewImage.src = e.target.result;
+            previewContainer.style.display = 'block';
+            console.log('Preview displayed');
+          } else {
+            console.error('Preview elements not found');
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+    
+    function clearImagePreview() {
+      console.log('Clearing preview');
+      const previewContainer = document.getElementById('preview-container');
+      const imageInput = document.getElementById('image');
+      
+      if (previewContainer) {
+        previewContainer.style.display = 'none';
+      }
+      if (imageInput) {
+        imageInput.value = '';
+      }
+    }
+    
+    // Alpine.js component (if Alpine is loaded)
     function floorPlanForm() {
       return {
         imagePreview: null,
         
         previewImage(event) {
+          console.log('Alpine preview triggered');
           const file = event.target.files[0];
           if (file) {
             const reader = new FileReader();
             reader.onload = (e) => {
               this.imagePreview = e.target.result;
+              console.log('Alpine preview set');
             };
             reader.readAsDataURL(file);
           }
@@ -141,5 +195,4 @@
       }
     }
   </script>
-  @endpush
 </x-layouts.app>

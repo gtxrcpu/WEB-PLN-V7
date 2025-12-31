@@ -51,8 +51,8 @@
           </div>
 
           <div class="bg-slate-50 rounded-lg p-4 mb-4 flex items-center justify-center min-h-[120px]">
-            @if($signature->signature_path)
-              <img src="{{ asset('storage/' . $signature->signature_path) }}" 
+            @if($signature->signature_url)
+              <img src="{{ $signature->signature_url }}" 
                    alt="TTD {{ $signature->name }}" 
                    class="max-h-24 w-auto object-contain">
             @else

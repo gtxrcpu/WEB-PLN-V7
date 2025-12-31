@@ -36,7 +36,19 @@ class FloorPlan extends Model
      */
     public function getImageUrlAttribute()
     {
-        return Storage::url($this->image_path);
+        // Jika image_path kosong, return placeholder
+        if (empty($this->image_path)) {
+            return url('images/placeholder-floor-plan.png');
+        }
+        
+        // Cek apakah file exists di public folder
+        $fullPath = public_path($this->image_path);
+        if (file_exists($fullPath)) {
+            return url($this->image_path) . '?v=' . filemtime($fullPath);
+        }
+        
+        // Jika file tidak ada, return placeholder
+        return url('images/placeholder-floor-plan.png');
     }
 
     /**

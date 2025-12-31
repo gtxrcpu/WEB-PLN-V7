@@ -128,7 +128,7 @@ class GuestController extends Controller
     public function apar()
     {
         // Optimize: Select only needed columns and use eager loading
-        $apars = Apar::select('id', 'serial_no', 'barcode', 'location_code', 'type', 'capacity', 'status', 'unit_id', 'qr_url')
+        $apars = Apar::select('id', 'serial_no', 'barcode', 'location_code', 'type', 'capacity', 'status', 'unit_id')
             ->with(['unit:id,name', 'kartuApars:id,apar_id,tgl_periksa'])
             ->orderBy('serial_no')
             ->paginate(20);

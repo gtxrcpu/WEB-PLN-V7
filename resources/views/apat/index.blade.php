@@ -226,8 +226,7 @@
                         <div class="mb-3">
                             <img src="{{ $apat->qr_url }}"
                                  alt="QR APAT {{ $kodePendek }}"
-                                 class="w-40 h-40 object-contain rounded-xl shadow-lg ring-4 ring-white bg-white"
-                                 loading="lazy">
+                                 class="w-40 h-40 object-contain rounded-xl shadow-lg ring-4 ring-white bg-white">
                         </div>
                         <div class="text-center">
                             <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Scan QR Code</p>

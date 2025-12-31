@@ -235,14 +235,6 @@
                         </p>
                     @enderror
                 </div>
-
-                {{-- Floor Plan Coordinate Picker --}}
-                <x-floor-plan-picker 
-                    :floor-plan-id="old('floor_plan_id')"
-                    :floor-plan-x="old('floor_plan_x')"
-                    :floor-plan-y="old('floor_plan_y')"
-                    equipment-type="apar"
-                />
             </div>
 
             {{-- Action Buttons --}}

@@ -23,6 +23,16 @@ class Signature extends Model
 
     public function getSignatureUrlAttribute()
     {
-        return $this->signature_path ? asset('storage/' . $this->signature_path) : null;
+        if (empty($this->signature_path)) {
+            return null;
+        }
+        
+        // Cek apakah file exists
+        $fullPath = public_path('storage/' . $this->signature_path);
+        if (file_exists($fullPath)) {
+            return url('storage/' . $this->signature_path);
+        }
+        
+        return null;
     }
 }

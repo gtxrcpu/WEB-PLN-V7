@@ -105,7 +105,7 @@
     <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
         <div>
             <h1 class="text-lg font-bold text-gray-900">Kartu Kendali APAR</h1>
-            <p class="text-sm text-gray-600">{{ $apar->barcode ?? $apar->serial_no }}</p>
+            <p class="text-sm text-gray-600">{{ $apar->serial_no }}</p>
         </div>
         <div class="flex gap-2">
             <a href="{{ route('apar.index') }}" class="px-4 py-2 border rounded-lg hover:bg-gray-50 text-sm font-medium">
@@ -192,8 +192,8 @@
                 <h2 class="text-2xl font-bold text-gray-900 mb-2">KARTU KENDALI APAR</h2>
                 <div class="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
                     <div>
-                        <span class="text-gray-600">Kode/Barcode:</span>
-                        <span class="font-semibold ml-2">{{ $apar->barcode ?? $apar->serial_no }}</span>
+                        <span class="text-gray-600">Serial Number:</span>
+                        <span class="font-semibold ml-2">{{ $apar->serial_no }}</span>
                     </div>
                     <div>
                         <span class="text-gray-600">Lokasi:</span>
@@ -209,8 +209,8 @@
             <h3 class="font-bold text-gray-900 mb-3">Informasi APAR</h3>
             <div class="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
                 <div>
-                    <span class="text-gray-600">Kode/Barcode:</span>
-                    <span class="font-semibold ml-2">{{ $apar->barcode ?? $apar->serial_no }}</span>
+                    <span class="text-gray-600">Serial Number:</span>
+                    <span class="font-semibold ml-2">{{ $apar->serial_no }}</span>
                 </div>
                 <div>
                     <span class="text-gray-600">Lokasi:</span>
@@ -235,24 +235,6 @@
                     @foreach($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
-                </ul>
-            </div>
-        @endif
-
-        {{-- DEBUG INFO (ONLY IN DEVELOPMENT) --}}
-        @if(config('app.debug'))
-            <div class="no-print mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <p class="font-semibold text-blue-800 mb-2">Debug Info:</p>
-                <ul class="text-sm text-blue-700">
-                    <li>Template: {{ $template ? 'Ada' : 'Tidak ada' }}</li>
-                    @if($template && $template->inspection_fields)
-                        <li>Jumlah Inspection Fields: {{ count($template->inspection_fields) }}</li>
-                        <li>Fields: 
-                            @foreach($template->inspection_fields as $index => $field)
-                                inspection_{{ $index }} ({{ $field['label'] }}){{ !$loop->last ? ', ' : '' }}
-                            @endforeach
-                        </li>
-                    @endif
                 </ul>
             </div>
         @endif

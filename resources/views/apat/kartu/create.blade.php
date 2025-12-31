@@ -134,68 +134,55 @@
             <div class="border border-slate-400 text-xs">
                 <div class="grid grid-cols-12 border-b border-slate-300">
                     <div class="col-span-3 px-3 py-2 border-r border-slate-300 font-semibold">
-                        KESIMPULAN
+                        Kesimpulan
                     </div>
-                    <div class="col-span-9 px-3 py-2">
-                        <div class="flex items-center gap-6">
-                            <label class="inline-flex items-center gap-1.5">
-                                <input type="radio" name="kesimpulan" value="baik"
-                                       class="border-slate-300 text-sky-600 focus:ring-sky-500"
-                                       {{ old('kesimpulan') === 'baik' ? 'checked' : '' }}>
-                                <span>Baik</span>
-                            </label>
-                            <label class="inline-flex items-center gap-1.5">
-                                <input type="radio" name="kesimpulan" value="tidak_baik"
-                                       class="border-slate-300 text-sky-600 focus:ring-sky-500"
-                                       {{ old('kesimpulan') === 'tidak_baik' ? 'checked' : '' }}>
-                                <span>Tidak Baik</span>
-                            </label>
-                        </div>
+                    <div class="col-span-3 px-3 py-2 border-r border-slate-300">
+                        <select name="kesimpulan" class="border border-slate-300 rounded-md px-2 py-1 text-xs w-full">
+                            <option value="">-- Pilih Kesimpulan --</option>
+                            <option value="baik" {{ old('kesimpulan') === 'baik' ? 'selected' : '' }}>Baik</option>
+                            <option value="tidak_baik" {{ old('kesimpulan') === 'tidak_baik' ? 'selected' : '' }}>Tidak Baik</option>
+                        </select>
                         @error('kesimpulan')
                             <p class="text-[11px] text-rose-600 mt-1">{{ $message }}</p>
                         @enderror
                     </div>
-                </div>
-
-                <div class="grid grid-cols-12 border-b border-slate-300">
-                    <div class="col-span-3 px-3 py-2 border-r border-slate-300">
+                    <div class="col-span-3 px-3 py-2 border-r border-slate-300 font-semibold">
                         Tanggal Pemeriksaan
                     </div>
-                    <div class="col-span-9 px-3 py-2">
+                    <div class="col-span-3 px-3 py-2">
                         <input type="date"
                                name="tgl_periksa"
                                value="{{ old('tgl_periksa', now()->toDateString()) }}"
-                               class="border border-slate-300 rounded-md px-2 py-1 text-xs">
+                               class="border border-slate-300 rounded-md px-2 py-1 text-xs w-full">
                         @error('tgl_periksa')
                             <p class="text-[11px] text-rose-600 mt-1">{{ $message }}</p>
                         @enderror
                     </div>
                 </div>
 
-                <div class="grid grid-cols-12 border-b border-slate-300">
-                    <div class="col-span-3 px-3 py-2 border-r border-slate-300">
-                        Petugas
+                <div class="grid grid-cols-12">
+                    <div class="col-span-3 px-3 py-2 border-r border-slate-300 font-semibold">
+                        Petugas Pemeriksa
                     </div>
-                    <div class="col-span-9 px-3 py-2">
+                    <div class="col-span-3 px-3 py-2 border-r border-slate-300">
                         <input type="text"
                                name="petugas"
                                value="{{ old('petugas') }}"
-                               class="border border-slate-300 rounded-md px-2 py-1 text-xs w-64">
+                               placeholder="Nama petugas"
+                               class="border border-slate-300 rounded-md px-2 py-1 text-xs w-full">
                         @error('petugas')
                             <p class="text-[11px] text-rose-600 mt-1">{{ $message }}</p>
                         @enderror
                     </div>
-                </div>
-
-                <div class="grid grid-cols-12">
-                    <div class="col-span-3 px-3 py-2 border-r border-slate-300">
+                    <div class="col-span-3 px-3 py-2 border-r border-slate-300 font-semibold">
                         Pengawas
                     </div>
-                    <div class="col-span-9 px-3 py-2">
+                    <div class="col-span-3 px-3 py-2">
                         <input type="text"
                                name="pengawas"
                                value="{{ old('pengawas') }}"
-                               class="border border-slate-300 rounded-md px-2 py-1 text-xs w-64">
+                               placeholder="Nama pengawas (optional)"
+                               class="border border-slate-300 rounded-md px-2 py-1 text-xs w-full">
                         @error('pengawas')
                             <p class="text-[11px] text-rose-600 mt-1">{{ $message }}</p>
                         @enderror

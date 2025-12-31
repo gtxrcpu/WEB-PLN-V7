@@ -109,12 +109,8 @@
                                             <span class="text-xs text-slate-600">Bulan (12)</span>
                                         </div>
                                         <div class="flex items-center gap-3 p-2 bg-white rounded-lg border border-blue-100 shadow-sm">
-                                            <code class="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded border border-blue-200">{NNNN}</code>
-                                            <span class="text-xs text-slate-600">Urut (0001)</span>
-                                        </div>
-                                        <div class="flex items-center gap-3 p-2 bg-white rounded-lg border border-blue-100 shadow-sm">
                                             <code class="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded border border-blue-200">{NNN}</code>
-                                            <span class="text-xs text-slate-600">Urut (001)</span>
+                                            <span class="text-xs text-slate-600">Urut (001) - Otomatis</span>
                                         </div>
                                     </div>
                                 </div>

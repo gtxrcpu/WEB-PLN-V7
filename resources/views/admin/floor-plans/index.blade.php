@@ -51,7 +51,7 @@
       <div class="bg-white rounded-xl shadow-lg ring-1 ring-slate-200 overflow-hidden hover:shadow-xl transition-all">
         {{-- Floor Plan Image Preview --}}
         <div class="relative h-48 bg-gray-100 overflow-hidden">
-          <img src="{{ Storage::url($floorPlan->image_path) }}" 
+          <img src="{{ $floorPlan->image_url }}" 
                alt="{{ $floorPlan->name }}"
                class="w-full h-full object-contain">
           

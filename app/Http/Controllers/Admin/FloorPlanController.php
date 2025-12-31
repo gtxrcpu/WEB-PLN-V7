@@ -38,10 +38,14 @@ class FloorPlanController extends Controller
             'description' => 'nullable|string'
         ]);
 
-        $path = $request->file('image')->store('floor-plans', 'public');
+        // Simpan langsung ke public/floor-plans (tanpa symlink)
+        $file = $request->file('image');
+        $filename = time() . '_' . $file->getClientOriginalName();
+        $file->move(public_path('floor-plans'), $filename);
+        $path = 'floor-plans/' . $filename;
         
         // Get image dimensions
-        $imagePath = storage_path('app/public/' . $path);
+        $imagePath = public_path($path);
         list($width, $height) = getimagesize($imagePath);
 
         FloorPlan::create([
@@ -83,15 +87,19 @@ class FloorPlanController extends Controller
 
         // Handle image upload if new image provided
         if ($request->hasFile('image')) {
-            // Delete old image
-            if ($floorPlan->image_path) {
-                Storage::disk('public')->delete($floorPlan->image_path);
+            // Delete old image from public folder
+            if ($floorPlan->image_path && file_exists(public_path($floorPlan->image_path))) {
+                unlink(public_path($floorPlan->image_path));
             }
 
-            $path = $request->file('image')->store('floor-plans', 'public');
+            // Simpan langsung ke public/floor-plans
+            $file = $request->file('image');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('floor-plans'), $filename);
+            $path = 'floor-plans/' . $filename;
             
             // Get image dimensions
-            $imagePath = storage_path('app/public/' . $path);
+            $imagePath = public_path($path);
             list($width, $height) = getimagesize($imagePath);
 
             $data['image_path'] = $path;
@@ -107,9 +115,9 @@ class FloorPlanController extends Controller
 
     public function destroy(FloorPlan $floorPlan)
     {
-        // Delete image file
-        if ($floorPlan->image_path) {
-            Storage::disk('public')->delete($floorPlan->image_path);
+        // Delete image file from public folder
+        if ($floorPlan->image_path && file_exists(public_path($floorPlan->image_path))) {
+            unlink(public_path($floorPlan->image_path));
         }
 
         $floorPlan->delete();

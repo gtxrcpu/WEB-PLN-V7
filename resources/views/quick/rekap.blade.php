@@ -55,77 +55,119 @@
     {{-- Summary Cards --}}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @foreach([
-            ['apar', 'APAR', 'from-blue-500 to-teal-500', $stats['apar']],
-            ['apat', 'APAT', 'from-cyan-500 to-sky-500', $stats['apat']],
-            ['apab', 'APAB', 'from-red-500 to-orange-500', $stats['apab']],
-            ['fire_alarm', 'Fire Alarm', 'from-red-500 to-pink-500', $stats['fire_alarm']],
-            ['box_hydrant', 'Box Hydrant', 'from-blue-700 to-cyan-500', $stats['box_hydrant']],
-            ['rumah_pompa', 'Rumah Pompa', 'from-purple-600 to-indigo-600', $stats['rumah_pompa']],
-        ] as [$key, $name, $gradient, $data])
-            <div class="bg-white rounded-2xl shadow-lg ring-1 ring-slate-200 overflow-hidden hover:shadow-xl transition-all">
+            ['apar', 'APAR', 'from-red-500 to-orange-500'],
+            ['apat', 'APAT', 'from-purple-500 to-pink-500'],
+            ['apab', 'APAB', 'from-orange-500 to-amber-500'],
+            ['fire_alarm', 'Fire Alarm', 'from-rose-500 to-red-500'],
+            ['box_hydrant', 'Box Hydrant', 'from-blue-500 to-cyan-500'],
+            ['rumah_pompa', 'Rumah Pompa', 'from-indigo-500 to-purple-500'],
+        ] as [$key, $name, $gradient])
+            <div class="bg-white rounded-2xl shadow-lg ring-1 ring-slate-200 overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
                 <div class="h-2 bg-gradient-to-r {{ $gradient }}"></div>
                 <div class="p-6">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-bold text-slate-900">{{ $name }}</h3>
                         <div class="flex gap-2">
                             <div class="relative group">
-                                <button class="text-emerald-600 hover:text-emerald-700 transition-colors" title="Export Excel">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                <button class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 transition-all flex items-center justify-center" title="Export Excel">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
                                     </svg>
                                 </button>
-                                <div class="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
+                                <div class="absolute right-0 mt-2 w-44 bg-white rounded-xl shadow-xl ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 overflow-hidden">
                                     <a href="{{ route('quick.export.excel', ['module' => $key, 'type' => 'equipment']) }}" 
-                                       class="block px-4 py-2 text-sm text-slate-700 hover:bg-emerald-50 rounded-t-lg">Peralatan</a>
+                                       class="flex items-center gap-2 px-4 py-3 text-sm text-slate-700 hover:bg-emerald-50 transition-colors">
+                                        <svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9 2a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V6.414A2 2 0 0016.414 5L14 2.586A2 2 0 0012.586 2H9z"/>
+                                            <path d="M3 8a2 2 0 012-2v10h8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/>
+                                        </svg>
+                                        <span class="font-medium">Peralatan</span>
+                                    </a>
                                     <a href="{{ route('quick.export.excel', ['module' => $key, 'type' => 'kartu']) }}" 
-                                       class="block px-4 py-2 text-sm text-slate-700 hover:bg-emerald-50 rounded-b-lg">Kartu Kendali</a>
+                                       class="flex items-center gap-2 px-4 py-3 text-sm text-slate-700 hover:bg-emerald-50 transition-colors">
+                                        <svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <span class="font-medium">Kartu Kendali</span>
+                                    </a>
                                 </div>
                             </div>
                             <div class="relative group">
-                                <button class="text-red-600 hover:text-red-700 transition-colors" title="Export PDF">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                <button class="w-9 h-9 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 transition-all flex items-center justify-center" title="Export PDF">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd"/>
                                     </svg>
                                 </button>
-                                <div class="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
+                                <div class="absolute right-0 mt-2 w-44 bg-white rounded-xl shadow-xl ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 overflow-hidden">
                                     <a href="{{ route('quick.export.pdf', ['module' => $key, 'type' => 'equipment']) }}" 
-                                       class="block px-4 py-2 text-sm text-slate-700 hover:bg-red-50 rounded-t-lg">Peralatan</a>
+                                       class="flex items-center gap-2 px-4 py-3 text-sm text-slate-700 hover:bg-red-50 transition-colors">
+                                        <svg class="w-4 h-4 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9 2a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V6.414A2 2 0 0016.414 5L14 2.586A2 2 0 0012.586 2H9z"/>
+                                            <path d="M3 8a2 2 0 012-2v10h8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/>
+                                        </svg>
+                                        <span class="font-medium">Peralatan</span>
+                                    </a>
                                     <a href="{{ route('quick.export.pdf', ['module' => $key, 'type' => 'kartu']) }}" 
-                                       class="block px-4 py-2 text-sm text-slate-700 hover:bg-red-50 rounded-b-lg">Kartu Kendali</a>
+                                       class="flex items-center gap-2 px-4 py-3 text-sm text-slate-700 hover:bg-red-50 transition-colors">
+                                        <svg class="w-4 h-4 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <span class="font-medium">Kartu Kendali</span>
+                                    </a>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-slate-50 rounded-xl p-3">
-                            <p class="text-xs text-slate-600 mb-1">Total Unit</p>
-                            <p class="text-2xl font-bold text-slate-900">{{ $data['total'] }}</p>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 border border-slate-200">
+                            <div class="flex items-center gap-2 mb-2">
+                                <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                </svg>
+                                <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Total</p>
+                            </div>
+                            <p class="text-3xl font-bold text-slate-900">{{ $stats[$key]['total'] }}</p>
                         </div>
-                        <div class="bg-emerald-50 rounded-xl p-3">
-                            <p class="text-xs text-emerald-700 mb-1">Baik</p>
-                            <p class="text-2xl font-bold text-emerald-900">{{ $data['baik'] }}</p>
+                        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-4 border border-emerald-200">
+                            <div class="flex items-center gap-2 mb-2">
+                                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                <p class="text-xs font-semibold text-emerald-700 uppercase tracking-wide">Baik</p>
+                            </div>
+                            <p class="text-3xl font-bold text-emerald-900">{{ $stats[$key]['baik'] }}</p>
                         </div>
-                        <div class="bg-rose-50 rounded-xl p-3">
-                            <p class="text-xs text-rose-700 mb-1">Rusak</p>
-                            <p class="text-2xl font-bold text-rose-900">{{ $data['rusak'] }}</p>
+                        <div class="bg-gradient-to-br from-rose-50 to-rose-100 rounded-xl p-4 border border-rose-200">
+                            <div class="flex items-center gap-2 mb-2">
+                                <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                </svg>
+                                <p class="text-xs font-semibold text-rose-700 uppercase tracking-wide">Rusak</p>
+                            </div>
+                            <p class="text-3xl font-bold text-rose-900">{{ $stats[$key]['rusak'] }}</p>
                         </div>
-                        <div class="bg-blue-50 rounded-xl p-3">
-                            <p class="text-xs text-blue-700 mb-1">Inspeksi</p>
-                            <p class="text-2xl font-bold text-blue-900">{{ $data['inspeksi'] }}</p>
+                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
+                            <div class="flex items-center gap-2 mb-2">
+                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                                </svg>
+                                <p class="text-xs font-semibold text-blue-700 uppercase tracking-wide">Inspeksi</p>
+                            </div>
+                            <p class="text-3xl font-bold text-blue-900">{{ $stats[$key]['inspeksi'] }}</p>
                         </div>
                     </div>
 
-                    <div class="mt-4 pt-4 border-t border-slate-200">
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-slate-600">Persentase Baik</span>
-                            <span class="font-bold text-emerald-600">
-                                {{ $data['total'] > 0 ? round(($data['baik'] / $data['total']) * 100) : 0 }}%
+                    <div class="mt-5 pt-5 border-t border-slate-200">
+                        <div class="flex items-center justify-between text-sm mb-2">
+                            <span class="text-slate-600 font-medium">Kondisi Baik</span>
+                            <span class="font-bold text-emerald-600 text-lg">
+                                {{ $stats[$key]['total'] > 0 ? round(($stats[$key]['baik'] / $stats[$key]['total']) * 100) : 0 }}%
                             </span>
                         </div>
-                        <div class="mt-2 w-full bg-slate-200 rounded-full h-2">
-                            <div class="bg-gradient-to-r from-emerald-500 to-teal-500 h-2 rounded-full transition-all duration-500" 
-                                 style="width: {{ $data['total'] > 0 ? ($data['baik'] / $data['total']) * 100 : 0 }}%"></div>
+                        <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden shadow-inner">
+                            <div class="bg-gradient-to-r from-emerald-500 via-emerald-400 to-teal-500 h-3 rounded-full transition-all duration-700 ease-out shadow-lg" 
+                                 style="width: {{ $stats[$key]['total'] > 0 ? ($stats[$key]['baik'] / $stats[$key]['total']) * 100 : 0 }}%"></div>
                         </div>
                     </div>
                 </div>
@@ -151,22 +193,22 @@
                 </div>
                 <ul class="space-y-2 text-sm text-emerald-800">
                     <li class="flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
-                        Dapat diedit langsung
+                        <span>Dapat diedit langsung</span>
                     </li>
                     <li class="flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
-                        Support formula & chart
+                        <span>Support formula & chart</span>
                     </li>
                     <li class="flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
-                        Styling & formatting
+                        <span>Styling & formatting</span>
                     </li>
                 </ul>
             </div>
@@ -185,22 +227,22 @@
                 </div>
                 <ul class="space-y-2 text-sm text-red-800">
                     <li class="flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
-                        Siap cetak langsung
+                        <span>Siap cetak langsung</span>
                     </li>
                     <li class="flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
-                        Format tetap konsisten
+                        <span>Format tetap konsisten</span>
                     </li>
                     <li class="flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
-                        Universal compatibility
+                        <span>Universal compatibility</span>
                     </li>
                 </ul>
             </div>

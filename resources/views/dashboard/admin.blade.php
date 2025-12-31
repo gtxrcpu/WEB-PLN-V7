@@ -333,6 +333,24 @@
       </a>
 
       <a href="{{ route('admin.approvals.index') }}" class="group relative rounded-lg bg-white p-6 shadow-lg ring-1 ring-slate-200 hover:shadow-xl transition-all">
+        {{-- Notification Badge --}}
+        @php
+          $pendingCount = \App\Models\KartuApar::whereNull('approved_at')->count() +
+                         \App\Models\KartuApat::whereNull('approved_at')->count() +
+                         \App\Models\KartuApab::whereNull('approved_at')->count() +
+                         \App\Models\KartuFireAlarm::whereNull('approved_at')->count() +
+                         \App\Models\KartuBoxHydrant::whereNull('approved_at')->count() +
+                         \App\Models\KartuRumahPompa::whereNull('approved_at')->count() +
+                         \App\Models\KartuP3k::whereNull('approved_at')->count();
+        @endphp
+        @if($pendingCount > 0)
+          <div class="absolute -top-2 -right-2 z-10">
+            <span class="flex items-center justify-center w-8 h-8 bg-red-500 text-white text-xs font-bold rounded-full shadow-lg animate-pulse ring-4 ring-white">
+              {{ $pendingCount > 99 ? '99+' : $pendingCount }}
+            </span>
+          </div>
+        @endif
+        
         <div class="flex items-start justify-between mb-3">
           <div class="w-12 h-12 rounded-lg flex items-center justify-center bg-orange-100">
             <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -342,7 +360,13 @@
           <span class="text-gray-400 group-hover:text-gray-600 group-hover:translate-x-1 transition-all">→</span>
         </div>
         <h3 class="font-bold text-lg mb-2">Pending Approvals</h3>
-        <p class="text-sm text-gray-600">Approve kartu kendali</p>
+        <p class="text-sm text-gray-600">
+          @if($pendingCount > 0)
+            <span class="font-semibold text-orange-600">{{ $pendingCount }} kartu</span> menunggu approval
+          @else
+            Approve kartu kendali
+          @endif
+        </p>
       </a>
 
       <a href="{{ route('admin.signatures.index') }}" class="group relative rounded-lg bg-white p-6 shadow-lg ring-1 ring-slate-200 hover:shadow-xl transition-all">
