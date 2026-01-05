@@ -38,17 +38,29 @@ class FloorPlan extends Model
     {
         // Jika image_path kosong, return placeholder
         if (empty($this->image_path)) {
-            return url('images/placeholder-floor-plan.png');
+            return asset('images/placeholder-floor-plan.png');
+        }
+        
+        // Jika path dimulai dengan 'storage/', gunakan asset() langsung
+        if (str_starts_with($this->image_path, 'storage/')) {
+            return asset($this->image_path);
+        }
+        
+        // Jika path dimulai dengan 'floor-plans/', cek di storage
+        if (str_starts_with($this->image_path, 'floor-plans/')) {
+            if (Storage::disk('public')->exists($this->image_path)) {
+                return asset('storage/' . $this->image_path);
+            }
         }
         
         // Cek apakah file exists di public folder
         $fullPath = public_path($this->image_path);
         if (file_exists($fullPath)) {
-            return url($this->image_path) . '?v=' . filemtime($fullPath);
+            return asset($this->image_path) . '?v=' . filemtime($fullPath);
         }
         
         // Jika file tidak ada, return placeholder
-        return url('images/placeholder-floor-plan.png');
+        return asset('images/placeholder-floor-plan.png');
     }
 
     /**

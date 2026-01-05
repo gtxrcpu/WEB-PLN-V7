@@ -53,7 +53,6 @@
         </div>
         <div class="flex-1">
             <p class="text-sm text-emerald-800 font-semibold">Peralatan Ditemukan!</p>
-            <p class="text-xs text-emerald-700 mt-0.5">QR Code: {{ $qr }}</p>
         </div>
     </div>
 

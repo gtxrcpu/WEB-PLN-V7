@@ -32,8 +32,12 @@ class Apar extends Model
 
     /**
      * Generate serial berikutnya berdasarkan format custom dari settings
+     * 
+     * @param string|null $unitCode Unit code
+     * @param bool $incrementCounter Whether to increment counter (default: true)
+     * @return string Generated serial number
      */
-    public static function generateNextSerial($unitCode = null): string
+    public static function generateNextSerial($unitCode = null, $incrementCounter = true): string
     {
         $format = \App\Models\AparSetting::get('apar_kode_format', 'APAR A1.{NNN}');
         $counter = (int) \App\Models\AparSetting::get('apar_kode_counter', 1);
@@ -55,8 +59,10 @@ class Apar extends Model
             str_pad($counter, 3, '0', STR_PAD_LEFT),
         ], $format);
         
-        // Increment counter
-        \App\Models\AparSetting::set('apar_kode_counter', $counter + 1);
+        // Increment counter only if requested
+        if ($incrementCounter) {
+            \App\Models\AparSetting::set('apar_kode_counter', $counter + 1);
+        }
         
         return $serial;
     }

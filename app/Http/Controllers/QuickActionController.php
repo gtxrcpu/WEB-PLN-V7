@@ -26,14 +26,25 @@ class QuickActionController extends Controller
 
     public function searchQR(Request $request)
     {
+        // Validate and sanitize input
+        $request->validate([
+            'qr' => 'required|string|max:1000'
+        ]);
+        
         // Accept both GET and POST
         $qr = $request->input('qr') ?? $request->query('qr');
+        
+        // Sanitize QR input to prevent XSS
+        $qr = strip_tags($qr);
         
         // Try to decode JSON format (new format)
         $decoded = json_decode($qr, true);
         if ($decoded && isset($decoded['type']) && isset($decoded['code'])) {
             $type = strtolower($decoded['type']);
             $code = $decoded['code'];
+            
+            // Sanitize code to prevent SQL injection (additional safety)
+            $code = strip_tags($code);
             
             // Search by code based on type
             if ($type === 'apar') {
@@ -42,8 +53,7 @@ class QuickActionController extends Controller
                     return view('quick.scan-result', [
                         'equipment' => $equipment,
                         'type' => 'apar',
-                        'typeName' => 'APAR',
-                        'qr' => $qr
+                        'typeName' => 'APAR'
                     ]);
                 }
             } elseif ($type === 'apat') {
@@ -52,8 +62,7 @@ class QuickActionController extends Controller
                     return view('quick.scan-result', [
                         'equipment' => $equipment,
                         'type' => 'apat',
-                        'typeName' => 'APAT',
-                        'qr' => $qr
+                        'typeName' => 'APAT'
                     ]);
                 }
             } elseif ($type === 'apab') {
@@ -62,8 +71,7 @@ class QuickActionController extends Controller
                     return view('quick.scan-result', [
                         'equipment' => $equipment,
                         'type' => 'apab',
-                        'typeName' => 'APAB',
-                        'qr' => $qr
+                        'typeName' => 'APAB'
                     ]);
                 }
             } elseif ($type === 'fire alarm' || $type === 'fire-alarm') {
@@ -72,8 +80,7 @@ class QuickActionController extends Controller
                     return view('quick.scan-result', [
                         'equipment' => $equipment,
                         'type' => 'fire-alarm',
-                        'typeName' => 'Fire Alarm',
-                        'qr' => $qr
+                        'typeName' => 'Fire Alarm'
                     ]);
                 }
             } elseif ($type === 'box hydrant' || $type === 'box-hydrant') {
@@ -82,8 +89,7 @@ class QuickActionController extends Controller
                     return view('quick.scan-result', [
                         'equipment' => $equipment,
                         'type' => 'box-hydrant',
-                        'typeName' => 'Box Hydrant',
-                        'qr' => $qr
+                        'typeName' => 'Box Hydrant'
                     ]);
                 }
             } elseif ($type === 'rumah pompa' || $type === 'rumah-pompa') {
@@ -92,8 +98,7 @@ class QuickActionController extends Controller
                     return view('quick.scan-result', [
                         'equipment' => $equipment,
                         'type' => 'rumah-pompa',
-                        'typeName' => 'Rumah Pompa',
-                        'qr' => $qr
+                        'typeName' => 'Rumah Pompa'
                     ]);
                 }
             }
@@ -103,7 +108,7 @@ class QuickActionController extends Controller
         // Example: http://127.0.0.1:8000/apar/2/riwayat -> extract "2" and "apar"
         if (preg_match('#/(apar|apat|apab|fire-alarm|box-hydrant|rumah-pompa)/(\d+)#', $qr, $matches)) {
             $module = $matches[1];
-            $id = $matches[2];
+            $id = (int) $matches[2]; // Cast to int for safety
             
             // Search by ID based on module
             if ($module === 'apar') {
@@ -112,8 +117,7 @@ class QuickActionController extends Controller
                     return view('quick.scan-result', [
                         'equipment' => $equipment,
                         'type' => 'apar',
-                        'typeName' => 'APAR',
-                        'qr' => $qr
+                        'typeName' => 'APAR'
                     ]);
                 }
             } elseif ($module === 'apat') {
@@ -122,8 +126,7 @@ class QuickActionController extends Controller
                     return view('quick.scan-result', [
                         'equipment' => $equipment,
                         'type' => 'apat',
-                        'typeName' => 'APAT',
-                        'qr' => $qr
+                        'typeName' => 'APAT'
                     ]);
                 }
             } elseif ($module === 'apab') {
@@ -132,8 +135,7 @@ class QuickActionController extends Controller
                     return view('quick.scan-result', [
                         'equipment' => $equipment,
                         'type' => 'apab',
-                        'typeName' => 'APAB',
-                        'qr' => $qr
+                        'typeName' => 'APAB'
                     ]);
                 }
             } elseif ($module === 'fire-alarm') {
@@ -142,8 +144,7 @@ class QuickActionController extends Controller
                     return view('quick.scan-result', [
                         'equipment' => $equipment,
                         'type' => 'fire-alarm',
-                        'typeName' => 'Fire Alarm',
-                        'qr' => $qr
+                        'typeName' => 'Fire Alarm'
                     ]);
                 }
             } elseif ($module === 'box-hydrant') {
@@ -152,8 +153,7 @@ class QuickActionController extends Controller
                     return view('quick.scan-result', [
                         'equipment' => $equipment,
                         'type' => 'box-hydrant',
-                        'typeName' => 'Box Hydrant',
-                        'qr' => $qr
+                        'typeName' => 'Box Hydrant'
                     ]);
                 }
             } elseif ($module === 'rumah-pompa') {
@@ -162,8 +162,7 @@ class QuickActionController extends Controller
                     return view('quick.scan-result', [
                         'equipment' => $equipment,
                         'type' => 'rumah-pompa',
-                        'typeName' => 'Rumah Pompa',
-                        'qr' => $qr
+                        'typeName' => 'Rumah Pompa'
                     ]);
                 }
             }
@@ -175,8 +174,7 @@ class QuickActionController extends Controller
             return view('quick.scan-result', [
                 'equipment' => $apar,
                 'type' => 'apar',
-                'typeName' => 'APAR',
-                'qr' => $qr
+                'typeName' => 'APAR'
             ]);
         }
 
@@ -185,8 +183,7 @@ class QuickActionController extends Controller
             return view('quick.scan-result', [
                 'equipment' => $apat,
                 'type' => 'apat',
-                'typeName' => 'APAT',
-                'qr' => $qr
+                'typeName' => 'APAT'
             ]);
         }
 
@@ -195,8 +192,7 @@ class QuickActionController extends Controller
             return view('quick.scan-result', [
                 'equipment' => $apab,
                 'type' => 'apab',
-                'typeName' => 'APAB',
-                'qr' => $qr
+                'typeName' => 'APAB'
             ]);
         }
 
@@ -205,8 +201,7 @@ class QuickActionController extends Controller
             return view('quick.scan-result', [
                 'equipment' => $fireAlarm,
                 'type' => 'fire-alarm',
-                'typeName' => 'Fire Alarm',
-                'qr' => $qr
+                'typeName' => 'Fire Alarm'
             ]);
         }
 
@@ -215,8 +210,7 @@ class QuickActionController extends Controller
             return view('quick.scan-result', [
                 'equipment' => $boxHydrant,
                 'type' => 'box-hydrant',
-                'typeName' => 'Box Hydrant',
-                'qr' => $qr
+                'typeName' => 'Box Hydrant'
             ]);
         }
 
@@ -225,8 +219,7 @@ class QuickActionController extends Controller
             return view('quick.scan-result', [
                 'equipment' => $rumahPompa,
                 'type' => 'rumah-pompa',
-                'typeName' => 'Rumah Pompa',
-                'qr' => $qr
+                'typeName' => 'Rumah Pompa'
             ]);
         }
 

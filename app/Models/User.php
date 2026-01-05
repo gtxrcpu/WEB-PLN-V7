@@ -15,6 +15,40 @@ class User extends Authenticatable
     protected $hidden = ['password','remember_token'];
     protected $casts = ['email_verified_at' => 'datetime','password' => 'hashed'];
 
+    /**
+     * Eager load relationships by default untuk optimasi performa
+     */
+    protected $with = ['roles'];
+
+    /**
+     * Get the avatar URL attribute
+     */
+    public function getAvatarUrlAttribute()
+    {
+        // Jika avatar kosong, return default avatar
+        if (empty($this->avatar)) {
+            return asset('images/default-avatar.png');
+        }
+        
+        // Jika avatar dimulai dengan 'http', return as is (external URL)
+        if (str_starts_with($this->avatar, 'http')) {
+            return $this->avatar;
+        }
+        
+        // Jika avatar dimulai dengan 'storage/', gunakan asset() langsung
+        if (str_starts_with($this->avatar, 'storage/')) {
+            return asset($this->avatar);
+        }
+        
+        // Jika avatar dimulai dengan 'avatars/', cek di storage
+        if (str_starts_with($this->avatar, 'avatars/')) {
+            return asset('storage/' . $this->avatar);
+        }
+        
+        // Default: gunakan asset()
+        return asset($this->avatar);
+    }
+
     // Relasi ke unit
     public function unit()
     {

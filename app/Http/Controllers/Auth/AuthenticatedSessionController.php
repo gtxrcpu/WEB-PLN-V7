@@ -40,29 +40,28 @@ class AuthenticatedSessionController extends Controller
                 ->withInput($request->only('email', 'remember'));
         }
 
+        // Regenerate session to prevent fixation attacks
         $request->session()->regenerate();
         
-        // Clear intended URL to prevent redirect to wrong role's page after session timeout
+        // Clear any old session data that might interfere
         $request->session()->forget('url.intended');
+        $request->session()->forget('_previous');
 
+        // Get user (roles already eager loaded via User model $with property)
         $user = $request->user();
 
-        // Redirect by role (spatie/permission)
+        // Redirect by role (spatie/permission) - optimized with cached roles
         if ($user && method_exists($user, 'hasRole')) {
-            if ($user->hasRole('superadmin')) {
-                return redirect()->route('admin.dashboard');
-            }
-            if ($user->hasRole('leader')) {
-                return redirect()->route('leader.dashboard');
-            }
-            if ($user->hasRole('inspector')) {
-                return redirect()->route('inspector.dashboard');
-            }
-            if ($user->hasRole('petugas')) {
-                return redirect()->route('user.dashboard');
-            }
-            // Default ke user dashboard
-            return redirect()->route('user.dashboard');
+            // Get first role name directly from loaded relationship (no DB query)
+            $roleName = $user->roles->first()?->name;
+            
+            return match($roleName) {
+                'superadmin' => redirect()->route('admin.dashboard'),
+                'leader' => redirect()->route('leader.dashboard'),
+                'inspector' => redirect()->route('inspector.dashboard'),
+                'petugas' => redirect()->route('user.dashboard'),
+                default => redirect()->route('user.dashboard'),
+            };
         }
 
         // Fallback jika belum ada role: arahkan ke route dashboard generik
@@ -76,9 +75,12 @@ class AuthenticatedSessionController extends Controller
     {
         Auth::guard('web')->logout();
 
+        // Flush all session data before invalidating
+        $request->session()->flush();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        // Force redirect to login with fresh session
+        return redirect()->route('login')->with('status', 'You have been logged out successfully.');
     }
 }

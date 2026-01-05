@@ -27,13 +27,15 @@ class AparController extends Controller
      */
     public function create()
     {
-        $nextSerial = Apar::generateNextSerial();
+        // Preview serial without incrementing counter
+        $nextSerial = Apar::generateNextSerial(null, false);
 
         // default value kalau mau ditampilkan di form
+        // Serial already contains "APAR A1.xxx"
         $default = [
             'serial_no'     => $nextSerial,
-            'name'          => 'APAR ' . $nextSerial,
-            'barcode'       => 'APAR ' . $nextSerial,
+            'name'          => $nextSerial,
+            'barcode'       => $nextSerial,
             'status'        => 'BAIK',
             'location_code' => 'BDG',
             'type'          => 'UUV',
@@ -61,13 +63,15 @@ class AparController extends Controller
             'floor_plan_y'  => 'nullable|numeric|min:0|max:100',
         ]);
 
-        $serial = Apar::generateNextSerial();
-        $barcode = 'APAR ' . $serial;
+        // Generate serial and increment counter (only once, when saving)
+        $serial = Apar::generateNextSerial(null, true);
+        // Serial already contains "APAR A1.xxx", so use it directly
+        $barcode = $serial;
 
         $apar = Apar::create([
             'user_id'       => Auth::id(),
             'unit_id'       => $this->getAuthUserUnitId(), // Auto-assign unit dari user
-            'name'          => 'APAR ' . $serial,
+            'name'          => $serial,
             'barcode'       => $barcode,
             'serial_no'     => $serial,
             'location_code' => $request->location_code,
