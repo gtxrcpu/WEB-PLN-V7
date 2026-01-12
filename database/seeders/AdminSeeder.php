@@ -12,6 +12,7 @@ class AdminSeeder extends Seeder
     public function run(): void
     {
         // Ambil unit
+        $induk = Unit::where('code', 'INDUK')->first();
         $upw2 = Unit::where('code', 'UPW2')->first();
         $upw3 = Unit::where('code', 'UPW3')->first();
 
@@ -30,7 +31,22 @@ class AdminSeeder extends Seeder
             $superadmin->assignRole('superadmin');
         }
 
-        // 2. LEADER UPW2 (Admin Unit 2) - Bisa approval TTD
+        // 2. LEADER INDUK (Admin Induk) - Bisa approval TTD
+        $leaderInduk = User::firstOrCreate(
+            ['email' => 'leader.induk@pln.co.id'],
+            [
+                'name' => 'Leader Induk',
+                'username' => 'leader_induk',
+                'password' => Hash::make('leader123'),
+                'unit_id' => $induk?->id,
+                'position' => 'leader',
+            ]
+        );
+        if (!$leaderInduk->hasRole('leader')) {
+            $leaderInduk->assignRole('leader');
+        }
+
+        // 3. LEADER UPW2 (Admin Unit 2) - Bisa approval TTD
         $leaderUpw2 = User::firstOrCreate(
             ['email' => 'leader.upw2@pln.co.id'],
             [
@@ -45,7 +61,7 @@ class AdminSeeder extends Seeder
             $leaderUpw2->assignRole('leader');
         }
 
-        // 3. LEADER UPW3 (Admin Unit 3) - Bisa approval TTD
+        // 4. LEADER UPW3 (Admin Unit 3) - Bisa approval TTD
         $leaderUpw3 = User::firstOrCreate(
             ['email' => 'leader.upw3@pln.co.id'],
             [
@@ -60,7 +76,22 @@ class AdminSeeder extends Seeder
             $leaderUpw3->assignRole('leader');
         }
 
-        // 4. PETUGAS UPW2 (User biasa) - Input data
+        // 5. PETUGAS INDUK - Input data
+        $petugasInduk = User::firstOrCreate(
+            ['email' => 'petugas.induk@pln.co.id'],
+            [
+                'name' => 'Petugas Induk',
+                'username' => 'petugas_induk',
+                'password' => Hash::make('petugas123'),
+                'unit_id' => $induk?->id,
+                'position' => 'petugas',
+            ]
+        );
+        if (!$petugasInduk->hasRole('petugas')) {
+            $petugasInduk->assignRole('petugas');
+        }
+
+        // 6. PETUGAS UPW2 (User biasa) - Input data
         $petugasUpw2 = User::firstOrCreate(
             ['email' => 'petugas.upw2@pln.co.id'],
             [
@@ -75,7 +106,7 @@ class AdminSeeder extends Seeder
             $petugasUpw2->assignRole('petugas');
         }
 
-        // 5. PETUGAS UPW3 (User biasa) - Input data
+        // 7. PETUGAS UPW3 (User biasa) - Input data
         $petugasUpw3 = User::firstOrCreate(
             ['email' => 'petugas.upw3@pln.co.id'],
             [
@@ -96,15 +127,25 @@ class AdminSeeder extends Seeder
         $this->command->info('   Password: super123');
         $this->command->info('   Email: superadmin@pln.co.id');
         $this->command->info('');
-        $this->command->info('✅ LEADER UPW2 (Admin Unit 2):');
+        $this->command->info('✅ LEADER INDUK:');
+        $this->command->info('   Username: leader_induk');
+        $this->command->info('   Password: leader123');
+        $this->command->info('   Email: leader.induk@pln.co.id');
+        $this->command->info('');
+        $this->command->info('✅ LEADER UPW2 (UP2WIII):');
         $this->command->info('   Username: leader_upw2');
         $this->command->info('   Password: leader123');
         $this->command->info('   Email: leader.upw2@pln.co.id');
         $this->command->info('');
-        $this->command->info('✅ LEADER UPW3 (Admin Unit 3):');
+        $this->command->info('✅ LEADER UPW3 (UP2WIV):');
         $this->command->info('   Username: leader_upw3');
         $this->command->info('   Password: leader123');
         $this->command->info('   Email: leader.upw3@pln.co.id');
+        $this->command->info('');
+        $this->command->info('✅ PETUGAS INDUK:');
+        $this->command->info('   Username: petugas_induk');
+        $this->command->info('   Password: petugas123');
+        $this->command->info('   Email: petugas.induk@pln.co.id');
         $this->command->info('');
         $this->command->info('✅ PETUGAS UPW2:');
         $this->command->info('   Username: petugas_upw2');

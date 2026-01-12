@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
 class BoxHydrant extends Model
 {
     use HasUnit;
-    
+
     protected $fillable = [
         'user_id',
         'unit_id',
@@ -44,20 +44,20 @@ class BoxHydrant extends Model
             'location' => $this->location_code ?? '-',
             'status' => $this->status ?? '-',
         ], JSON_UNESCAPED_UNICODE);
-        
+
         $svg = QrCode::size(300)
             ->format('svg')
             ->margin(1)
             ->errorCorrection('H')
             ->generate($qrContent);
-        
+
         return 'data:image/svg+xml;base64,' . base64_encode($svg);
     }
 
     public function refreshQrSvg(): void
     {
         $qrContent = $this->barcode ?? $this->serial_no ?? 'H6-' . $this->id;
-        
+
         $svg = QrCode::size(300)
             ->format('svg')
             ->generate($qrContent);
@@ -73,18 +73,24 @@ class BoxHydrant extends Model
 
     /**
      * Generate next serial number for Box Hydrant using custom format from settings
+     * @param int|null $unitId Unit ID (null = Induk)
      */
-    public static function generateNextSerial($unitCode = null): string
+    public static function generateNextSerial($unitId = null): string
     {
         $format = \App\Models\AparSetting::get('box-hydrant_kode_format', 'BH.{NNN}');
-        $counter = (int) \App\Models\AparSetting::get('box-hydrant_kode_counter', 1);
-        
-        // Get unit code
-        if (!$unitCode && auth()->check() && auth()->user()->unit) {
-            $unitCode = auth()->user()->unit->code;
+
+        // Determine unit from auth user if not provided
+        if ($unitId === null && auth()->check() && auth()->user()->unit_id) {
+            $unitId = auth()->user()->unit_id;
         }
-        $unitCode = $unitCode ?? 'INDUK';
-        
+
+        // Counter key based on unit (per-unit independent counter)
+        $counterKey = $unitId ? "box-hydrant_kode_counter_{$unitId}" : "box-hydrant_kode_counter_induk";
+        $counter = (int) \App\Models\AparSetting::get($counterKey, 1);
+
+        // Get unit code for format
+        $unitCode = $unitId ? (\App\Models\Unit::find($unitId)?->code ?? 'INDUK') : 'INDUK';
+
         // Replace variables (no year/month)
         $serial = str_replace([
             '{UNIT}',
@@ -95,10 +101,10 @@ class BoxHydrant extends Model
             str_pad($counter, 4, '0', STR_PAD_LEFT),
             str_pad($counter, 3, '0', STR_PAD_LEFT),
         ], $format);
-        
+
         // Increment counter
-        \App\Models\AparSetting::set('box-hydrant_kode_counter', $counter + 1);
-        
+        \App\Models\AparSetting::set($counterKey, $counter + 1);
+
         return $serial;
     }
 
@@ -112,17 +118,17 @@ class BoxHydrant extends Model
         }
 
         $url = route('box-hydrant.riwayat', $this->id);
-        
+
         try {
             $qrCode = QrCode::format('svg')
                 ->size(300)
                 ->margin(1)
                 ->errorCorrection('H')
                 ->generate($url);
-            
+
             $path = 'qrcodes/box-hydrant/' . $this->serial_no . '.svg';
             Storage::disk('public')->put($path, $qrCode);
-            
+
             $this->qr_svg_path = $path;
             $this->saveQuietly();
         } catch (\Exception $e) {

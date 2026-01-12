@@ -263,14 +263,6 @@
                               placeholder="Tambahkan catatan atau informasi tambahan..."
                               class="block w-full rounded-xl border-2 border-slate-200 text-slate-900 px-4 py-3 text-sm focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition-all resize-none">{{ old('notes') }}</textarea>
                 </div>
-
-                {{-- Floor Plan Coordinate Picker --}}
-                <x-floor-plan-picker 
-                    :floor-plan-id="old('floor_plan_id')"
-                    :floor-plan-x="old('floor_plan_x')"
-                    :floor-plan-y="old('floor_plan_y')"
-                    equipment-type="apab"
-                />
             </div>
 
             {{-- Action Buttons --}}

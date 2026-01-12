@@ -60,15 +60,30 @@ class Handler extends ExceptionHandler
     {
         // Handle CSRF token mismatch (419 Page Expired)
         if ($e instanceof TokenMismatchException) {
-            // Clear the session and redirect to login
+            // Log for debugging (remove in production if needed)
+            \Log::warning('CSRF Token Mismatch', [
+                'url' => $request->fullUrl(),
+                'method' => $request->method(),
+                'user_agent' => $request->userAgent(),
+                'ip' => $request->ip()
+            ]);
+
+            // Flush old session completely
             if ($request->session()) {
-                $request->session()->flush();
+                $request->session()->invalidate();
                 $request->session()->regenerateToken();
             }
-            
+
+            // Clear auth cookies
+            if ($request->hasCookie('laravel_session')) {
+                cookie()->queue(cookie()->forget('laravel_session'));
+            }
+
+            // Redirect to login with user-friendly message
             return redirect()
                 ->route('login')
-                ->with('auth_error', 'Your session has expired. Please login again.');
+                ->withErrors(['session' => 'Your session has expired. Please login again.'])
+                ->with('status', 'Session expired - please login again');
         }
 
         return parent::render($request, $e);

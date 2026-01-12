@@ -40,26 +40,33 @@ class FloorPlan extends Model
         if (empty($this->image_path)) {
             return asset('images/placeholder-floor-plan.png');
         }
-        
+
         // Jika path dimulai dengan 'storage/', gunakan asset() langsung
         if (str_starts_with($this->image_path, 'storage/')) {
             return asset($this->image_path);
         }
-        
-        // Jika path dimulai dengan 'floor-plans/', cek di storage
+
+        // Jika path dimulai dengan 'floor-plans/', prioritaskan public folder dulu
         if (str_starts_with($this->image_path, 'floor-plans/')) {
+            // Cek di public folder dulu (untuk upload dari admin)
+            $publicPath = public_path($this->image_path);
+            if (file_exists($publicPath)) {
+                return asset($this->image_path);
+            }
+
+            // Jika tidak ada di public, coba di storage
             if (Storage::disk('public')->exists($this->image_path)) {
                 return asset('storage/' . $this->image_path);
             }
         }
-        
-        // Cek apakah file exists di public folder
+
+        // Untuk path lain, cek apakah file exists di public folder
         $fullPath = public_path($this->image_path);
         if (file_exists($fullPath)) {
-            return asset($this->image_path) . '?v=' . filemtime($fullPath);
+            return asset($this->image_path);
         }
-        
-        // Jika file tidak ada, return placeholder
+
+        // Jika file tidak ada di mana-mana, return placeholder
         return asset('images/placeholder-floor-plan.png');
     }
 
@@ -69,42 +76,42 @@ class FloorPlan extends Model
     public function getAllEquipment()
     {
         $equipment = [];
-        
+
         $equipment['apar'] = Apar::where('floor_plan_id', $this->id)
             ->whereNotNull('floor_plan_x')
             ->whereNotNull('floor_plan_y')
             ->get();
-            
+
         $equipment['apat'] = Apat::where('floor_plan_id', $this->id)
             ->whereNotNull('floor_plan_x')
             ->whereNotNull('floor_plan_y')
             ->get();
-            
+
         $equipment['fire_alarm'] = FireAlarm::where('floor_plan_id', $this->id)
             ->whereNotNull('floor_plan_x')
             ->whereNotNull('floor_plan_y')
             ->get();
-            
+
         $equipment['box_hydrant'] = BoxHydrant::where('floor_plan_id', $this->id)
             ->whereNotNull('floor_plan_x')
             ->whereNotNull('floor_plan_y')
             ->get();
-            
+
         $equipment['rumah_pompa'] = RumahPompa::where('floor_plan_id', $this->id)
             ->whereNotNull('floor_plan_x')
             ->whereNotNull('floor_plan_y')
             ->get();
-            
+
         $equipment['apab'] = Apab::where('floor_plan_id', $this->id)
             ->whereNotNull('floor_plan_x')
             ->whereNotNull('floor_plan_y')
             ->get();
-            
+
         $equipment['p3k'] = P3k::where('floor_plan_id', $this->id)
             ->whereNotNull('floor_plan_x')
             ->whereNotNull('floor_plan_y')
             ->get();
-        
+
         return $equipment;
     }
 

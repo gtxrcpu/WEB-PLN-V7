@@ -1,7 +1,7 @@
 <x-layouts.app :title="'Dashboard — Leader'">
   {{-- Unit Info Banner --}}
   @if(auth()->user()->unit)
-    <div class="mb-4 sm:mb-6 p-4 sm:p-6 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl shadow-lg">
+    <div class="mb-4 sm:mb-6 p-4 sm:p-6 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl shadow-lg">
       <div class="flex items-center gap-4">
         <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center">
           <svg class="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -12,9 +12,11 @@
           <p class="text-white/80 text-xs sm:text-sm font-medium">Unit Anda</p>
           <h3 class="text-white text-lg sm:text-2xl font-bold">{{ auth()->user()->unit->code }}</h3>
           <p class="text-white/90 text-xs sm:text-sm mt-0.5">{{ auth()->user()->unit->name }}</p>
-          <span class="inline-block mt-2 px-2.5 py-1 bg-white/20 backdrop-blur rounded-lg text-white text-xs font-semibold">
-            Leader
-          </span>
+          @if(auth()->user()->position)
+            <span class="inline-block mt-2 px-2.5 py-1 bg-white/20 backdrop-blur rounded-lg text-white text-xs font-semibold">
+              {{ ucfirst(auth()->user()->position) }}
+            </span>
+          @endif
         </div>
       </div>
     </div>
@@ -37,7 +39,7 @@
         </div>
         <div class="relative w-full sm:w-auto">
           <select id="moduleSelector" onchange="switchModule(this.value)" 
-                  class="w-full sm:w-auto appearance-none bg-white border-2 border-slate-200 rounded-xl px-4 py-2.5 pr-10 text-xs sm:text-sm font-semibold text-slate-700 hover:border-green-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all cursor-pointer shadow-sm">
+                  class="w-full sm:w-auto appearance-none bg-white border-2 border-slate-200 rounded-xl px-4 py-2.5 pr-10 text-xs sm:text-sm font-semibold text-slate-700 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-pointer shadow-sm">
             <option value="all">Laporan Keseluruhan - Semua Modul</option>
             <option value="apar">APAR - Alat Pemadam Api Ringan</option>
             <option value="apat">APAT - Alat Pemadam Api Tradisional</option>
@@ -63,7 +65,7 @@
               <h3 class="text-sm sm:text-base font-bold text-slate-900">Status Peralatan</h3>
               <p class="text-xs text-slate-600 mt-0.5" id="statusChartSubtitle">Kondisi semua modul</p>
             </div>
-            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center shadow-lg">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg">
               <svg class="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
               </svg>
@@ -108,40 +110,36 @@
     @endphp
     <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
       @foreach ([
-        ['Total Item', $totalItems ?? 0, 'Semua modul', 'green', 'M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z'],
-        ['Kondisi Baik', $totalBaik, 'Siap digunakan', 'emerald', 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'],
-        ['Perlu Perbaikan', $totalRusak, 'Segera perbaiki', 'orange', 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z'],
-        ['Pending Approval', $stats['pending_approvals'] ?? 0, 'Menunggu review', 'amber', 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'],
+        ['Total Item', $totalItems ?? 0, 'Semua modul', 'blue', 'M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z'],
+        ['Kondisi Baik', $totalBaik, 'Siap digunakan', 'cyan', 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'],
+        ['Perlu Perbaikan', $totalRusak, 'Segera perbaiki', 'sky', 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z'],
+        ['Modul Aktif', '6', 'Sistem berjalan', 'blue', 'M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z'],
       ] as [$label, $val, $sub, $tone, $icon])
         <div class="group rounded-lg bg-white p-3 sm:p-6 shadow-md ring-1 ring-slate-200 hover:shadow-xl transition-transform duration-300">
           <div class="flex items-start justify-between mb-2 sm:mb-4">
             <div class="w-8 h-8 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center 
-              @if($tone==='green') bg-green-100 
-              @elseif($tone==='emerald') bg-emerald-100 
-              @elseif($tone==='orange') bg-orange-100
-              @else bg-amber-100 @endif">
+              @if($tone==='blue') bg-blue-100 
+              @elseif($tone==='cyan') bg-cyan-100 
+              @else bg-sky-100 @endif">
               <svg class="w-6 h-6 
-                @if($tone==='green') text-green-600 
-                @elseif($tone==='emerald') text-emerald-600 
-                @elseif($tone==='orange') text-orange-600
-                @else text-amber-600 @endif" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                @if($tone==='blue') text-blue-600 
+                @elseif($tone==='cyan') text-cyan-600 
+                @else text-sky-600 @endif" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $icon }}"/>
               </svg>
             </div>
           </div>
           <p class="text-gray-600 text-xs sm:text-sm font-medium">{{ $label }}</p>
           <p class="text-xl sm:text-3xl font-semibold mt-1 sm:mt-2 mb-2 sm:mb-3 
-            @if($tone==='green') text-green-600 
-            @elseif($tone==='emerald') text-emerald-600 
-            @elseif($tone==='orange') text-orange-800
-            @else text-amber-800 @endif">
+            @if($tone==='blue') text-blue-600 
+            @elseif($tone==='cyan') text-cyan-600 
+            @else text-sky-800 @endif">
             {{ $val }}
           </p>
           <div class="flex items-center gap-1.5 text-xs sm:text-sm 
-            @if($tone==='green') text-green-700 
-            @elseif($tone==='emerald') text-emerald-700 
-            @elseif($tone==='orange') text-orange-600
-            @else text-amber-600 @endif">
+            @if($tone==='blue') text-blue-700 
+            @elseif($tone==='cyan') text-cyan-700 
+            @else text-sky-600 @endif">
             <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
             {{ $sub }}
           </div>
@@ -152,24 +150,24 @@
     {{-- Quick Actions Section --}}
     <section class="mb-6 sm:mb-8">
       <h2 class="text-base sm:text-lg font-bold mb-3 sm:mb-4 flex items-center gap-2">
-        <span class="w-1.5 h-5 sm:h-6 bg-gradient-to-b from-green-500 to-green-400 rounded-full"></span>
+        <span class="w-1.5 h-5 sm:h-6 bg-gradient-to-b from-blue-500 to-blue-400 rounded-full"></span>
         Quick Actions
       </h2>
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-5">
-        <a href="{{ route('leader.approvals.index') }}" class="group relative rounded-lg bg-white p-3 sm:p-4 shadow-sm ring-1 ring-slate-200 hover:shadow-lg transition-all duration-300 overflow-hidden">
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-5">
+        <a href="{{ route('quick.scan') }}" class="group relative rounded-lg bg-white p-3 sm:p-4 shadow-sm ring-1 ring-slate-200 hover:shadow-lg transition-all duration-300 overflow-hidden">
           <div class="relative z-10">
             <div class="flex items-start justify-between mb-2 sm:mb-3">
-              <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center bg-green-100">
-                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center bg-blue-100">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1z"/>
                 </svg>
               </div>
               <span class="text-gray-400 group-hover:text-gray-600 group-hover:translate-x-1 transition-all text-lg sm:text-xl">→</span>
             </div>
-            <h3 class="font-bold text-sm sm:text-md mb-1 sm:mb-2">Approval Kartu</h3>
-            <p class="text-xs sm:text-sm text-gray-600 mb-2">Review dan approve kartu kendali.</p>
-            <div class="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold bg-green-500 text-white group-hover:bg-green-600 transition-colors">
-              Review
+            <h3 class="font-bold text-sm sm:text-md mb-1 sm:mb-2">Scan / Input QR</h3>
+            <p class="text-xs sm:text-sm text-gray-600 mb-2 hidden sm:block">Gunakan scanner untuk tambah item.</p>
+            <div class="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold bg-blue-500 text-white group-hover:bg-blue-600 transition-colors">
+              Scan
             </div>
           </div>
         </a>
@@ -177,16 +175,16 @@
         <a href="{{ route('quick.inspeksi') }}" class="group relative rounded-lg bg-white p-3 sm:p-4 shadow-sm ring-1 ring-slate-200 hover:shadow-lg transition-all duration-300 overflow-hidden">
           <div class="relative z-10">
             <div class="flex items-start justify-between mb-2 sm:mb-3">
-              <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center bg-emerald-100">
-                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center bg-sky-100">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>
               </div>
               <span class="text-gray-400 group-hover:text-gray-600 group-hover:translate-x-1 transition-all text-lg sm:text-xl">→</span>
             </div>
             <h3 class="font-bold text-sm sm:text-md mb-1 sm:mb-2">Buat Inspeksi</h3>
-            <p class="text-xs sm:text-sm text-gray-600 mb-2">Catat status baik/rusak/perbaikan.</p>
-            <div class="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold bg-emerald-500 text-white group-hover:bg-emerald-600 transition-colors">
+            <p class="text-xs sm:text-sm text-gray-600 mb-2 hidden sm:block">Catat status baik/rusak/perbaikan.</p>
+            <div class="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold bg-sky-500 text-white group-hover:bg-sky-600 transition-colors">
               Form
             </div>
           </div>
@@ -203,9 +201,45 @@
               <span class="text-gray-400 group-hover:text-gray-600 group-hover:translate-x-1 transition-all text-lg sm:text-xl">→</span>
             </div>
             <h3 class="font-bold text-sm sm:text-md mb-1 sm:mb-2">Rekap & Export</h3>
-            <p class="text-xs sm:text-sm text-gray-600 mb-2">Unduh laporan periodik.</p>
+            <p class="text-xs sm:text-sm text-gray-600 mb-2 hidden sm:block">Unduh laporan periodik.</p>
             <div class="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold bg-cyan-500 text-white group-hover:bg-cyan-600 transition-colors">
               Export
+            </div>
+          </div>
+        </a>
+
+        <a href="{{ route('leader.floor-plans.index') }}" class="group relative rounded-lg bg-white p-3 sm:p-4 shadow-sm ring-1 ring-slate-200 hover:shadow-lg transition-all duration-300 overflow-hidden">
+          <div class="relative z-10">
+            <div class="flex items-start justify-between mb-2 sm:mb-3">
+              <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center bg-indigo-100">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                </svg>
+              </div>
+              <span class="text-gray-400 group-hover:text-gray-600 group-hover:translate-x-1 transition-all text-lg sm:text-xl">→</span>
+            </div>
+            <h3 class="font-bold text-sm sm:text-md mb-1 sm:mb-2">Denah Lokasi</h3>
+            <p class="text-xs sm:text-sm text-gray-600 mb-2 hidden sm:block">Kelola lokasi peralatan pada denah.</p>
+            <div class="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold bg-indigo-500 text-white group-hover:bg-indigo-600 transition-colors">
+              Kelola
+            </div>
+          </div>
+        </a>
+
+        <a href="{{ route('leader.approvals.index') }}" class="group relative rounded-lg bg-white p-3 sm:p-4 shadow-sm ring-1 ring-slate-200 hover:shadow-lg transition-all duration-300 overflow-hidden">
+          <div class="relative z-10">
+            <div class="flex items-start justify-between mb-2 sm:mb-3">
+              <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center bg-amber-100">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </div>
+              <span class="text-gray-400 group-hover:text-gray-600 group-hover:translate-x-1 transition-all text-lg sm:text-xl">→</span>
+            </div>
+            <h3 class="font-bold text-sm sm:text-md mb-1 sm:mb-2">Pending Approval</h3>
+            <p class="text-xs sm:text-sm text-gray-600 mb-2 hidden sm:block">Review dan approve data petugas.</p>
+            <div class="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold bg-amber-500 text-white group-hover:bg-amber-600 transition-colors">
+              Review
             </div>
           </div>
         </a>
@@ -249,6 +283,8 @@
             
             <div class="absolute inset-0 transition-all duration-500"></div>
 
+
+
             <div class="absolute inset-0 flex items-center justify-center z-10 {{ $isLarge ? 'p-12' : 'p-8' }}">
               <div class="relative w-full h-full flex items-center justify-center">
                 <img src="{{ asset($img) }}" alt="{{ $name }}" class="relative z-10 {{ $isLarge ? 'max-h-48' : 'max-h-32' }} w-auto object-contain 
@@ -290,6 +326,8 @@
           </a>
         @endforeach
       </div>
+
+
     </section>
   </section>
 
@@ -305,19 +343,15 @@
         isi_ulang: {{ $aparData['isi_ulang'] ?? 0 }},
         rusak: {{ ($aparData['rusak'] ?? 0) + ($apatData['rusak'] ?? 0) + ($apabData['tidak_baik'] ?? 0) + ($fireAlarmData['rusak'] ?? 0) + ($boxHydrantData['rusak'] ?? 0) + ($rumahPompaData['rusak'] ?? 0) }},
         total: {{ ($aparData['total'] ?? 0) + ($apatData['total'] ?? 0) + ($apabData['total'] ?? 0) + ($fireAlarmData['total'] ?? 0) + ($boxHydrantData['total'] ?? 0) + ($rumahPompaData['total'] ?? 0) }},
-        color: 'rgb(16, 185, 129)',
-        trendData: (() => {
-          const labels = {!! json_encode($trendData['labels']) !!};
-          const datasets = {!! json_encode($trendData['datasets']) !!};
-          return labels.map((label, index) => {
-            return (datasets['APAR'][index] || 0) +
-                   (datasets['APAT'][index] || 0) +
-                   (datasets['APAB'][index] || 0) +
-                   (datasets['Fire Alarm'][index] || 0) +
-                   (datasets['Box Hydrant'][index] || 0) +
-                   (datasets['Rumah Pompa'][index] || 0);
-          });
-        })()
+        color: 'rgb(99, 102, 241)',
+        trendData: [
+          {{ array_sum(array_column($trendData['datasets'], 0)) }},
+          {{ array_sum(array_column($trendData['datasets'], 1)) }},
+          {{ array_sum(array_column($trendData['datasets'], 2)) }},
+          {{ array_sum(array_column($trendData['datasets'], 3)) }},
+          {{ array_sum(array_column($trendData['datasets'], 4)) }},
+          {{ array_sum(array_column($trendData['datasets'], 5)) }}
+        ]
       },
       'apar': {
         name: 'APAR',
@@ -455,16 +489,16 @@
           datasets: [{
             label: 'Inspeksi',
             data: moduleData['all'].trendData,
-            borderColor: 'rgb(16, 185, 129)',
-            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            borderColor: 'rgb(99, 102, 241)',
+            backgroundColor: 'rgba(99, 102, 241, 0.1)',
             tension: 0.4,
             fill: true,
             pointRadius: 5,
             pointHoverRadius: 7,
-            pointBackgroundColor: 'rgb(16, 185, 129)',
+            pointBackgroundColor: 'rgb(99, 102, 241)',
             pointBorderColor: '#fff',
             pointBorderWidth: 2,
-            pointHoverBackgroundColor: 'rgb(16, 185, 129)',
+            pointHoverBackgroundColor: 'rgb(99, 102, 241)',
             pointHoverBorderColor: '#fff',
             pointHoverBorderWidth: 3
           }]
@@ -550,21 +584,21 @@
       // Update Chart Subtitle
       document.getElementById('statusChartSubtitle').textContent = data.fullName;
 
-      // Update Stats Cards (using green theme for leader)
+      // Update Stats Cards
       const statsHtml = `
-        <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-3 sm:p-5 shadow-sm ring-1 ring-green-100">
+        <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-3 sm:p-5 shadow-sm ring-1 ring-blue-100">
           <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 mb-2">
-            <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center shadow-md">
+            <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-md">
               <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
               </svg>
             </div>
             <div>
-              <p class="text-xs text-green-700 font-medium">Total Unit</p>
-              <p class="text-xl sm:text-2xl font-bold text-green-900">${data.total}</p>
+              <p class="text-xs text-blue-700 font-medium">Total Unit</p>
+              <p class="text-xl sm:text-2xl font-bold text-blue-900">${data.total}</p>
             </div>
           </div>
-          <p class="text-xs text-green-600 mt-1 sm:mt-2">${data.name}</p>
+          <p class="text-xs text-blue-600 mt-1 sm:mt-2">${data.name}</p>
         </div>
 
         <div class="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-3 sm:p-5 shadow-sm ring-1 ring-emerald-100">
@@ -607,19 +641,19 @@
           </div>
         </div>
 
-        <div class="bg-gradient-to-br from-rose-50 to-red-50 rounded-xl p-3 sm:p-5 shadow-sm ring-1 ring-rose-100">
-          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 mb-2">
-            <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-gradient-to-br from-rose-500 to-red-500 flex items-center justify-center shadow-md">
-              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="bg-gradient-to-br from-rose-50 to-red-50 rounded-xl p-5 shadow-sm ring-1 ring-rose-100">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-rose-500 to-red-500 flex items-center justify-center shadow-md">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
               </svg>
             </div>
-            <div class="flex-1">
+            <div>
               <p class="text-xs text-rose-700 font-medium">Rusak / Tidak Baik</p>
-              <p class="text-xl sm:text-2xl font-bold text-rose-900">${data.rusak}</p>
+              <p class="text-2xl font-bold text-rose-900">${data.rusak}</p>
             </div>
           </div>
-          <div class="flex items-center justify-between mt-1 sm:mt-2">
+          <div class="flex items-center justify-between mt-2">
             <div class="flex-1 bg-rose-200 rounded-full h-1.5 mr-2">
               <div class="bg-rose-500 h-1.5 rounded-full transition-all duration-500" style="width: ${data.total > 0 ? (data.rusak / data.total) * 100 : 0}%"></div>
             </div>

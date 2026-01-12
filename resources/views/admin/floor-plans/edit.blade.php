@@ -45,7 +45,7 @@
       <div>
         <label class="block text-sm font-semibold text-gray-700 mb-2">Gambar Denah Saat Ini</label>
         <div class="bg-gray-100 rounded-lg p-4">
-          <img src="{{ url($floorPlan->image_path) }}" 
+          <img src="{{ $floorPlan->image_url }}" 
                alt="{{ $floorPlan->name }}"
                class="max-h-64 mx-auto rounded-lg shadow-md">
           <p class="text-xs text-gray-500 text-center mt-2">{{ $floorPlan->width }} × {{ $floorPlan->height }} px</p>

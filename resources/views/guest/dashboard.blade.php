@@ -263,8 +263,27 @@
         total: {{ $rumahPompaData['total'] ?? 0 }},
         color: 'rgb(168, 85, 247)',
         trendData: {!! json_encode($trendData['datasets']['Rumah Pompa'] ?? [0,0,0,0,0,0]) !!}
+      },
+      'p3k': {
+        name: 'P3K',
+        fullName: 'Kotak P3K',
+        baik: {{ $p3kData['baik'] ?? 0 }},
+        isi_ulang: 0,
+        rusak: {{ $p3kData['rusak'] ?? 0 }},
+        total: {{ $p3kData['total'] ?? 0 }},
+        color: 'rgb(16, 185, 129)',
+        trendData: {!! json_encode($trendData['datasets']['P3K'] ?? [0,0,0,0,0,0]) !!}
       }
     };
+
+    // Debug: Log actual data from backend
+    console.log('Backend Data - APAR:', {
+      baik: {{ $aparData['baik'] ?? 0 }},
+      isi_ulang: {{ $aparData['isi_ulang'] ?? 0 }},
+      rusak: {{ $aparData['rusak'] ?? 0 }},
+      total: {{ $aparData['total'] ?? 0 }}
+    });
+    console.log('Module Data Object:', moduleData);
 
     let currentModule = 'apar';
     let statusChart = null;

@@ -33,21 +33,26 @@ class Apar extends Model
     /**
      * Generate serial berikutnya berdasarkan format custom dari settings
      * 
-     * @param string|null $unitCode Unit code
+     * @param int|null $unitId Unit ID (null = Induk)
      * @param bool $incrementCounter Whether to increment counter (default: true)
      * @return string Generated serial number
      */
-    public static function generateNextSerial($unitCode = null, $incrementCounter = true): string
+    public static function generateNextSerial($unitId = null, $incrementCounter = true): string
     {
         $format = \App\Models\AparSetting::get('apar_kode_format', 'APAR A1.{NNN}');
-        $counter = (int) \App\Models\AparSetting::get('apar_kode_counter', 1);
-        
-        // Get unit code
-        if (!$unitCode && auth()->check() && auth()->user()->unit) {
-            $unitCode = auth()->user()->unit->code;
+
+        // Determine unit from auth user if not provided
+        if ($unitId === null && auth()->check() && auth()->user()->unit_id) {
+            $unitId = auth()->user()->unit_id;
         }
-        $unitCode = $unitCode ?? 'INDUK';
-        
+
+        // Counter key based on unit (per-unit independent counter)
+        $counterKey = $unitId ? "apar_kode_counter_{$unitId}" : "apar_kode_counter_induk";
+        $counter = (int) \App\Models\AparSetting::get($counterKey, 1);
+
+        // Get unit code for format
+        $unitCode = $unitId ? (\App\Models\Unit::find($unitId)?->code ?? 'INDUK') : 'INDUK';
+
         // Replace variables (tanpa tahun dan bulan)
         $serial = str_replace([
             '{UNIT}',
@@ -58,12 +63,12 @@ class Apar extends Model
             str_pad($counter, 4, '0', STR_PAD_LEFT),
             str_pad($counter, 3, '0', STR_PAD_LEFT),
         ], $format);
-        
+
         // Increment counter only if requested
         if ($incrementCounter) {
-            \App\Models\AparSetting::set('apar_kode_counter', $counter + 1);
+            \App\Models\AparSetting::set($counterKey, $counter + 1);
         }
-        
+
         return $serial;
     }
 
@@ -77,17 +82,17 @@ class Apar extends Model
         }
 
         $url = route('apar.riwayat', $this->id);
-        
+
         try {
             $qrCode = QrCode::format('svg')
                 ->size(300)
                 ->margin(1)
                 ->errorCorrection('H')
                 ->generate($url);
-            
+
             $filename = 'qrcodes/apar_' . $this->id . '.svg';
             Storage::disk('public')->put($filename, $qrCode);
-            
+
             $this->update(['qr_svg_path' => $filename]);
         } catch (\Exception $e) {
             \Log::error('Failed to generate QR for APAR ' . $this->id . ': ' . $e->getMessage());
@@ -118,14 +123,14 @@ class Apar extends Model
             'capacity' => $this->capacity ?? '-',
             'type_detail' => $this->type ?? '-',
         ], JSON_UNESCAPED_UNICODE);
-        
+
         try {
             $qrCode = QrCode::format('svg')
                 ->size(300)
                 ->margin(1)
                 ->errorCorrection('H')
                 ->generate($qrContent);
-            
+
             $base64 = base64_encode($qrCode);
             return 'data:image/svg+xml;base64,' . $base64;
         } catch (\Exception $e) {
@@ -135,7 +140,7 @@ class Apar extends Model
             );
         }
     }
-    
+
     /**
      * Generate QR Code as data URI (base64 encoded PNG)
      * This works on any hosting without file storage issues
@@ -146,14 +151,14 @@ class Apar extends Model
     public function getQrDataUriAttribute(): string
     {
         $url = route('apar.riwayat', $this->id);
-        
+
         try {
             $qrCode = QrCode::format('png')
                 ->size(300)
                 ->margin(1)
                 ->errorCorrection('H')
                 ->generate($url);
-            
+
             $base64 = base64_encode($qrCode);
             return 'data:image/png;base64,' . $base64;
         } catch (\Exception $e) {
@@ -163,7 +168,7 @@ class Apar extends Model
             );
         }
     }
-    
+
     /**
      * Generate QR Code as SVG data URI (smaller size, better quality)
      * Usage: <img src="{{ $apar->qr_svg_data_uri }}" />
@@ -173,14 +178,14 @@ class Apar extends Model
     public function getQrSvgDataUriAttribute(): string
     {
         $url = route('apar.riwayat', $this->id);
-        
+
         try {
             $qrCode = QrCode::format('svg')
                 ->size(300)
                 ->margin(1)
                 ->errorCorrection('H')
                 ->generate($url);
-            
+
             $base64 = base64_encode($qrCode);
             return 'data:image/svg+xml;base64,' . $base64;
         } catch (\Exception $e) {

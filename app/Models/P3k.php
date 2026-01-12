@@ -46,14 +46,14 @@ class P3k extends Model
     public function getQrUrlAttribute(): string
     {
         $url = route('p3k.riwayat', $this->id);
-        
+
         try {
             $qrCode = QrCode::format('svg')
                 ->size(300)
                 ->margin(1)
                 ->errorCorrection('H')
                 ->generate($url);
-            
+
             $base64 = base64_encode($qrCode);
             return 'data:image/svg+xml;base64,' . $base64;
         } catch (\Exception $e) {
@@ -66,18 +66,24 @@ class P3k extends Model
 
     /**
      * Generate next serial number for P3K using custom format from settings
+     * @param int|null $unitId Unit ID (null = Induk)
      */
-    public static function generateNextSerial($unitCode = null): string
+    public static function generateNextSerial($unitId = null): string
     {
         $format = \App\Models\AparSetting::get('p3k_kode_format', 'P3K.{NNN}');
-        $counter = (int) \App\Models\AparSetting::get('p3k_kode_counter', 1);
-        
-        // Get unit code
-        if (!$unitCode && auth()->check() && auth()->user()->unit) {
-            $unitCode = auth()->user()->unit->code;
+
+        // Determine unit from auth user if not provided
+        if ($unitId === null && auth()->check() && auth()->user()->unit_id) {
+            $unitId = auth()->user()->unit_id;
         }
-        $unitCode = $unitCode ?? 'INDUK';
-        
+
+        // Counter key based on unit (per-unit independent counter)
+        $counterKey = $unitId ? "p3k_kode_counter_{$unitId}" : "p3k_kode_counter_induk";
+        $counter = (int) \App\Models\AparSetting::get($counterKey, 1);
+
+        // Get unit code for format
+        $unitCode = $unitId ? (\App\Models\Unit::find($unitId)?->code ?? 'INDUK') : 'INDUK';
+
         // Replace variables (no year/month)
         $serial = str_replace([
             '{UNIT}',
@@ -88,10 +94,10 @@ class P3k extends Model
             str_pad($counter, 4, '0', STR_PAD_LEFT),
             str_pad($counter, 3, '0', STR_PAD_LEFT),
         ], $format);
-        
+
         // Increment counter
-        \App\Models\AparSetting::set('p3k_kode_counter', $counter + 1);
-        
+        \App\Models\AparSetting::set($counterKey, $counter + 1);
+
         return $serial;
     }
 
@@ -105,17 +111,17 @@ class P3k extends Model
         }
 
         $url = route('p3k.riwayat', $this->id);
-        
+
         try {
             $qrCode = QrCode::format('svg')
                 ->size(300)
                 ->margin(1)
                 ->errorCorrection('H')
                 ->generate($url);
-            
+
             $path = 'qrcodes/p3k/' . $this->serial_no . '.svg';
             Storage::disk('public')->put($path, $qrCode);
-            
+
             $this->qr_svg_path = $path;
             $this->saveQuietly();
         } catch (\Exception $e) {

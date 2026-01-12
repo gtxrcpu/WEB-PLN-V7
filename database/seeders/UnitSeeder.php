@@ -12,19 +12,20 @@ class UnitSeeder extends Seeder
      */
     public function run(): void
     {
-        // Update unit names to UP2WIII and UP2WIV
+        // Update unit names to include Induk, UP2WIII and UP2WIV
         $units = [
+            ['code' => 'INDUK', 'name' => 'Induk', 'description' => 'Unit Induk (Pusat)'],
             ['code' => 'UPW2', 'name' => 'UP2WIII', 'description' => 'Unit Pelayanan dan Pengelolaan Wilayah III'],
             ['code' => 'UPW3', 'name' => 'UP2WIV', 'description' => 'Unit Pelayanan dan Pengelolaan Wilayah IV'],
         ];
 
         foreach ($units as $unit) {
             \App\Models\Unit::updateOrCreate(
-                ['code' => $unit['code']], 
+                ['code' => $unit['code']],
                 $unit
             );
         }
 
-        $this->command->info('✅ Units updated: UP2WIII, UP2WIV');
+        $this->command->info('✅ Units updated: Induk, UP2WIII, UP2WIV');
     }
 }
